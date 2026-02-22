@@ -1,0 +1,110 @@
+<section class="min-h-screen flex items-center justify-center bg-[#FAFAF8] px-4">
+
+  <div class="w-full max-w-md border border-[#121212] rounded-3xl p-10">
+
+    <!-- Heading -->
+    <div class="text-center mb-8">
+      <h1 class="text-3xl font-semibold text-[#121212]">
+        Welcome Back
+      </h1>
+      <p class="text-sm mt-2 opacity-80">
+        Log in to continue to your account
+      </p>
+    </div>
+
+    <!-- Google Signup -->
+    <button
+      type="button"
+      class="w-full border border-[#121212] rounded-xl py-3 flex items-center justify-center gap-3 text-sm font-medium transition hover:border-[#333333] hover:text-[#333333]"
+    >
+      <!-- Google Logo SVG -->
+      <svg width="18" height="18" viewBox="0 0 48 48">
+        <path fill="#EA4335" d="M24 9.5c3.54 0 6.72 1.22 9.23 3.6l6.9-6.9C35.64 2.16 30.17 0 24 0 14.82 0 6.94 5.6 3.4 13.72l8.06 6.26C13.38 13.13 18.2 9.5 24 9.5z"/>
+        <path fill="#4285F4" d="M46.14 24.5c0-1.63-.15-3.2-.43-4.7H24v9h12.4c-.53 2.86-2.1 5.28-4.47 6.9l6.9 5.36C43.92 36.63 46.14 30.99 46.14 24.5z"/>
+        <path fill="#FBBC05" d="M11.46 28.26A14.5 14.5 0 019.5 24c0-1.48.26-2.9.72-4.22L2.16 13.52A23.96 23.96 0 000 24c0 3.86.92 7.51 2.55 10.72l8.91-6.46z"/>
+        <path fill="#34A853" d="M24 48c6.17 0 11.64-2.04 15.52-5.56l-6.9-5.36c-2 1.34-4.54 2.14-8.62 2.14-5.8 0-10.62-3.63-12.54-8.48l-8.91 6.46C6.94 42.4 14.82 48 24 48z"/>
+      </svg>
+      Login in with Google
+    </button>
+
+    <!-- Divider -->
+    <div class="flex items-center my-8">
+      <div class="flex-1 border-t bg-[#121212]"></div>
+      <span class="px-4 text-sm">or</span>
+      <div class="flex-1 border-t bg-[#121212]"></div>
+    </div>
+
+    <!-- Form -->
+    <form id="loginForm" action="/auth/login" method="POST" novalidate>
+
+      <!-- Email -->
+      <div class="mb-6">
+        <label class="block text-sm font-medium mb-2">Email</label>
+
+        <input type="email"
+          name="email"
+          id="email"
+          value="<%= old?.email || '' %>"
+          placeholder="Enter your email"
+          class="w-full border border-[#121212] rounded-xl px-4 py-3 focus:outline-none focus:border-[#333333]" />
+
+        <p id="emailError" class="text-sm text-red-600 mt-1">
+          <%= errors?.email || '' %>
+        </p>
+      </div>
+
+      <!-- Password -->
+      <div class="mb-2">
+        <div class="flex justify-between items-center mb-2">
+          <label class="text-sm font-medium">Password</label>
+
+          <a href="/forgot-password"
+             class="text-sm text-blue-700 relative group">
+            Forgot password?
+            <span class="absolute left-0 -bottom-1 w-0 h-[1px] bg-blue-700 transition-all duration-300 group-hover:w-full"></span>
+          </a>
+        </div>
+
+        <div class="relative">
+          <input type="password"
+            name="password"
+            id="password"
+            placeholder="Enter your password"
+            class="w-full border border-[#121212] rounded-xl px-4 py-3 focus:outline-none focus:border-[#333333]" />
+
+          <button
+                type="button"
+                data-toggle="password"
+                class="absolute right-4 top-1/2 -translate-y-1/2"
+                >
+                👁
+            </button>
+        </div>
+
+        <p id="passwordError" class="text-sm text-red-600 mt-1">
+          <%= errors?.password || '' %>
+        </p>
+      </div>
+
+      <!-- Submit -->
+      <button type="submit"
+        id="submitBtn"
+        class="w-full bg-[#121212] text-[#FAFAF8] py-3 rounded-xl mt-6 font-medium transition hover:opacity-90">
+        Log In
+      </button>
+
+      <!-- Signup Link -->
+      <p class="text-center text-sm mt-6">
+        Don't have an account?
+        <a href="/signup"
+           class="text-blue-700 relative group ml-1">
+          Sign Up
+          <span class="absolute left-0 -bottom-1 w-0 h-[1px] bg-blue-700 transition-all duration-300 group-hover:w-full"></span>
+        </a>
+      </p>
+
+    </form>
+
+  </div>
+
+</section>

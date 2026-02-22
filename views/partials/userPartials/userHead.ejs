@@ -1,0 +1,48 @@
+<head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+
+    <title><%= title || "BooksKart" %></title>
+
+    <!-- Fonts -->
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600&family=Merriweather:wght@400;500;600&family=Playfair+Display:wght@600&display=swap" rel="stylesheet">
+
+    <!-- Tailwind -->
+    <link rel="stylesheet" href="/css/output.css">
+
+
+    <!-- Base Styles -->
+    <style>
+        body {
+            font-family: 'Inter', sans-serif;
+        }
+
+        .body-text {
+            font-family: 'Merriweather', serif;
+            line-height: 1.6;
+        }
+
+        .primary-btn {
+            border: 1px solid #121212;
+            padding: 10px 20px;
+            font-weight: 500;
+            transition: all 0.2s ease;
+        }
+
+        .primary-btn:hover {
+            border-color: #333333;
+            color: #333333;
+        }
+
+        .secondary-btn:hover {
+            text-decoration: underline;
+        }
+
+        .hover-dark:hover {
+            color: #333333;
+        }
+    </style>
+
+    <!-- Page Specific CSS -->
+    <%- typeof pageCSS !== 'undefined' ? pageCSS : '' %>
+</head>
