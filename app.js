@@ -6,8 +6,7 @@ import { RedisStore } from 'connect-redis'
 import redisClient from './config/redis.js'
 import rateLimit from 'express-rate-limit'
 import errorMiddleware from './middlewares/error.middleware.js'
-import authRoutes from './routes/auth.routes.js'
-import userRoutes from './routes/user.routes.js'
+import userRoutes from './routes/user/index.js'
 import path from 'path'
 import { fileURLToPath } from 'url'
 import expressLayouts from 'express-ejs-layouts'
@@ -22,8 +21,6 @@ app.set('view engine', 'ejs')
 app.set('views', path.join(__dirname, 'views'))
 
 app.use(expressLayouts)
-
-app.set("layout","layouts/userLayouts")
 
 app.use(express.static(path.join(__dirname, './public')))
 
@@ -63,8 +60,8 @@ const limiter = rateLimit({
 
 app.use(limiter);
 
-app.use('/auth', authRoutes)
-app.use('/user', userRoutes)
+
+app.use('/', userRoutes)
 
 
 app.use(errorMiddleware)

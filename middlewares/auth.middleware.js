@@ -1,4 +1,4 @@
-import * as userRepo from '../repositories/user.repository.js'
+import * as userRepo from '../repositories/user/user.repository.js'
 import HTTP_STATUS from '../utils/httpStatus.js'
 
 export const isAuthenticated = async (req, res, next) => {

@@ -1,6 +1,6 @@
-import { signupService, loginService } from "../services/auth.service.js";
-import { signupSchema, loginSchema } from "../validators/auth.validator.js";
-import HTTP_STATUS from "../utils/httpStatus.js";
+import { signupService, loginService } from "../../services/user/auth.service.js";
+import { signupSchema, loginSchema } from "../../validators/user/auth.validator.js";
+import HTTP_STATUS from "../../utils/httpStatus.js";
 
 //signup controller
 
@@ -32,7 +32,7 @@ export const signup = async (req, res, next) => {
 
     req.session.userId = user._id;
 
-    return res.redirect("/user");
+    return res.redirect("/");
 
   } catch (err) {
 
@@ -64,6 +64,16 @@ export const signup = async (req, res, next) => {
   }
 };
 
+export const loadSignup = ((req, res) =>{
+  res.render("user/signup", {
+      title: "Signup | BooksKart",
+      headerType: "auth",
+      errors: {},
+      old: {},
+      error: null,
+      pageScript: "/js/signup.js",
+    });
+})
 
 //login controller
 
@@ -90,6 +100,17 @@ export const login = async (req, res, next) => {
         next(error)
     }
 }
+
+export const loadLogin = ((req, res) => {
+  res.render("user/login", {
+    title: "Login | BooksKart",
+    headerType: "auth",
+    error: null,
+    errors: {},
+    old: {},
+    pageScript: "/js/login.js"
+  });
+})
 
 //Logout controller
 

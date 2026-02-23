@@ -1,6 +1,6 @@
 import bcrypt from 'bcrypt'
-import * as userRepo from '../repositories/user.repository.js'
-import HTTP_STATUS from '../utils/httpStatus.js'
+import * as userRepo from '../../repositories/user/user.repository.js'
+import HTTP_STATUS from '../../utils/httpStatus.js'
 
 //signup service
 

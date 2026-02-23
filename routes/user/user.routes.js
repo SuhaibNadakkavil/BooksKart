@@ -1,5 +1,4 @@
 import express from "express";
-import { isAuthenticated } from "../middlewares/auth.middleware.js";
 
 const router = express.Router()
 
@@ -7,6 +6,7 @@ router.get("/",(req, res) => {
     const isAuth = !!req.session.userId;
 
   res.render("user/home", {
+    layout: 'layouts/userLayouts',
     headerType: "landing",
     title: "Home | BooksKart",
     success:null,
@@ -15,11 +15,5 @@ router.get("/",(req, res) => {
   });
 });
 
-router.get('/profile', isAuthenticated, (req, res) =>{
-    res.json({
-        success: true,
-        user: req.user,
-    })
-})
 
 export default router
