@@ -154,6 +154,22 @@ export const resendSignupOTP = async (req, res, next) => {
   }
 };
 
+export const googleCallback = async (req, res, next) => {
+  try {
+
+    if (!req.user) {
+      return res.redirect("/login");
+    }
+
+    req.session.userId = req.user._id;
+
+    return res.redirect("/");
+
+  } catch (error) {
+    next(error);
+  }
+};
+
 //login controller
 
 export const login = async (req, res, next) => {

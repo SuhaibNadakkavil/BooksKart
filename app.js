@@ -10,6 +10,7 @@ import userRoutes from './routes/user/index.js'
 import path from 'path'
 import { fileURLToPath } from 'url'
 import expressLayouts from 'express-ejs-layouts'
+import passport from './config/passport.js'
 
 
 const app = express()
@@ -60,9 +61,10 @@ const limiter = rateLimit({
 
 app.use(limiter);
 
-
 app.use('/', userRoutes)
 
+app.use(passport.initialize());
+app.use(passport.session());
 
 app.use(errorMiddleware)
 

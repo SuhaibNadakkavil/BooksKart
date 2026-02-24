@@ -65,6 +65,46 @@ export const signupService = async ({
   }
 };
 
+export const googleAuthService = async (profile) => {
+
+  const email = profile.emails[0].value.toLowerCase();
+
+  let user = await userRepo.findByEmail(email);
+
+  // If user exists
+  if (user) {
+
+    if (user.isBlocked) {
+      const error = new Error("Your account has been blocked");
+      error.statusCode = HTTP_STATUS.FORBIDDEN;
+      throw error;
+    }
+
+    // Update googleId if not present
+    if (!user.googleId) {
+      user.googleId = profile.id;
+      user.authProvider = "google";
+      user.isVerified = true;
+      await user.save();
+    }
+
+    return user;
+  }
+
+  // If user does not exist → create
+  const newUser = await userRepo.createUser({
+    name: profile.displayName,
+    email,
+    password: null,
+    phone: null,
+    googleId: profile.id,
+    authProvider: "google",
+    isVerified: true,
+  });
+
+  return newUser;
+};
+
 //login service
 
 export const loginService = async ({email, password}) => {

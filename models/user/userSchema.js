@@ -21,16 +21,28 @@ const userSchema = new mongoose.Schema(
 
     phone: {
       type: String,
-      required: true,
+      default: null,
       unique: true,
       trim: true,
-      index: true,
+      sparse: true,
     },
 
     password: {
       type: String,
-      required: true,
+      default: null,
       select: false,
+    },
+
+    googleId: {
+      type: String,
+      unique: true,
+      sparse: true
+    },
+
+    authProvider: {
+      type: String,
+      enum: ["local", "google"],
+      default: "local"
     },
 
     referralCode: {
