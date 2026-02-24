@@ -1,0 +1,64 @@
+<section class="min-h-screen flex items-center justify-center bg-[#FAFAF8] px-4">
+
+  
+  <div class="w-full max-w-md border border-[#121212] rounded-3xl p-10">
+
+    <!-- Heading -->
+    <div class="text-center mb-8">
+      <h1 class="text-3xl font-semibold text-[#121212]">
+        Verify Your Email
+      </h1>
+      <p class="text-sm mt-2 opacity-80 leading-relaxed">
+        Enter the 6-digit code sent to your new email address
+        to complete the verification process.
+      </p>
+    </div>
+
+    <!-- OTP Form -->
+    <form id="otpForm" action="/verify-otp" method="POST" class="flex flex-col items-center">
+
+      <input type="hidden" name="email" value="<%= email || '' %>" />
+
+      <!-- OTP Boxes -->
+      <div class="flex justify-center gap-3 mb-8">
+
+        <% for(let i = 0; i < 6; i++) { %>
+          <input
+            type="text"
+            maxlength="1"
+            inputmode="numeric"
+            class="otp-input w-16 h-20 text-xl text-center border border-[#121212] rounded-xl focus:outline-none focus:border-[#333333] transition"
+          />
+        <% } %>
+
+      </div>
+
+      <input type="hidden" name="otp" id="combinedOtp" />
+
+      <!-- Button (Same Width Behavior as Login) -->
+      <button
+        type="submit"
+        class="w-full bg-[#121212] text-[#FAFAF8] py-3 rounded-xl font-medium transition hover:opacity-90"
+      >
+        Verify Email
+      </button>
+
+      <!-- Resend -->
+      <div class="text-center text-sm mt-6">
+        <span>Didn't receive the code?</span>
+        <button
+          type="button"
+          id="resendBtn"
+          class="text-blue-700 relative group ml-1 opacity-50 cursor-not-allowed"
+          disabled
+        >
+          Resend Code in <span id="timer">59</span> sec
+          <span class="absolute left-0 -bottom-1 w-0 h-[1px] bg-blue-700 transition-all duration-300 group-hover:w-full"></span>
+        </button>
+      </div>
+
+    </form>
+
+  </div>
+
+</section>

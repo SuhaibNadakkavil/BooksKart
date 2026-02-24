@@ -1,6 +1,8 @@
 import { signupService, loginService } from "../../services/user/auth.service.js";
 import { signupSchema, loginSchema } from "../../validators/user/auth.validator.js";
 import HTTP_STATUS from "../../utils/httpStatus.js";
+import { deleteSignupOTP, getSignupOTP, resendSignupOTPService } from "../../services/user/otp.service.js";
+import * as userRepo from '../../repositories/user/user.repository.js'
 
 //signup controller
 
@@ -24,15 +26,14 @@ export const signup = async (req, res, next) => {
         errors,
         old: req.body,
         error: null,
+        success:null,
         pageScript: "/js/signup.js",
       });
     }
 
-    const user = await signupService(value);
+    const result = await signupService(value);
 
-    req.session.userId = user._id;
-
-    return res.redirect("/");
+    return res.redirect(`/verify-otp?email=${result.email}`);
 
   } catch (err) {
 
@@ -44,6 +45,7 @@ export const signup = async (req, res, next) => {
         errors: { [err.field]: err.message },
         old: req.body,
         error: null,
+        success:null,
         pageScript: "/js/signup.js",
       });
     }
@@ -56,6 +58,7 @@ export const signup = async (req, res, next) => {
         errors: {},
         old: req.body,
         error: err.message,
+        success:null,
         pageScript: "/js/signup.js",
       });
     }
@@ -71,9 +74,85 @@ export const loadSignup = ((req, res) =>{
       errors: {},
       old: {},
       error: null,
+      success:null,
       pageScript: "/js/signup.js",
     });
 })
+
+export const loadVerifyOtp = (req, res) => {
+  res.render("user/verify-otp", {
+    title: "Verify Email | BooksKart",
+    headerType: "auth",
+    error: null,
+    success:null,
+    email: req.query.email || "",
+    pageScript: "/js/verify-otp.js",
+  });
+};
+
+export const verifySignupOTP = async (req, res, next) => {
+  try {
+    const { email, otp } = req.body
+
+    const storedData = await getSignupOTP(email)
+
+    if (!storedData) {
+      return res.render("user/verify-otp", {
+        title: "Verify Email | BooksKart",
+        headerType: "auth",
+        error: "OTP expired. Please signup again.",
+        success:null,
+        email,
+        pageScript: "/js/verify-otp.js",
+      })
+    }
+
+    if (storedData.otp !== otp) {
+      return res.render("user/verify-otp", {
+        title: "Verify Email | BooksKart",
+        headerType: "auth",
+        error: "Invalid OTP",
+        success:null,
+        email,
+        pageScript: "/js/verify-otp.js",
+      })
+    }
+
+    const user = await userRepo.createUser({
+      ...storedData.userData,
+      isVerified: true,
+    });
+
+    await deleteSignupOTP(email)
+
+    req.session.userId = user._id
+
+    return res.redirect("/")
+
+
+  } catch (error) {
+    next(error)
+  }
+}
+
+export const resendSignupOTP = async (req, res, next) => {
+  try {
+    const { email } = req.body;
+
+    await resendSignupOTPService(email);
+
+    return res.status(200).json({
+      success: true,
+      message: "OTP resent successfully"
+    });
+
+  } catch (error) {
+    return res.status(400).json({
+      success: false,
+      message: error.message || "Something went wrong"
+    });
+  }
+};
 
 //login controller
 
@@ -106,6 +185,7 @@ export const loadLogin = ((req, res) => {
     title: "Login | BooksKart",
     headerType: "auth",
     error: null,
+    success:null,
     errors: {},
     old: {},
     pageScript: "/js/login.js"

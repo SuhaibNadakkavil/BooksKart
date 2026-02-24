@@ -3,17 +3,14 @@
 
 <%- include('../partials/userPartials/userHead', { title }) %>
 
-<body class="min-h-screen flex flex-col bg-[#FAFAF8] text-[#121212]">
+<body
+  class="min-h-screen flex flex-col bg-[#FAFAF8] text-[#121212]"
+  data-success="<%= success || '' %>"
+  data-error="<%= error || '' %>"
+>
 
     <%- include('../partials/userPartials/userHeader', { headerType }) %>
 
-    <% if (error) { %>
-        <div class="max-w-6xl mx-auto px-4 mt-6">
-            <div class="border border-[#121212] p-4 text-sm font-medium">
-                <%= error %>
-            </div>
-        </div>
-    <% } %>
 
     <main class="flex-grow w-full max-w-6xl mx-auto px-4 py-10">
         <%- body %>

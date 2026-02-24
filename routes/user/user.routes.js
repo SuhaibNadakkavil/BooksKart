@@ -7,7 +7,7 @@ router.get("/",(req, res) => {
 
   res.render("user/home", {
     layout: 'layouts/userLayouts',
-    headerType: "landing",
+    headerType: isAuth ? "main" : "landing",
     title: "Home | BooksKart",
     success:null,
     error:null,

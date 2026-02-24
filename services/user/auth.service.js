@@ -1,6 +1,8 @@
 import bcrypt from 'bcrypt'
 import * as userRepo from '../../repositories/user/user.repository.js'
 import HTTP_STATUS from '../../utils/httpStatus.js'
+import { generateOTP } from '../../utils/otp.js';
+import { sendSignupOTPEmail, storeSignupOTP } from './otp.service.js';
 
 //signup service
 
@@ -36,7 +38,9 @@ export const signupService = async ({
   try {
     const hashedPassword = await bcrypt.hash(password, 10);
 
-    const user = await userRepo.createUser({
+    const otp = generateOTP(6)
+
+    const userData = ({
       name: name.trim(),
       email,
       phone,
@@ -44,7 +48,14 @@ export const signupService = async ({
       referralCode: referralCode?.trim() || null,
     });
 
-    return user;
+    await storeSignupOTP(email, {
+      otp,
+      userData,
+    })
+
+    await sendSignupOTPEmail(email, otp)
+
+    return { email };
 
   } catch (err) {
     const error = new Error("Something went wrong. Please try again.");
