@@ -73,41 +73,46 @@ document.addEventListener("DOMContentLoaded", () => {
 
   /* ---------- RESEND LOGIC ---------- */
 
-  resendBtn.addEventListener("click", async () => {
-    if (resendBtn.disabled || !email) return;
+const mode = resendBtn?.dataset.mode;
+const resendEndpoint =
+  mode === "reset"
+    ? "/resend-reset-otp"
+    : "/resend-otp";
 
-    resendBtn.disabled = true;
-    resendBtn.textContent = "Sending...";
+resendBtn.addEventListener("click", async () => {
+  if (resendBtn.disabled || !email) return;
 
-    try {
-      const response = await fetch("/resend-otp", {
-        method: "POST",
-        headers: {
-          "Content-Type": "application/json"
-        },
-        body: JSON.stringify({ email })
-      });
+  resendBtn.disabled = true;
+  resendBtn.textContent = "Sending...";
 
-      const data = await response.json();
+  try {
+    const response = await fetch(resendEndpoint, {
+      method: "POST",
+      headers: {
+        "Content-Type": "application/json"
+      },
+      body: JSON.stringify({ email })
+    });
 
-      if (data.success) {
-        showToast(data.message, "success");
+    const data = await response.json();
 
-        // Restart timer AFTER success
-        timeLeft = 59;
-        timerElement.textContent = timeLeft;
-        startTimer();
+    if (data.success) {
+      showToast(data.message, "success");
 
-      } else {
-        showToast(data.message, "error");
-        resendBtn.disabled = false;
-      }
+      timeLeft = 59;
+      timerElement.textContent = timeLeft;
+      startTimer();
 
-    } catch (error) {
-      showToast("Something went wrong", "error");
+    } else {
+      showToast(data.message, "error");
       resendBtn.disabled = false;
     }
-  });
+
+  } catch (error) {
+    showToast("Something went wrong", "error");
+    resendBtn.disabled = false;
+  }
+});
 
 });
 

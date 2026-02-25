@@ -69,17 +69,80 @@ export const signupSchema = Joi.object({
 //login validation
 
 export const loginSchema = Joi.object({
-    email: Joi.string()
-        .email()
-        .required()
-        .messages({
-        "string.email": "Invalid email format",
-        "string.empty": "Email is required",
-        }),
 
-    password: Joi.string()
-        .required()
-        .messages({
-        "string.empty": "Password is required",
-        }),
+  email: Joi.string()
+    .trim()
+    .lowercase()
+    .pattern(/^[a-z0-9._%+-]+@[a-z0-9.-]+\.[a-z]{2,}$/)
+    .required()
+    .messages({
+      "string.empty": "Email is required",
+      "string.pattern.base": "Enter a valid email address",
+    }),
+
+  password: Joi.string()
+    .min(8)
+    .max(100)
+    .required()
+    .messages({
+      "string.empty": "Password is required",
+      "string.min": "Password must be at least 8 characters",
+    }),
+
 })
+  .options({ abortEarly: false })
+  .unknown(false);
+
+export const forgotPasswordSchema = Joi.object({
+
+  email: Joi.string()
+    .trim()
+    .lowercase()
+    .pattern(/^[a-z0-9._%+-]+@[a-z0-9.-]+\.[a-z]{2,}$/)
+    .required()
+    .messages({
+      "string.empty": "Email is required",
+      "string.pattern.base": "Enter a valid email address",
+    }),
+
+})
+  .options({ abortEarly: false })
+  .unknown(false);
+
+// Set New Password Validation
+
+export const setNewPasswordSchema = Joi.object({
+
+  email: Joi.string()
+    .trim()
+    .lowercase()
+    .pattern(/^[a-z0-9._%+-]+@[a-z0-9.-]+\.[a-z]{2,}$/)
+    .required()
+    .messages({
+      "string.empty": "Invalid request",
+      "string.pattern.base": "Invalid request"
+    }),
+
+  password: Joi.string()
+    .min(8)
+    .max(100)
+    .pattern(/^(?=.*[a-z])(?=.*[A-Z])(?=.*\d)(?=.*[@$!%*?&]).+$/)
+    .required()
+    .messages({
+      "string.empty": "Password is required",
+      "string.min": "Password must be at least 8 characters",
+      "string.pattern.base":
+        "Must include uppercase, lowercase, number & special character"
+    }),
+
+  confirmPassword: Joi.string()
+    .valid(Joi.ref("password"))
+    .required()
+    .messages({
+      "any.only": "Passwords do not match",
+      "string.empty": "Confirm password is required"
+    })
+
+})
+.options({ abortEarly: false })
+.unknown(false);

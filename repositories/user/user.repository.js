@@ -6,7 +6,6 @@ export const findById = async (userId) => {
   return await User.findById(userId);
 };
 
-
 export const findByEmail = async (email, includePassword = false) => {
     if (includePassword) {
         return await User.findOne({email}).select("+password")

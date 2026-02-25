@@ -68,3 +68,42 @@ export const resendSignupOTPService = async (email) => {
 
   return true;
 };
+
+
+// Forgot Password OTP
+
+export const storeResetOTP = async (email, data) => {
+  await redisClient.set(
+    `reset:${email}`,
+    JSON.stringify(data),
+    { EX: 300 } // 5 minutes
+  );
+};
+
+export const getResetOTP = async (email) => {
+  const data = await redisClient.get(`reset:${email}`);
+  return data ? JSON.parse(data) : null;
+};
+
+export const deleteResetOTP = async (email) => {
+  await redisClient.del(`reset:${email}`);
+};
+
+export const resendResetOTPService = async (email) => {
+
+  const storedData = await getResetOTP(email);
+
+  if (!storedData) {
+    const error = new Error("OTP expired. Please try again.");
+    error.type = "GLOBAL";
+    throw error;
+  }
+
+  const newOtp = generateOTP(6);
+
+  await storeResetOTP(email, { otp: newOtp });
+
+  await sendSignupOTPEmail(email, newOtp);
+
+  return true;
+};

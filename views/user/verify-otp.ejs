@@ -1,23 +1,30 @@
 <section class="min-h-screen flex items-center justify-center bg-[#FAFAF8] px-4">
 
-  
   <div class="w-full max-w-md border border-[#121212] rounded-3xl p-10">
 
     <!-- Heading -->
     <div class="text-center mb-8">
       <h1 class="text-3xl font-semibold text-[#121212]">
-        Verify Your Email
+        <%= mode === "reset" ? "Verify OTP" : "Verify Your Email" %>
       </h1>
+
       <p class="text-sm mt-2 opacity-80 leading-relaxed">
-        Enter the 6-digit code sent to your new email address
-        to complete the verification process.
+        <%= mode === "reset"
+          ? "Enter the 6-digit OTP sent to your email to reset your password."
+          : "Enter the 6-digit code sent to your email to complete verification." %>
       </p>
     </div>
 
     <!-- OTP Form -->
-    <form id="otpForm" action="/verify-otp" method="POST" class="flex flex-col items-center">
+    <form
+      id="otpForm"
+      action="<%= mode === 'reset' ? '/verify-reset-otp' : '/verify-otp' %>"
+      method="POST"
+      class="flex flex-col items-center"
+    >
 
       <input type="hidden" name="email" value="<%= email || '' %>" />
+      <input type="hidden" name="mode" value="<%= mode %>" />
 
       <!-- OTP Boxes -->
       <div class="flex justify-center gap-3 mb-8">
@@ -35,12 +42,13 @@
 
       <input type="hidden" name="otp" id="combinedOtp" />
 
-      <!-- Button (Same Width Behavior as Login) -->
+      <!-- Button -->
       <button
         type="submit"
-        class="w-full bg-[#121212] text-[#FAFAF8] py-3 rounded-xl font-medium transition hover:opacity-90"
+        id="verifyBtn"
+        class="w-full bg-[#121212] text-[#FAFAF8] py-3 rounded-xl font-medium transition hover:opacity-90 disabled:opacity-60"
       >
-        Verify Email
+        <%= mode === "reset" ? "Verify OTP" : "Verify Email" %>
       </button>
 
       <!-- Resend -->
@@ -51,6 +59,7 @@
           id="resendBtn"
           class="text-blue-700 relative group ml-1 opacity-50 cursor-not-allowed"
           disabled
+          data-mode="<%= mode %>"
         >
           Resend Code in <span id="timer">59</span> sec
           <span class="absolute left-0 -bottom-1 w-0 h-[1px] bg-blue-700 transition-all duration-300 group-hover:w-full"></span>
