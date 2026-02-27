@@ -4,6 +4,18 @@ import HTTP_STATUS from "../../utils/httpStatus.js";
 import { deleteSignupOTP, getSignupOTP, resendSignupOTPService, getResetOTP, resendResetOTPService } from "../../services/user/otp.service.js";
 import * as userRepo from '../../repositories/user/user.repository.js'
 
+export const loadHome = async (req, res) => {
+  const isAuth = !!req.session.userId;
+
+  res.render("user/home", {
+    title: "Home | BooksKart",
+    headerType: isAuth ? "main" : "landing",
+    success: null,
+    error: null,
+    pageScript: null,
+  });
+};
+
 //signup controller
 
 export const signup = async (req, res, next) => {
@@ -68,6 +80,10 @@ export const signup = async (req, res, next) => {
 };
 
 export const loadSignup = ((req, res) =>{
+  if (req.session?.userId) {
+    return res.redirect("/");
+  }
+
   res.render("user/signup", {
       title: "Signup | BooksKart",
       headerType: "auth",
@@ -134,10 +150,14 @@ export const verifySignupOTP = async (req, res, next) => {
 
     await deleteSignupOTP(email)
 
-    req.session.userId = user._id
+    req.session.regenerate((err) => {
+      if (err) return next(err);
 
-    return res.redirect("/")
+      req.session.userId = user._id;
+      req.session.isAuthenticated = true;
 
+      return res.redirect("/");
+    })
 
   } catch (error) {
     next(error)
@@ -170,9 +190,14 @@ export const googleCallback = async (req, res, next) => {
       return res.redirect("/login");
     }
 
-    req.session.userId = req.user._id;
+    req.session.regenerate((err) => {
+      if (err) return next(err);
 
-    return res.redirect("/");
+      req.session.userId = req.user._id;
+      req.session.isAuthenticated = true;
+
+      return res.redirect("/");
+    });
 
   } catch (error) {
     next(error);
@@ -208,9 +233,14 @@ export const login = async (req, res, next) => {
 
         const user = await loginService(value)
 
-        req.session.userId = user._id
+        req.session.regenerate((err) => {
+          if (err) return next(err);
 
-        return res.redirect('/')
+          req.session.userId = user._id;
+          req.session.isAuthenticated = true;
+
+          return res.redirect("/");
+        });
     } catch (err) {
 
         // Field errors from service
@@ -244,6 +274,10 @@ export const login = async (req, res, next) => {
 }
 
 export const loadLogin = ((req, res) => {
+  if (req.session?.userId) {
+    return res.redirect("/");
+  }
+
   res.render("user/login", {
     title: "Login | BooksKart",
     headerType: "auth",
@@ -465,20 +499,15 @@ export const setNewPassword = async (req, res) => {
 //Logout controller
 
 export const logout = async (req, res, next) => {
-    try {
-        req.session.destroy((err) =>{
-            if (err) {
-                return next(err)
-            }
+  try {
+    req.session.destroy((err) => {
+      if (err) return next(err);
 
-            res.clearCookie('connect-sid')
+      res.clearCookie("bookskart.sid");
 
-            return res.status(HTTP_STATUS.OK).json({
-                success: true,
-                message: "Logout successful"
-            })
-        })
-    } catch (error) {
-        next(error)
-    }
-}
+      return res.redirect("/login");
+    });
+  } catch (error) {
+    next(error);
+  }
+};

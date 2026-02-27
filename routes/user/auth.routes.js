@@ -1,15 +1,18 @@
 import express from "express";
-import { signup, login, logout, loadSignup, loadLogin, loadVerifyOtp, verifySignupOTP, resendSignupOTP, loadForgotPassword, sendForgotPasswordOTP, verifyResetOTP, loadSetNewPassword, resendResetOTP, setNewPassword } from "../../controllers/user/auth.controller.js";
+import { signup, login, logout, loadSignup, loadLogin, loadVerifyOtp, verifySignupOTP, resendSignupOTP, loadForgotPassword, sendForgotPasswordOTP, verifyResetOTP, loadSetNewPassword, resendResetOTP, setNewPassword, loadHome } from "../../controllers/user/auth.controller.js";
 import passport from "passport";
 import { googleCallback } from "../../controllers/user/auth.controller.js";
+import { preventAuthPages } from "../../middlewares/guest.middleware.js";
+
 
 const router = express.Router()
 
-router.get("/login", loadLogin)
-router.get("/signup", loadSignup)
-router.get("/verify-otp", loadVerifyOtp)
-router.get('/forgot-password', loadForgotPassword)
-router.get("/set-new-password", loadSetNewPassword)
+router.get('/', loadHome)
+router.get("/login", preventAuthPages, loadLogin)
+router.get("/signup", preventAuthPages, loadSignup)
+router.get("/verify-otp", preventAuthPages, loadVerifyOtp)
+router.get('/forgot-password', preventAuthPages, loadForgotPassword)
+router.get("/set-new-password", preventAuthPages, loadSetNewPassword)
 
 router.get(
   "/auth/google",

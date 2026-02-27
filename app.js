@@ -26,11 +26,11 @@ app.use(expressLayouts)
 app.use(express.static(path.join(__dirname, './public')))
 
 app.use(express.urlencoded({extended: true}))
-app.use(express.json());
+app.use(express.json())
 
-app.use(helmet());
+app.use(helmet())
 
-app.use(compression());
+app.use(compression())
 
 const redisStore = new RedisStore({
     client: redisClient,
@@ -39,16 +39,19 @@ const redisStore = new RedisStore({
 app.use(
   session({
     store: redisStore,
-    secret: process.env.SESSION_SECRET || "bookskart-secret",
+    name: "bookskart.sid",
+    secret: process.env.SESSION_SECRET,
     resave: false,
     saveUninitialized: false,
+    rolling: true,
     cookie: {
       httpOnly: true,
-      secure: false,
+      secure: process.env.NODE_ENV === "production",
+      sameSite: "lax",
       maxAge: 1000 * 60 * 60 * 24,
     },
   })
-);
+)
 
 const limiter = rateLimit({
   windowMs: 15 * 60 * 1000,
@@ -57,14 +60,21 @@ const limiter = rateLimit({
     success: false,
     message: "Too many requests, try again later"
   }
-});
+})
 
-app.use(limiter);
+app.use(limiter)
+
+app.use((req, res, next) => {
+  res.set("Cache-Control", "no-store, no-cache, must-revalidate, private")
+  res.set("Pragma", "no-cache")
+  res.set("Expires", "0")
+  next()
+})
 
 app.use('/', userRoutes)
 
-app.use(passport.initialize());
-app.use(passport.session());
+app.use(passport.initialize())
+app.use(passport.session())
 
 app.use(errorMiddleware)
 
