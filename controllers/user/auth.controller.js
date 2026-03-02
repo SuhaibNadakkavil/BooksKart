@@ -1,8 +1,30 @@
-import { signupService, loginService, verifyResetOTPService, forgotPasswordService, setNewPasswordService } from "../../services/user/auth.service.js";
-import { signupSchema, loginSchema, forgotPasswordSchema, setNewPasswordSchema } from "../../validators/user/auth.validator.js";
+import { 
+  signupService, 
+  loginService, 
+  verifyResetOTPService, 
+  forgotPasswordService, 
+  setNewPasswordService 
+} from "../../services/user/auth.service.js";
+
+import { 
+  signupSchema, 
+  loginSchema, 
+  forgotPasswordSchema, 
+  setNewPasswordSchema 
+} from "../../validators/user/auth.validator.js";
+
 import HTTP_STATUS from "../../utils/httpStatus.js";
-import { deleteSignupOTP, getSignupOTP, resendSignupOTPService, getResetOTP, resendResetOTPService } from "../../services/user/otp.service.js";
+
+import { 
+  deleteSignupOTP, 
+  getSignupOTP, 
+  resendSignupOTPService, 
+  getResetOTP, 
+  resendResetOTPService 
+} from "../../services/user/otp.service.js";
+
 import * as userRepo from '../../repositories/user/user.repository.js'
+
 
 export const loadHome = async (req, res) => {
   const isAuth = !!req.session.userId;
@@ -17,7 +39,6 @@ export const loadHome = async (req, res) => {
 };
 
 //signup controller
-
 export const signup = async (req, res, next) => {
   try {
     const { error, value } = signupSchema.validate(req.body, {
@@ -205,7 +226,6 @@ export const googleCallback = async (req, res, next) => {
 };
 
 //login controller
-
 export const login = async (req, res, next) => {
     try {
         const {error, value} = loginSchema.validate(req.body,{
@@ -497,7 +517,6 @@ export const setNewPassword = async (req, res) => {
 };
 
 //Logout controller
-
 export const logout = async (req, res, next) => {
   try {
     req.session.destroy((err) => {

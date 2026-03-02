@@ -2,10 +2,15 @@ import bcrypt from 'bcrypt'
 import * as userRepo from '../../repositories/user/user.repository.js'
 import HTTP_STATUS from '../../utils/httpStatus.js'
 import { generateOTP } from '../../utils/otp.js'
-import { sendSignupOTPEmail, storeSignupOTP, storeResetOTP, getResetOTP, deleteResetOTP } from './otp.service.js'
+import { 
+  sendSignupOTPEmail, 
+  storeSignupOTP, 
+  storeResetOTP, 
+  getResetOTP, 
+  deleteResetOTP 
+} from './otp.service.js'
 
 //signup service
-
 export const signupService = async ({
   name,
   email,
@@ -106,9 +111,7 @@ export const googleAuthService = async (profile) => {
 };
 
 //login service
-
 export const loginService = async ({email, password}) => {
-
 
     email = email.toLowerCase().trim()
 

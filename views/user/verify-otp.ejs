@@ -27,14 +27,14 @@
       <input type="hidden" name="mode" value="<%= mode %>" />
 
       <!-- OTP Boxes -->
-      <div class="flex justify-center gap-3 mb-8">
+      <div class="flex justify-center gap-4 mb-8">
 
         <% for(let i = 0; i < 6; i++) { %>
           <input
             type="text"
             maxlength="1"
             inputmode="numeric"
-            class="otp-input w-16 h-20 text-xl text-center border border-[#121212] rounded-xl focus:outline-none focus:border-[#333333] transition"
+            class="otp-input w-14 h-14 text-xl text-center border border-[#121212] rounded-xl focus:outline-none focus:border-[#333333] transition"
           />
         <% } %>
 

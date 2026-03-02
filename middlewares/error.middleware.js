@@ -1,11 +1,35 @@
+import HTTP_STATUS from "../utils/httpStatus.js";
+
 const errorMiddleware = (err, req, res, next) => {
-  console.error("Error:", err.message);
+  const isProduction = process.env.NODE_ENV === "production";
 
-  const statusCode = err.statusCode || 500;
+  // If response already sent, delegate to Express
+  if (res.headersSent) {
+    return next(err);
+  }
 
-  res.status(statusCode).json({
-    success: false,
-    message: err.message || "Internal Server Error",
+  // Default to 500 if not specified
+  const statusCode =
+    err.statusCode || HTTP_STATUS.INTERNAL_SERVER_ERROR;
+
+  const isAuth = !!req.session.userId;
+
+  if (statusCode === HTTP_STATUS.NOT_FOUND) {
+    return res.status(HTTP_STATUS.NOT_FOUND).render("user/404", {
+      title: "Page Not Found | BooksKart",
+      headerType: isAuth ? "main" : "landing",
+      success: null,
+      error: null,
+      pageScript: null,
+    });
+  }
+
+  return res.status(statusCode).render("user/500", {
+    title: "Server Error | BooksKart",
+    headerType: isAuth ? "main" : "landing",
+    success: null,
+    error: isProduction ? null : err.message,
+    pageScript: null,
   });
 };
 
