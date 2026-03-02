@@ -6,6 +6,10 @@ document.addEventListener("DOMContentLoaded", () => {
   const emailInput = document.querySelector("input[name='email']");
   const email = emailInput ? emailInput.value : null;
 
+  const mode = resendBtn?.dataset.mode || "signup";
+  const storageKey = `otp_expiry_${mode}`;
+  const TIMER_DURATION = 60;
+
   /* ---------- OTP INPUT LOGIC ---------- */
 
   inputs.forEach((input, index) => {
@@ -46,34 +50,60 @@ document.addEventListener("DOMContentLoaded", () => {
 
   /* ---------- TIMER ---------- */
 
-  let countdown;
-  let timeLeft = 59;
+let countdown;
 
-  function startTimer() {
-    resendBtn.disabled = true;
-    resendBtn.classList.add("opacity-50", "cursor-not-allowed");
+function getRemainingTime() {
+  const expiry = Number(localStorage.getItem(storageKey));
+  if (!expiry) return 0;
 
-    countdown = setInterval(() => {
-      timeLeft--;
-      timerElement.textContent = timeLeft;
+  const remaining = Math.floor((expiry - Date.now()) / 1000);
+  return remaining > 0 ? remaining : 0;
+}
 
-      if (timeLeft <= 0) {
-        clearInterval(countdown);
-        resendBtn.disabled = false;
-        resendBtn.classList.remove("opacity-50", "cursor-not-allowed");
-        resendBtn.innerHTML = `
-          Resend Code
-          <span class="absolute left-0 -bottom-1 w-0 h-[1px] bg-blue-700 transition-all duration-300 group-hover:w-full"></span>
-        `;
-      }
-    }, 1000);
+function startTimer() {
+  clearInterval(countdown);
+
+  resendBtn.disabled = true;
+  resendBtn.classList.add("opacity-50", "cursor-not-allowed");
+
+  countdown = setInterval(() => {
+    const timeLeft = getRemainingTime();
+
+    if (timeLeft > 0) {
+      resendBtn.innerHTML = `Resend code in ${timeLeft}s`;
+    }
+
+    if (timeLeft <= 0) {
+      clearInterval(countdown);
+
+      resendBtn.disabled = false;
+      resendBtn.classList.remove("opacity-50", "cursor-not-allowed");
+
+      resendBtn.innerHTML = "Resend Code";
+
+      localStorage.removeItem(storageKey); // optional cleanup
+    }
+
+  }, 1000);
+}
+
+function initializeTimer() {
+  let expiry = Number(localStorage.getItem(storageKey));
+
+  // If no expiry exists, create one (first page load)
+  if (!expiry) {
+    expiry = Date.now() + TIMER_DURATION * 1000;
+    localStorage.setItem(storageKey, expiry);
   }
 
   startTimer();
+}
+
+// Initialize on page load
+initializeTimer();
 
   /* ---------- RESEND LOGIC ---------- */
 
-const mode = resendBtn?.dataset.mode;
 const resendEndpoint =
   mode === "reset"
     ? "/resend-reset-otp"
@@ -99,10 +129,10 @@ resendBtn.addEventListener("click", async () => {
     if (data.success) {
       showToast(data.message, "success");
 
-      timeLeft = 59;
-      timerElement.textContent = timeLeft;
-      startTimer();
+      const newExpiry = Date.now() + TIMER_DURATION * 1000;
+      localStorage.setItem(storageKey, newExpiry);
 
+      startTimer();
     } else {
       showToast(data.message, "error");
       resendBtn.disabled = false;

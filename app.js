@@ -5,12 +5,12 @@ import expressLayouts from "express-ejs-layouts";
 
 import helmet from "helmet";
 import compression from "compression";
-import rateLimit from "express-rate-limit";
 import passport from "./config/passport.js";
 
 import errorMiddleware from "./middlewares/error.middleware.js";
 import userRoutes from "./routes/user/index.js";
 import sessionMiddleware from "./middlewares/session.middleware.js";
+import { globalLimiter } from "./middlewares/rateLimit.middleware.js";
 
 const app = express();
 
@@ -21,6 +21,8 @@ app.set("view engine", "ejs");
 app.set("views", path.join(__dirname, "views"));
 
 app.use(expressLayouts);
+app.set("layout", "layouts/userLayouts");
+
 app.use(express.static(path.join(__dirname, "./public")));
 
 app.use(express.urlencoded({ extended: true }));
@@ -28,13 +30,6 @@ app.use(express.json());
 
 app.use(helmet());
 app.use(compression());
-
-// Rate Limiting
-const limiter = rateLimit({
-  windowMs: 15 * 60 * 1000,
-  max: 100,
-});
-app.use(limiter);
 
 // No Cache 
 app.use((req, res, next) => {
@@ -50,6 +45,9 @@ app.use(sessionMiddleware)
 // Passport.js(Google Oauth)
 app.use(passport.initialize());
 app.use(passport.session());
+
+// Global Rate Limiting
+app.use(globalLimiter);
 
 // Routes
 app.use("/", userRoutes);

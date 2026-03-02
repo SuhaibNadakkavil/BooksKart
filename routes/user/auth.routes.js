@@ -21,6 +21,7 @@ import {
 } from "../../controllers/user/auth.controller.js";
 
 import { preventAuthPages } from "../../middlewares/guest.middleware.js";
+import { loginLimiter, otpResendLimiter, otpVerifyLimiter } from "../../middlewares/rateLimit.middleware.js";
 
 const router = express.Router();
 
@@ -37,14 +38,14 @@ router.get("/set-new-password", preventAuthPages, loadSetNewPassword);
 
 // Post Signup
 router.post("/signup", preventAuthPages, signup);
-router.post("/verify-otp", preventAuthPages, verifySignupOTP);
-router.post("/resend-otp", preventAuthPages, resendSignupOTP);
+router.post("/verify-otp", preventAuthPages, otpVerifyLimiter, verifySignupOTP);
+router.post("/resend-otp", preventAuthPages, otpResendLimiter, resendSignupOTP);
 
 // Post Login
-router.post("/login", preventAuthPages, login);
+router.post("/login", preventAuthPages, loginLimiter, login);
 router.post("/forgot-password", preventAuthPages, sendForgotPasswordOTP);
-router.post("/verify-reset-otp", preventAuthPages, verifyResetOTP);
-router.post("/resend-reset-otp", preventAuthPages, resendResetOTP);
+router.post("/verify-reset-otp", preventAuthPages, otpVerifyLimiter, verifyResetOTP);
+router.post("/resend-reset-otp", preventAuthPages, otpResendLimiter, resendResetOTP);
 router.post("/set-new-password", preventAuthPages, setNewPassword);
 
 // OAuth (Google)
