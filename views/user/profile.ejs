@@ -1,0 +1,100 @@
+<div class="flex gap-10">
+
+  <!-- Sidebar -->
+  <%- include('../partials/userPartials/sidebar') %>
+
+  <!-- Right Content -->
+  <section class="flex-1">
+
+    <!-- Mobile Header Row -->
+    <div class="flex items-center gap-4 mb-8 lg:hidden">
+      <button id="sidebarToggle"
+              class="text-[20px] font-semibold leading-none">
+        ☰
+      </button>
+      <h1 class="font-playfair text-[24px] font-semibold">
+        My Profile
+      </h1>
+    </div>
+
+    <!-- Desktop Title -->
+    <div class="hidden lg:block mb-10">
+      <h1 class="font-playfair text-[36px] font-semibold leading-tight">
+        My Profile
+      </h1>
+      <p class="text-[16px] font-normal mt-2 opacity-70">
+        Manage your personal information and security settings.
+      </p>
+    </div>
+
+    <!-- Profile Card -->
+    <div class="border-t border-b border-gray-200 py-8">
+
+      <div class="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-6">
+
+        <div class="flex items-center gap-5">
+
+          <!-- Avatar -->
+          <div class="w-20 h-20 sm:w-24 sm:h-24 rounded-full bg-gray-300 flex items-center justify-center text-xl font-semibold">
+            <% if (user?.profileImage) { %>
+              <img src="<%= user.profileImage %>"
+                   class="w-full h-full object-cover rounded-full" />
+            <% } else { %>
+              <span><%= user.name?.charAt(0).toUpperCase() %></span>
+            <% } %>
+          </div>
+
+          <!-- Info -->
+          <div>
+            <h2 class="text-[20px] sm:text-[24px] font-semibold">
+              <%= user.name %>
+            </h2>
+            <p class="text-[16px] opacity-70 mt-1">
+              <%= user.email %>
+            </p>
+            <% if (user.phone) { %>
+              <p class="text-[16px] opacity-70">
+                <%= user.phone %>
+              </p>
+            <% } %>
+          </div>
+
+        </div>
+
+        <!-- Edit Button -->
+        <div>
+          <a href="/profile/edit"
+             class="inline-block border border-[#121212] px-5 py-2 text-[16px] font-medium hover:bg-[#121212] hover:text-[#FAFAF8] transition">
+            Edit Profile
+          </a>
+        </div>
+
+      </div>
+
+    </div>
+
+    <!-- Security Section -->
+    <% if (user.authProvider === 'local') { %>
+    <div class="mt-12">
+      <h3 class="text-[20px] font-semibold mb-6">
+        Security & Access
+      </h3>
+
+      <div class="flex flex-col sm:flex-row gap-4">
+
+        <a href="/profile/change-password"
+           class="border border-gray-300 px-6 py-3 text-[14px] font-semibold tracking-wide hover:underline transition text-center">
+          CHANGE PASSWORD
+        </a>
+
+        <a href="/profile/change-email"
+           class="border border-gray-300 px-6 py-3 text-[14px] font-semibold tracking-wide hover:underline transition text-center">
+          CHANGE EMAIL
+        </a>
+
+      </div>
+    </div>
+    <% } %>
+
+  </section>
+</div>

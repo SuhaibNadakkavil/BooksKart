@@ -1,0 +1,68 @@
+<!-- Desktop Sidebar -->
+<aside class="hidden lg:block w-64 shrink-0 lg:sticky lg:top-24">
+
+  <div class="space-y-8">
+
+    <div>
+      <p class="text-[14px] font-medium tracking-widest opacity-60 mb-6">
+        ACCOUNT
+      </p>
+
+      <nav class="flex flex-col gap-5 text-[16px]">
+        <a href="/profile" class="hover:underline">Profile</a>
+        <a href="/orders" class="hover:underline">My Orders</a>
+        <a href="/wallet" class="hover:underline">Wallet</a>
+        <a href="/address" class="hover:underline">Address</a>
+        <a href="/refer" class="hover:underline">Refer & Earn</a>
+      </nav>
+    </div>
+
+    <div class="pt-6 border-t border-gray-200">
+      <a href="/logout"
+         class="text-red-600 hover:underline text-[16px] font-medium">
+        Sign Out
+      </a>
+    </div>
+
+  </div>
+</aside>
+
+
+<!-- Mobile Drawer -->
+<div id="mobileSidebar"
+     class="fixed inset-0 z-50 hidden lg:hidden">
+
+  <!-- Overlay -->
+  <div id="sidebarOverlay"
+       class="absolute inset-0 bg-black bg-opacity-30 opacity-0 transition-opacity duration-300">
+  </div>
+
+  <!-- Drawer -->
+  <div id="sidebarPanel"
+       class="absolute left-0 top-0 h-full w-72 bg-[#FAFAF8] p-8 
+              transform -translate-x-full transition-transform duration-300">
+
+    <div class="flex justify-between items-center mb-10">
+      <p class="text-[18px] font-semibold">Account</p>
+      <button id="closeSidebar"
+              class="text-[18px] font-medium">
+        ✕
+      </button>
+    </div>
+
+    <nav class="flex flex-col gap-6 text-[16px]">
+      <a href="/profile" class="hover:underline">Profile</a>
+      <a href="/orders" class="hover:underline">My Orders</a>
+      <a href="/wallet" class="hover:underline">Wallet</a>
+      <a href="/address" class="hover:underline">Address</a>
+      <a href="/refer" class="hover:underline">Refer & Earn</a>
+
+      <a href="/logout"
+         class="text-red-600 hover:underline pt-6 border-t border-gray-200">
+        Sign Out
+      </a>
+    </nav>
+
+  </div>
+
+</div>

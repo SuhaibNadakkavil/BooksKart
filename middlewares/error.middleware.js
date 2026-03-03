@@ -1,12 +1,13 @@
 import HTTP_STATUS from "../utils/httpStatus.js";
 
 const errorMiddleware = (err, req, res, next) => {
-  const isProduction = process.env.NODE_ENV === "production";
 
   // If response already sent, delegate to Express
   if (res.headersSent) {
     return next(err);
   }
+
+  console.log(err)
 
   // Default to 500 if not specified
   const statusCode =
@@ -28,7 +29,7 @@ const errorMiddleware = (err, req, res, next) => {
     title: "Server Error | BooksKart",
     headerType: isAuth ? "main" : "landing",
     success: null,
-    error: isProduction ? null : err.message,
+    error: null,
     pageScript: null,
   });
 };
