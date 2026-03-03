@@ -24,6 +24,7 @@ app.use(expressLayouts);
 app.set("layout", "layouts/userLayouts");
 
 app.use(express.static(path.join(__dirname, "./public")));
+app.use("/uploads", express.static("public/uploads"));
 
 app.use(express.urlencoded({ extended: true }));
 app.use(express.json());

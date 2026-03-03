@@ -1,0 +1,98 @@
+<section class="max-w-4xl mx-auto px-4 py-12">
+
+  <!-- Title -->
+  <div class="text-center mb-12">
+    <h1 class="font-playfair text-[32px] sm:text-[40px] font-semibold leading-tight">
+      Edit Profile
+    </h1>
+  </div>
+
+  <form action="/profile/edit" method="POST" enctype="multipart/form-data">
+
+    <!-- Avatar Section -->
+    <div class="flex flex-col items-center gap-6 mb-12">
+
+      <!-- Profile Image -->
+      <div class="relative w-28 h-28 sm:w-32 sm:h-32 rounded-full bg-gray-300 flex items-center justify-center text-2xl font-semibold overflow-hidden">
+
+        <% if (user?.profileImage) { %>
+          <img id="imagePreview"
+               src="<%= user.profileImage %>"
+               class="w-full h-full object-cover rounded-full" />
+        <% } else { %>
+          <span id="imagePreviewText">
+            <%= user.name?.charAt(0).toUpperCase() %>
+          </span>
+          <img id="imagePreview"
+               class="hidden w-full h-full object-cover rounded-full" />
+        <% } %>
+
+      </div>
+
+      <!-- Hidden File Input -->
+      <input type="file"
+             id="profileImageInput"
+             name="profileImage"
+             accept="image/*"
+             class="hidden">
+
+      <!-- Edit Photo Button -->
+      <button type="button"
+              id="editPhotoBtn"
+              class="border border-[#121212] px-6 py-2 text-[16px] font-medium hover:bg-[#121212] hover:text-[#FAFAF8] transition">
+        Edit Photo
+      </button>
+
+    </div>
+
+    <!-- Divider -->
+    <div class="border-t border-gray-200 mb-12"></div>
+
+    <!-- Form Fields -->
+    <div class="grid grid-cols-1 md:grid-cols-2 gap-10">
+
+      <!-- Name -->
+      <div>
+        <label class="block text-[12px] tracking-widest font-medium opacity-60 mb-2">
+          NAME
+        </label>
+        <input type="text"
+                name="name"
+                id="name"
+                value="<%= old?.name || user.name %>"
+                class="w-full bg-transparent border-b border-gray-300 focus:outline-none focus:border-[#121212] text-[18px] py-2 transition" />
+
+            <p id="nameError" class="text-sm text-red-600 mt-1">
+            <%= errors?.name || '' %>
+            </p>
+      </div>
+
+      <!-- Phone -->
+      <div>
+        <label class="block text-[12px] tracking-widest font-medium opacity-60 mb-2">
+          PHONE NUMBER
+        </label>
+        <input type="text"
+                name="phone"
+                id="phone"
+                value="<%= old?.phone || user.phone || '' %>"
+                class="w-full bg-transparent border-b border-gray-300 focus:outline-none focus:border-[#121212] text-[18px] py-2 transition" />
+
+            <p id="phoneError" class="text-sm text-red-600 mt-1">
+            <%= errors?.phone || '' %>
+            </p>
+      </div>
+
+    </div>
+
+    <!-- Save Button -->
+    <div class="flex justify-center mt-16">
+      <button type="submit"
+              class="bg-[#121212] text-[#FAFAF8] px-16 py-3 rounded-md text-[16px] font-medium hover:opacity-80 transition">
+        Save
+      </button>
+    </div>
+
+  </form>
+
+</section>

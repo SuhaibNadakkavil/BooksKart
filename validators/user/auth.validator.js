@@ -93,6 +93,8 @@ export const loginSchema = Joi.object({
   .options({ abortEarly: false })
   .unknown(false);
 
+// Forgot Password Validation
+
 export const forgotPasswordSchema = Joi.object({
 
   email: Joi.string()
