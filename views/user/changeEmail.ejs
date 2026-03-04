@@ -1,0 +1,65 @@
+<section class="max-w-3xl mx-auto px-4 py-16">
+
+  <div class="border border-gray-300 rounded-2xl p-8 sm:p-12">
+
+    <!-- Title -->
+    <div class="mb-8">
+      <h1 class="text-[28px] sm:text-[36px] font-semibold mb-4">
+        Change Your Email
+      </h1>
+
+      <p class="text-[16px] text-gray-600">
+        Enter your new email address below. We'll send a verification code to it.
+      </p>
+    </div>
+
+    <!-- Current Email -->
+    <div class="mb-10 text-[16px]">
+      <span class="font-medium">Current Email:</span>
+      <span class="opacity-80"><%= user.email %></span>
+    </div>
+
+    <!-- Form -->
+    <form id="changeEmailForm"
+          action="/profile/change-email"
+          method="POST"
+          novalidate>
+
+      <!-- New Email -->
+      <div class="mb-10">
+        <label class="block text-sm font-medium mb-2">
+          New Email Address
+        </label>
+
+        <input type="email"
+               name="newEmail"
+               id="newEmail"
+               value="<%= old?.newEmail || '' %>"
+               placeholder="Enter your new email"
+               class="w-full border border-gray-400 rounded-xl px-4 py-3 focus:outline-none focus:border-[#121212] transition" />
+
+        <p id="newEmailError" class="text-sm text-red-600 mt-1">
+          <%= errors?.newEmail || '' %>
+        </p>
+      </div>
+
+      <!-- Continue Button -->
+      <button type="submit"
+              id="submitBtn"
+              class="w-full bg-[#121212] text-[#FAFAF8] py-3 rounded-xl text-[16px] font-medium hover:opacity-90 transition">
+        Continue
+      </button>
+
+    </form>
+
+    <!-- Cancel -->
+    <div class="mt-6 text-center">
+      <a href="/profile"
+         class="text-[16px] hover:underline transition">
+        Cancel
+      </a>
+    </div>
+
+  </div>
+
+</section>

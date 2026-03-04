@@ -1,5 +1,5 @@
-import { changePasswordService, profileService, updateProfileService } from "../../services/user/profile.service.js";
-import { changePasswordSchema, editProfileSchema } from "../../validators/user/profile.validator.js";
+import { changeEmailService, changePasswordService, profileService, updateProfileService } from "../../services/user/profile.service.js";
+import { changeEmailSchema, changePasswordSchema, editProfileSchema } from "../../validators/user/profile.validator.js";
 import HTTP_STATUS from "../../utils/httpStatus.js";
 
 export const loadProfile = async (req, res, next) => {
@@ -202,5 +202,90 @@ export const changePassword = async (req, res, next) => {
         pageScript: "/js/changePassword.js",
       }
     );
+  }
+};
+
+
+export const loadChangeEmail = async (req, res, next) => {
+  try {
+
+    const profileData = await profileService(req.user);
+
+    return res.render("user/changeEmail", {
+      title: "Change Email | BooksKart",
+      headerType: "main",
+      user: profileData,
+      errors: {},
+      old: {},
+      error: null,
+      success: null,
+      pageScript: "/js/changeEmail.js",
+    });
+
+  } catch (error) {
+    next(error);
+  }
+};
+
+
+export const changeEmail = async (req, res, next) => {
+
+  const { error, value } = changeEmailSchema.validate(req.body, {
+    abortEarly: false,
+  });
+
+  if (error) {
+    const errors = {};
+    error.details.forEach((err) => {
+      errors[err.path[0]] = err.message;
+    });
+
+    return res.status(HTTP_STATUS.BAD_REQUEST).render(
+      "user/changeEmail",
+      {
+        title: "Change Email | BooksKart",
+        headerType: "main",
+        user: req.user,
+        errors,
+        old: req.body,
+        error: null,
+        success: null,
+        pageScript: "/js/changeEmail.js",
+      }
+    );
+  }
+
+  try {
+
+    await changeEmailService(
+      req.user._id,
+      value.newEmail
+    );
+
+    req.session.success = "OTP sent to your new email";
+
+    return res.redirect(
+      `/verify-otp?mode=change-email&email=${value.newEmail}`
+    );
+
+  } catch (err) {
+
+    if (err.type === "FIELD") {
+      return res.status(HTTP_STATUS.BAD_REQUEST).render(
+        "user/changeEmail",
+        {
+          title: "Change Email | BooksKart",
+          headerType: "main",
+          user: req.user,
+          errors: { [err.field]: err.message },
+          old: req.body,
+          error: null,
+          success: null,
+          pageScript: "/js/changeEmail.js",
+        }
+      );
+    }
+
+    next(err);
   }
 };

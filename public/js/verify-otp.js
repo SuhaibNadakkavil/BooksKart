@@ -1,8 +1,8 @@
 document.addEventListener("DOMContentLoaded", () => {
+
   const inputs = document.querySelectorAll(".otp-input");
   const combinedOtp = document.getElementById("combinedOtp");
   const resendBtn = document.getElementById("resendBtn");
-  const timerElement = document.getElementById("timer");
   const emailInput = document.querySelector("input[name='email']");
   const email = emailInput ? emailInput.value : null;
 
@@ -10,10 +10,12 @@ document.addEventListener("DOMContentLoaded", () => {
   const storageKey = `otp_expiry_${mode}`;
   const TIMER_DURATION = 60;
 
-  /* ---------- OTP INPUT LOGIC ---------- */
+  /* ---------------- OTP INPUT LOGIC ---------------- */
 
   inputs.forEach((input, index) => {
+
     input.addEventListener("input", (e) => {
+
       const value = e.target.value.replace(/\D/g, "");
       input.value = value;
 
@@ -32,7 +34,10 @@ document.addEventListener("DOMContentLoaded", () => {
 
     input.addEventListener("paste", (e) => {
       e.preventDefault();
-      const pastedData = e.clipboardData.getData("text").replace(/\D/g, "");
+
+      const pastedData = e.clipboardData
+        .getData("text")
+        .replace(/\D/g, "");
 
       if (pastedData.length === 6) {
         inputs.forEach((input, i) => {
@@ -41,114 +46,131 @@ document.addEventListener("DOMContentLoaded", () => {
         updateOtpValue();
       }
     });
+
   });
 
   function updateOtpValue() {
-    const otp = Array.from(inputs).map(input => input.value).join("");
+    const otp = Array.from(inputs)
+      .map(input => input.value)
+      .join("");
     combinedOtp.value = otp;
   }
 
-  /* ---------- TIMER ---------- */
+  /* ---------------- TIMER ---------------- */
 
-let countdown;
+  let countdown;
 
-function getRemainingTime() {
-  const expiry = Number(localStorage.getItem(storageKey));
-  if (!expiry) return 0;
+  function getRemainingTime() {
+    const expiry = Number(localStorage.getItem(storageKey));
+    if (!expiry) return 0;
 
-  const remaining = Math.floor((expiry - Date.now()) / 1000);
-  return remaining > 0 ? remaining : 0;
-}
-
-function startTimer() {
-  clearInterval(countdown);
-
-  resendBtn.disabled = true;
-  resendBtn.classList.add("opacity-50", "cursor-not-allowed");
-
-  countdown = setInterval(() => {
-    const timeLeft = getRemainingTime();
-
-    if (timeLeft > 0) {
-      resendBtn.innerHTML = `Resend code in ${timeLeft}s`;
-    }
-
-    if (timeLeft <= 0) {
-      clearInterval(countdown);
-
-      resendBtn.disabled = false;
-      resendBtn.classList.remove("opacity-50", "cursor-not-allowed");
-
-      resendBtn.innerHTML = "Resend Code";
-
-      localStorage.removeItem(storageKey); // optional cleanup
-    }
-
-  }, 1000);
-}
-
-function initializeTimer() {
-  let expiry = Number(localStorage.getItem(storageKey));
-
-  // If no expiry exists, create one (first page load)
-  if (!expiry) {
-    expiry = Date.now() + TIMER_DURATION * 1000;
-    localStorage.setItem(storageKey, expiry);
+    const remaining = Math.floor((expiry - Date.now()) / 1000);
+    return remaining > 0 ? remaining : 0;
   }
 
-  startTimer();
-}
+  function startTimer() {
 
-// Initialize on page load
-initializeTimer();
+    clearInterval(countdown);
 
-  /* ---------- RESEND LOGIC ---------- */
+    resendBtn.disabled = true;
+    resendBtn.classList.add("opacity-50", "cursor-not-allowed");
 
-const resendEndpoint =
+    countdown = setInterval(() => {
+
+      const timeLeft = getRemainingTime();
+
+      if (timeLeft > 0) {
+        resendBtn.innerHTML = `Resend Code in ${timeLeft}s`;
+      }
+
+      if (timeLeft <= 0) {
+
+        clearInterval(countdown);
+
+        resendBtn.disabled = false;
+        resendBtn.classList.remove("opacity-50", "cursor-not-allowed");
+
+        resendBtn.innerHTML = "Resend Code";
+
+        localStorage.removeItem(storageKey);
+      }
+
+    }, 1000);
+  }
+
+  function initializeTimer() {
+
+    let expiry = Number(localStorage.getItem(storageKey));
+
+    const now = Date.now();
+
+    // If no expiry OR expired already → create new timer
+    if (!expiry || expiry <= now) {
+      expiry = now + TIMER_DURATION * 1000;
+      localStorage.setItem(storageKey, expiry);
+    }
+
+    startTimer();
+  }
+
+  initializeTimer();
+
+  /* ---------------- RESEND LOGIC ---------------- */
+
+  const resendEndpoint =
   mode === "reset"
     ? "/resend-reset-otp"
     : "/resend-otp";
 
-resendBtn.addEventListener("click", async () => {
-  if (resendBtn.disabled || !email) return;
+  resendBtn.addEventListener("click", async () => {
 
-  resendBtn.disabled = true;
-  resendBtn.textContent = "Sending...";
+    if (resendBtn.disabled || !email) return;
 
-  try {
-    const response = await fetch(resendEndpoint, {
-      method: "POST",
-      headers: {
-        "Content-Type": "application/json"
-      },
-      body: JSON.stringify({ email })
-    });
+    resendBtn.disabled = true;
+    resendBtn.textContent = "Sending...";
 
-    const data = await response.json();
+    try {
 
-    if (data.success) {
-      showToast(data.message, "success");
+      const response = await fetch(resendEndpoint, {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json"
+        },
+        body: JSON.stringify({ email, mode })
+      });
 
-      const newExpiry = Date.now() + TIMER_DURATION * 1000;
-      localStorage.setItem(storageKey, newExpiry);
+      const data = await response.json();
 
-      startTimer();
-    } else {
-      showToast(data.message, "error");
+      if (data.success) {
+
+        showToast(data.message, "success");
+
+        const newExpiry = Date.now() + TIMER_DURATION * 1000;
+        localStorage.setItem(storageKey, newExpiry);
+
+        startTimer();
+
+      } else {
+
+        showToast(data.message, "error");
+        resendBtn.disabled = false;
+      }
+
+    } catch (error) {
+
+      showToast("Something went wrong", "error");
       resendBtn.disabled = false;
     }
 
-  } catch (error) {
-    showToast("Something went wrong", "error");
-    resendBtn.disabled = false;
-  }
-});
+  });
 
 });
 
-/* ---------- TOAST FUNCTION ---------- */
+
+/* ---------------- TOAST ---------------- */
 
 function showToast(message, type) {
+
   Toastify({
     text: message,
     duration: 4000,
@@ -164,4 +186,5 @@ function showToast(message, type) {
       padding: "12px 16px"
     }
   }).showToast();
+
 }

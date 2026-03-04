@@ -60,3 +60,21 @@ export const changePasswordSchema = Joi.object({
 })
 .options({ abortEarly: false })
 .unknown(false);
+
+
+
+export const changeEmailSchema = Joi.object({
+
+  newEmail: Joi.string()
+    .trim()
+    .lowercase()
+    .pattern(/^[a-z0-9._%+-]+@[a-z0-9.-]+\.[a-z]{2,}$/)
+    .required()
+    .messages({
+      "string.empty": "Email is required",
+      "string.pattern.base": "Enter a valid email address",
+    }),
+
+})
+.options({ abortEarly: false })
+.unknown(false);

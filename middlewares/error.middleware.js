@@ -7,7 +7,7 @@ const errorMiddleware = (err, req, res, next) => {
     return next(err);
   }
 
-  console.log(err)
+  console.log("404 route:", req.method, req.originalUrl);
 
   // Default to 500 if not specified
   const statusCode =

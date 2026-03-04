@@ -107,3 +107,49 @@ export const resendResetOTPService = async (email) => {
 
   return true;
 };
+
+
+// Change Email OTP
+
+export const storeChangeEmailOTP = async (email, data, ttl = 300) => {
+  const key = `otp:change-email:${email}`;
+
+  await redisClient.set(
+    key,
+    JSON.stringify(data),
+    { EX: ttl }
+  );
+};
+
+export const getChangeEmailOTP = async (email) => {
+  const key = `otp:change-email:${email}`;
+  const data = await redisClient.get(key);
+  return data ? JSON.parse(data) : null;
+};
+
+export const deleteChangeEmailOTP = async (email) => {
+  const key = `otp:change-email:${email}`;
+  await redisClient.del(key);
+};
+
+export const resendChangeEmailOTPService = async (email) => {
+
+  const storedData = await getChangeEmailOTP(email);
+
+  if (!storedData) {
+    const error = new Error("OTP expired. Please try again.");
+    error.type = "GLOBAL";
+    throw error;
+  }
+
+  const newOtp = generateOTP(6);
+
+  await storeChangeEmailOTP(email, {
+    otp: newOtp,
+    userId: storedData.userId
+  });
+
+  await sendSignupOTPEmail(email, newOtp);
+
+  return true;
+};

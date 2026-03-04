@@ -20,7 +20,10 @@ import {
   getSignupOTP, 
   resendSignupOTPService, 
   getResetOTP, 
-  resendResetOTPService 
+  resendResetOTPService, 
+  resendChangeEmailOTPService,
+  getChangeEmailOTP,
+  deleteChangeEmailOTP
 } from "../../services/user/otp.service.js";
 
 import * as userRepo from '../../repositories/user/user.repository.js'
@@ -126,7 +129,7 @@ export const loadSignup = ((req, res) =>{
 export const loadVerifyOtp = (req, res) => {
 
   const email = req.query.email || "";
-  const mode = req.query.mode === "reset" ? "reset" : "signup";
+  const mode = req.query.mode || "signup";
 
   const success = req.session.success || null;
   const error = req.session.error || null;
@@ -134,12 +137,22 @@ export const loadVerifyOtp = (req, res) => {
   delete req.session.success;
   delete req.session.error;
 
+  let title = "Verify Email | BooksKart";
+  let headerType = "auth";
+
+  if (mode === "reset") {
+    title = "Verify OTP | BooksKart";
+  }
+
+  if (mode === "change-email") {
+    title = "Verify New Email | BooksKart";
+    headerType = "main"; // user is logged in
+  }
+
   res.render("user/verify-otp", {
     mode,
-    title: mode === "reset"
-      ? "Verify OTP | BooksKart"
-      : "Verify Email | BooksKart",
-    headerType: "auth",
+    title,
+    headerType,
     error,
     success,
     email,
@@ -149,9 +162,45 @@ export const loadVerifyOtp = (req, res) => {
 
 export const verifySignupOTP = async (req, res, next) => {
   try {
-    const { email, otp } = req.body
 
-    const storedData = await getSignupOTP(email)
+    const { email, otp, mode } = req.body;
+
+    /* =========================================================
+       CHANGE EMAIL MODE
+    ========================================================= */
+
+    if (mode === "change-email") {
+
+      const storedData = await getChangeEmailOTP(email);
+
+      if (!storedData || storedData.otp !== otp) {
+        return res.render("user/verify-otp", {
+          mode: "change-email",
+          title: "Verify New Email | BooksKart",
+          headerType: "main",
+          error: "Invalid or expired OTP",
+          success: null,
+          email,
+          pageScript: "/js/verify-otp.js",
+        });
+      }
+
+      await userRepo.updateUser(storedData.userId, {
+        email,
+        isVerified: true,
+      });
+
+      await deleteChangeEmailOTP(email);
+
+      req.session.success = "Email updated successfully";
+      return res.redirect("/profile");
+    }
+
+    /* =========================================================
+       SIGNUP MODE (DEFAULT)
+    ========================================================= */
+
+    const storedData = await getSignupOTP(email);
 
     if (!storedData) {
       return res.render("user/verify-otp", {
@@ -159,10 +208,10 @@ export const verifySignupOTP = async (req, res, next) => {
         title: "Verify Email | BooksKart",
         headerType: "auth",
         error: "OTP expired. Please signup again.",
-        success:null,
+        success: null,
         email,
         pageScript: "/js/verify-otp.js",
-      })
+      });
     }
 
     if (storedData.otp !== otp) {
@@ -171,10 +220,10 @@ export const verifySignupOTP = async (req, res, next) => {
         title: "Verify Email | BooksKart",
         headerType: "auth",
         error: "Invalid OTP",
-        success:null,
+        success: null,
         email,
         pageScript: "/js/verify-otp.js",
-      })
+      });
     }
 
     const user = await userRepo.createUser({
@@ -182,7 +231,7 @@ export const verifySignupOTP = async (req, res, next) => {
       isVerified: true,
     });
 
-    await deleteSignupOTP(email)
+    await deleteSignupOTP(email);
 
     req.session.regenerate((err) => {
       if (err) return next(err);
@@ -192,28 +241,41 @@ export const verifySignupOTP = async (req, res, next) => {
 
       req.session.success = "Authenticated";
       return res.redirect("/");
-    })
-
-  } catch (error) {
-    next(error)
-  }
-}
-
-export const resendSignupOTP = async (req, res, next) => {
-  try {
-    const { email } = req.body;
-
-    await resendSignupOTPService(email);
-
-    return res.status(200).json({
-      success: true,
-      message: "OTP resent successfully"
     });
 
   } catch (error) {
+    next(error);
+  }
+};
+
+export const resendSignupOTP = async (req, res) => {
+  try {
+
+    const { email, mode } = req.body;
+
+    if (!email) {
+      return res.status(400).json({
+        success: false,
+        message: "Invalid request",
+      });
+    }
+
+    if (mode === "change-email") {
+      await resendChangeEmailOTPService(email);
+    } else {
+      await resendSignupOTPService(email);
+    }
+
+    return res.status(200).json({
+      success: true,
+      message: "OTP resent successfully",
+    });
+
+  } catch (error) {
+
     return res.status(400).json({
       success: false,
-      message: error.message || "Something went wrong"
+      message: error.message || "Something went wrong",
     });
   }
 };

@@ -29,7 +29,7 @@ router.get("/", loadHome);
 
 // Get Signup
 router.get("/signup", preventAuthPages, loadSignup);
-router.get("/verify-otp", preventAuthPages, loadVerifyOtp);
+router.get("/verify-otp", loadVerifyOtp);
 
 // Get Login
 router.get("/login", preventAuthPages, loadLogin);
@@ -38,8 +38,8 @@ router.get("/set-new-password", preventAuthPages, loadSetNewPassword);
 
 // Post Signup
 router.post("/signup", preventAuthPages, signup);
-router.post("/verify-otp", preventAuthPages, otpVerifyLimiter, verifySignupOTP);
-router.post("/resend-otp", preventAuthPages, otpResendLimiter, resendSignupOTP);
+router.post("/verify-otp", otpVerifyLimiter, verifySignupOTP);
+router.post("/resend-otp", otpResendLimiter, resendSignupOTP);
 
 // Post Login
 router.post("/login", preventAuthPages, loginLimiter, login);

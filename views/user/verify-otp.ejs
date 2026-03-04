@@ -5,13 +5,23 @@
     <!-- Heading -->
     <div class="text-center mb-8">
       <h1 class="text-3xl font-semibold text-[#121212]">
-        <%= mode === "reset" ? "Verify OTP" : "Verify Your Email" %>
+        <% if (mode === "reset") { %>
+          Verify OTP
+        <% } else if (mode === "change-email") { %>
+          Verify New Email
+        <% } else { %>
+          Verify Your Email
+        <% } %>
       </h1>
 
       <p class="text-sm mt-2 opacity-80 leading-relaxed">
-        <%= mode === "reset"
-          ? "Enter the 6-digit OTP sent to your email to reset your password."
-          : "Enter the 6-digit code sent to your email to complete verification." %>
+        <% if (mode === "reset") { %>
+          Enter the 6-digit OTP sent to your email to reset your password.
+        <% } else if (mode === "change-email") { %>
+          Enter the 6-digit code sent to your new email address to confirm the change.
+        <% } else { %>
+          Enter the 6-digit code sent to your email to complete verification.
+        <% } %>
       </p>
     </div>
 
@@ -34,7 +44,7 @@
             type="text"
             maxlength="1"
             inputmode="numeric"
-            class="otp-input w-14 h-14 text-xl text-center border border-[#121212] rounded-xl focus:outline-none focus:border-[#333333] transition"
+            class="otp-input w-14 h-14 text-xl text-center border border-[#121212] rounded-xl focus:outline-none focus:border-[#333333] transition hover:border-[#333333]"
           />
         <% } %>
 
@@ -48,7 +58,13 @@
         id="verifyBtn"
         class="w-full bg-[#121212] text-[#FAFAF8] py-3 rounded-xl font-medium transition hover:opacity-90 disabled:opacity-60"
       >
-        <%= mode === "reset" ? "Verify OTP" : "Verify Email" %>
+        <% if (mode === "reset") { %>
+          Verify OTP
+        <% } else if (mode === "change-email") { %>
+          Verify Email
+        <% } else { %>
+          Verify Email
+        <% } %>
       </button>
 
       <!-- Resend -->
@@ -61,7 +77,7 @@
           disabled
           data-mode="<%= mode %>"
         >
-          Resend Code in <span id="timer">59</span> sec
+          Resend Code in <span id="timer">59</span>s
           <span class="absolute left-0 -bottom-1 w-0 h-[1px] bg-blue-700 transition-all duration-300 group-hover:w-full"></span>
         </button>
       </div>

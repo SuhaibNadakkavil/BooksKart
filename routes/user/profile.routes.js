@@ -1,6 +1,6 @@
 import express from "express";
 import { isAuthenticated } from "../../middlewares/auth.middleware.js";
-import { changePassword, loadChangePassword, loadEditProfile, loadProfile, updateProfile } from "../../controllers/user/profile.controller.js";
+import { changeEmail, changePassword, loadChangeEmail, loadChangePassword, loadEditProfile, loadProfile, updateProfile } from "../../controllers/user/profile.controller.js";
 import { uploadProfileImage } from "../../middlewares/upload.middleware.js";
 
 const router = express.Router()
@@ -10,5 +10,7 @@ router.get('/edit', isAuthenticated, loadEditProfile)
 router.post('/edit', isAuthenticated, uploadProfileImage.single('profileImage'), updateProfile)
 router.get('/change-password', isAuthenticated, loadChangePassword)
 router.post('/change-password', isAuthenticated, changePassword)
+router.get('/change-email', isAuthenticated, loadChangeEmail)
+router.post('/change-email', isAuthenticated, changeEmail)
 
 export default router
