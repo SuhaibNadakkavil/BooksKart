@@ -30,6 +30,7 @@
     "passport": "^0.7.0",
     "passport-google-oauth20": "^2.0.0",
     "redis": "^5.10.0",
+    "sweetalert2": "^11.26.21",
     "tailwindcss": "^4.1.18",
     "toastify-js": "^1.12.0"
   },

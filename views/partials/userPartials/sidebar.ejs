@@ -18,10 +18,12 @@
     </div>
 
     <div class="pt-6 border-t border-gray-200">
-      <a href="/logout"
-         class="text-red-600 hover:underline text-[16px] font-medium">
-        Sign Out
-      </a>
+      <form action="/logout" method="POST" id="logoutFormDesktop">
+        <button type="button"
+                class="text-red-600 hover:underline text-[16px] font-medium logoutBtn">
+          Sign Out
+        </button>
+      </form>
     </div>
 
   </div>
@@ -57,10 +59,12 @@
       <a href="/address" class="hover:underline">Address</a>
       <a href="/refer" class="hover:underline">Refer & Earn</a>
 
-      <a href="/logout"
-         class="text-red-600 hover:underline pt-6 border-t border-gray-200">
-        Sign Out
-      </a>
+      <form action="/logout" method="POST" id="logoutFormMobile">
+        <button type="button"
+                class="text-red-600 hover:underline pt-6 border-t border-gray-200 text-left w-full logoutBtn">
+          Sign Out
+        </button>
+      </form>
     </nav>
 
   </div>
