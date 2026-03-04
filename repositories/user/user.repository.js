@@ -2,7 +2,12 @@ import User from "../../models/user/userSchema.js";
 
 //find user
 
-export const findById = async (userId) => {
+export const findById = async (userId, includePassword = false) => {
+
+  if (includePassword) {
+    return await User.findById(userId).select("+password");
+  }
+
   return await User.findById(userId);
 };
 

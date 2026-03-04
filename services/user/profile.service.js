@@ -1,5 +1,6 @@
 import * as userRepo from "../../repositories/user/user.repository.js";
 import HTTP_STATUS from "../../utils/httpStatus.js";
+import bcrypt from "bcrypt"
 
 export const profileService = async (user) => {
   return user;
@@ -10,8 +11,10 @@ export const updateProfileService = async (userId, data) => {
   const existingUser = await userRepo.findById(userId);
 
   if (!existingUser) {
-    req.session.destroy();
-    return res.redirect('/login');
+    const error = new Error("User not found");
+    error.type = "GLOBAL";
+    error.statusCode = HTTP_STATUS.NOT_FOUND;
+    throw error;
   }
 
   // If phone changed → check uniqueness
@@ -29,4 +32,61 @@ export const updateProfileService = async (userId, data) => {
   const updatedUser = await userRepo.updateUser(userId, data);
 
   return updatedUser;
+};
+
+
+export const changePasswordService = async (
+  userId,
+  currentPassword,
+  newPassword
+) => {
+
+  const user = await userRepo.findById(userId, true);
+
+  if (!user) {
+    const error = new Error("User not found");
+    error.type = "GLOBAL";
+    error.statusCode = HTTP_STATUS.NOT_FOUND;
+    throw error;
+  }
+
+  if (!user.password) {
+    const error = new Error("Password not set for this account");
+    error.type = "GLOBAL";
+    throw error;
+  }
+
+  // Compare current password
+  const isMatch = await bcrypt.compare(
+    currentPassword,
+    user.password
+  );
+
+  if (!isMatch) {
+    const error = new Error("Current password is incorrect");
+    error.type = "FIELD";
+    error.field = "currentPassword";
+    throw error;
+  }
+
+  // Prevent reusing same password
+  const isSamePassword = await bcrypt.compare(
+    newPassword,
+    user.password
+  );
+
+  if (isSamePassword) {
+    const error = new Error("New password must be different");
+    error.type = "FIELD";
+    error.field = "newPassword";
+    throw error;
+  }
+
+  const hashedPassword = await bcrypt.hash(newPassword, 10);
+
+  await userRepo.updateUser(userId, {
+    password: hashedPassword,
+  });
+
+  return true;
 };

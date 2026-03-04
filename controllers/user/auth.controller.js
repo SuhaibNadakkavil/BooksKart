@@ -29,11 +29,17 @@ import * as userRepo from '../../repositories/user/user.repository.js'
 export const loadHome = async (req, res) => {
   const isAuth = !!req.session.userId;
 
+  const success = req.session.success || null;
+  const error = req.session.error || null;
+
+  delete req.session.success;
+  delete req.session.error;
+
   res.render("user/home", {
     title: "Home | BooksKart",
     headerType: isAuth ? "main" : "landing",
-    success: null,
-    error: null,
+    success,
+    error,
     pageScript: null,
   });
 };
@@ -66,6 +72,7 @@ export const signup = async (req, res, next) => {
 
     const result = await signupService(value);
 
+    req.session.success = "OTP Send successfully";
     return res.redirect(`/verify-otp?email=${result.email}`);
 
   } catch (err) {
@@ -121,14 +128,20 @@ export const loadVerifyOtp = (req, res) => {
   const email = req.query.email || "";
   const mode = req.query.mode === "reset" ? "reset" : "signup";
 
+  const success = req.session.success || null;
+  const error = req.session.error || null;
+
+  delete req.session.success;
+  delete req.session.error;
+
   res.render("user/verify-otp", {
     mode,
     title: mode === "reset"
       ? "Verify OTP | BooksKart"
       : "Verify Email | BooksKart",
     headerType: "auth",
-    error: null,
-    success: null,
+    error,
+    success,
     email,
     pageScript: "/js/verify-otp.js",
   });
@@ -177,6 +190,7 @@ export const verifySignupOTP = async (req, res, next) => {
       req.session.userId = user._id;
       req.session.isAuthenticated = true;
 
+      req.session.success = "Authenticated";
       return res.redirect("/");
     })
 
@@ -208,6 +222,7 @@ export const googleCallback = async (req, res, next) => {
   try {
 
     if (!req.user) {
+      req.session.error = "User not found";
       return res.redirect("/login");
     }
 
@@ -217,6 +232,7 @@ export const googleCallback = async (req, res, next) => {
       req.session.userId = req.user._id;
       req.session.isAuthenticated = true;
 
+      req.session.success = "Authenticated";
       return res.redirect("/");
     });
 
@@ -259,6 +275,7 @@ export const login = async (req, res, next) => {
           req.session.userId = user._id;
           req.session.isAuthenticated = true;
 
+          req.session.success = "Authenticated";
           return res.redirect("/");
         });
     } catch (err) {
@@ -297,12 +314,19 @@ export const loadLogin = ((req, res) => {
   if (req.session?.userId) {
     return res.redirect("/");
   }
+  
+  const success = req.session.success || null;
+  const error = req.session.error || null;
+
+  delete req.session.success;
+  delete req.session.error;
+
 
   res.render("user/login", {
     title: "Login | BooksKart",
     headerType: "auth",
-    error: null,
-    success:null,
+    error,
+    success,
     errors: {},
     old: {},
     pageScript: "/js/login.js"
@@ -355,6 +379,7 @@ export const sendForgotPasswordOTP = async (req, res, next) => {
 
     await forgotPasswordService(normalizedEmail);
 
+    req.session.success = "OTP Send successfully";
     return res.redirect(
       `/verify-otp?email=${encodeURIComponent(normalizedEmail)}&mode=reset`
     );
@@ -425,6 +450,7 @@ export const verifyResetOTP = async (req, res, next) => {
 
     await verifyResetOTPService(email, otp);
 
+    req.session.success = "OTP Verification successfully";
     return res.redirect(`/set-new-password?email=${email}`);
 
   } catch (err) {
@@ -452,14 +478,20 @@ export const loadSetNewPassword = async (req, res) => {
     return res.redirect("/forgot-password");
   }
 
+  const success = req.session.success || null;
+  const error = req.session.error || null;
+
+  delete req.session.success;
+  delete req.session.error;
+
   res.render("user/set-new-password", {
     title: "Set New Password | BooksKart",
     headerType: "auth",
     email,
     errors: {},
     old: {},
-    error: null,
-    success: null,
+    error,
+    success,
     pageScript: "/js/set-new-password.js",
   });
 };
@@ -496,6 +528,7 @@ export const setNewPassword = async (req, res) => {
 
     await setNewPasswordService(value.email, value.password);
 
+    req.session.success = "Password changed successfully";
     return res.redirect("/login");
 
   } catch (err) {

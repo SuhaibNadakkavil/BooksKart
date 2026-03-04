@@ -1,17 +1,24 @@
-import { profileService, updateProfileService } from "../../services/user/profile.service.js";
-import { editProfileSchema } from "../../validators/user/profile.validator.js";
+import { changePasswordService, profileService, updateProfileService } from "../../services/user/profile.service.js";
+import { changePasswordSchema, editProfileSchema } from "../../validators/user/profile.validator.js";
+import HTTP_STATUS from "../../utils/httpStatus.js";
 
 export const loadProfile = async (req, res, next) => {
   try {
 
     const profileData = await profileService(req.user);
 
+    const success = req.session.success || null;
+    const error = req.session.error || null;
+
+    delete req.session.success;
+    delete req.session.error;
+
     return res.render("user/profile", {
       title: "Profile | BooksKart",
       user: profileData,
       headerType: "main",
-      success: null,
-      error: null,
+      success,
+      error,
       pageScript: '/js/profile.js',
     });
 
@@ -78,15 +85,18 @@ export const updateProfile = async (req, res, next) => {
 
     await updateProfileService(req.user._id, updateData);
 
+    req.session.success = "Profile updated successfully";
     return res.redirect("/profile");
 
-  } catch (error) {
+  } catch (err) {
 
+    const profileData = await profileService(req.user);
     // FIELD errors
     if (err.type === "FIELD") {
       return res.status(HTTP_STATUS.BAD_REQUEST).render("user/editProfile", {
         title: "Edit Profile | BooksKart",
         headerType: "main",
+        user: profileData,
         errors: { [err.field]: err.message },
         old: req.body,
         error: null,
@@ -100,6 +110,7 @@ export const updateProfile = async (req, res, next) => {
       return res.status(HTTP_STATUS.INTERNAL_SERVER_ERROR).render("user/editProfile", {
         title: "Edit Profile | BooksKart",
         headerType: "main",
+        user: profileData,
         errors: {},
         old: req.body,
         error: err.message,
@@ -108,6 +119,88 @@ export const updateProfile = async (req, res, next) => {
       });
     }
 
+    next(err);
+  }
+};
+
+export const loadChangePassword = async (req, res, next) => {
+  try {
+    return res.render("user/changePassword", {
+      title: "Change Password | BooksKart",
+      headerType: "main",
+      errors: {},
+      error: null,
+      success: null,
+      pageScript: "/js/changePassword.js",
+    });
+  } catch (error) {
     next(error);
+  }
+};
+
+
+export const changePassword = async (req, res, next) => {
+
+  const { error, value } = changePasswordSchema.validate(req.body, {
+    abortEarly: false,
+  });
+
+  if (error) {
+    const errors = {};
+    error.details.forEach((err) => {
+      errors[err.path[0]] = err.message;
+    });
+
+    return res.status(HTTP_STATUS.BAD_REQUEST).render(
+      "user/changePassword",
+      {
+        title: "Change Password | BooksKart",
+        headerType: "main",
+        errors,
+        error: null,
+        success: null,
+        pageScript: "/js/changePassword.js",
+      }
+    );
+  }
+
+  try {
+
+    await changePasswordService(
+      req.user._id,
+      value.currentPassword,
+      value.newPassword
+    );
+
+    req.session.success = "Password changed successfully";
+    return res.redirect("/profile");
+
+  } catch (err) {
+
+    if (err.type === "FIELD") {
+      return res.status(HTTP_STATUS.BAD_REQUEST).render(
+        "user/changePassword",
+        {
+          title: "Change Password | BooksKart",
+          headerType: "main",
+          errors: { [err.field]: err.message },
+          error: null,
+          success: null,
+          pageScript: "/js/changePassword.js",
+        }
+      );
+    }
+
+    return res.status(HTTP_STATUS.INTERNAL_SERVER_ERROR).render(
+      "user/changePassword",
+      {
+        title: "Change Password | BooksKart",
+        headerType: "main",
+        errors: {},
+        success: null,
+        error: err.message || "Something went wrong",
+        pageScript: "/js/changePassword.js",
+      }
+    );
   }
 };

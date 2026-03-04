@@ -111,37 +111,45 @@ export const googleAuthService = async (profile) => {
 };
 
 //login service
-export const loginService = async ({email, password}) => {
+export const loginService = async ({ email, password }) => {
 
-    email = email.toLowerCase().trim()
+  email = email.toLowerCase().trim();
 
-    const user = await userRepo.findByEmail(email, true)
-    if(!user){
-        const error = new Error('Invalid email or password')
-        error.statusCode = HTTP_STATUS.UNAUTHORIZED
-        error.type = "GLOBAL";
-        throw error;
-    }
-    
-    if(user.isBlocked){
-        const error = new Error('Your account has been blocked')
-        error.statusCode = HTTP_STATUS.FORBIDDEN
-        error.type = "GLOBAL"
-        throw error
-    }
-      
-    const isMatch = await bcrypt.compare(password, user.password)
+  const user = await userRepo.findByEmail(email, true);
 
-    if(!isMatch){
-        const error = new Error('Invalid password')
-        error.statusCode = HTTP_STATUS.UNAUTHORIZED
-        error.type = "FIELD";
-        error.field = "password";
-        throw error
-    }
+  if (!user) {
+    const error = new Error("Invalid email or password");
+    error.statusCode = HTTP_STATUS.UNAUTHORIZED;
+    error.type = "GLOBAL";
+    throw error;
+  }
 
-    return user
-}
+  if (user.isBlocked) {
+    const error = new Error("Your account has been blocked");
+    error.statusCode = HTTP_STATUS.FORBIDDEN;
+    error.type = "GLOBAL";
+    throw error;
+  }
+
+  if (!user.password) {
+    const error = new Error("Please login using Google");
+    error.statusCode = HTTP_STATUS.BAD_REQUEST;
+    error.type = "GLOBAL";
+    throw error;
+  }
+
+  const isMatch = await bcrypt.compare(password, user.password);
+
+  if (!isMatch) {
+    const error = new Error("Invalid password");
+    error.statusCode = HTTP_STATUS.UNAUTHORIZED;
+    error.type = "FIELD";
+    error.field = "password";
+    throw error;
+  }
+
+  return user;
+};
 
 export const forgotPasswordService = async (email) => {
 
