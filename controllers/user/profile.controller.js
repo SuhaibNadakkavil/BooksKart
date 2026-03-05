@@ -1,6 +1,8 @@
 import { changeEmailService, changePasswordService, profileService, updateProfileService } from "../../services/user/profile.service.js";
 import { changeEmailSchema, changePasswordSchema, editProfileSchema } from "../../validators/user/profile.validator.js";
 import HTTP_STATUS from "../../utils/httpStatus.js";
+import { addAddressService, getUserAddressesService } from "../../services/user/address.service.js";
+import { addressSchema } from "../../validators/user/address.validator.js";
 
 export const loadProfile = async (req, res, next) => {
   try {
@@ -289,3 +291,109 @@ export const changeEmail = async (req, res, next) => {
     next(err);
   }
 };
+
+
+export const loadAddressPage = async (req, res, next) => {
+  try {
+
+    const success = req.session.success || null;
+    const error = req.session.error || null;
+
+    delete req.session.success;
+    delete req.session.error;
+
+    // later you will fetch addresses
+    const addresses = await getUserAddressesService(req.user._id);
+
+    res.render("user/address", {
+      title: "Address | BooksKart",
+      headerType: "main",
+      addresses,
+      success,
+      error,
+      pageScript: "/js/profile.js"
+    });
+
+  } catch (error) {
+    next(error);
+  }
+};
+
+
+export const loadAddAddress = async (req, res, next) => {
+  try {
+
+    res.render("user/addAddress", {
+      title: "Add Address | BooksKart",
+      headerType: "main",
+      errors: {},
+      old: {},
+      success: null,
+      error: null,
+      pageScript: '/js/addAddress.js'
+    });
+
+  } catch (error) {
+    next(error);
+  }
+};
+
+
+export const addAddress = async (req, res, next) => {
+
+  req.body.isDefault = req.body.isDefault === 'true'
+
+  const { error, value } = addressSchema.validate(req.body, {
+    abortEarly: false
+  });
+
+  if (error) {
+
+    const errors = {};
+
+    error.details.forEach((err) => {
+      errors[err.path[0]] = err.message;
+    });
+
+    return res.status(HTTP_STATUS.BAD_REQUEST).render(
+      "user/addAddress",
+      {
+        title: "Add Address | BooksKart",
+        headerType: "main",
+        errors,
+        old: req.body,
+        error: null,
+        success: null,
+        pageScript: '/js/addAddress.js',
+      }
+    );
+  }
+
+  try {
+
+    await addAddressService(req.user._id,value);
+
+    req.session.success = "Address added successfully";
+
+    return res.redirect("/profile/address");
+
+  } catch (err) {
+
+    if (err.type === "GLOBAL") {
+
+      return res.status(HTTP_STATUS.BAD_REQUEST).render("user/addAddress", {
+        title: "Add Address | BooksKart",
+        headerType: "main",
+        errors: {},
+        old: req.body,
+        error: err.message,
+        success: null,
+        pageScript: "/js/addAddress.js"
+      });
+
+    }
+
+    next(err);
+  }
+};
+
