@@ -1,0 +1,182 @@
+<section class="min-h-screen bg-[#FAFAF8] px-4 py-12 flex justify-center">
+
+  <div class="w-full max-w-3xl">
+
+    <!-- Title -->
+    <div class="text-center mb-10">
+      <h1 class="text-4xl font-semibold text-[#121212] tracking-tight">
+        EDIT ADDRESS
+      </h1>
+      <div class="mt-4 border-b border-gray-300"></div>
+    </div>
+
+    <form
+      id="editAddressForm"
+      action="/profile/address/edit/<%= address._id %>"
+      method="POST"
+      class="space-y-6"
+    >
+
+      <!-- NAME -->
+      <div>
+        <label class="block text-sm font-semibold mb-2">FULL NAME</label>
+
+        <input
+          id="name"
+          type="text"
+          name="name"
+          value="<%= old?.name || address.name %>"
+          class="w-full border <%= errors?.name ? 'border-red-500' : 'border-[#121212]' %> rounded-lg px-4 py-3 focus:outline-none transition hover:border-[#333]"
+        >
+
+        <p id="nameError" class="text-red-500 text-sm mt-1"></p>
+
+        <% if (errors?.name) { %>
+          <p class="text-red-500 text-sm mt-1"><%= errors.name %></p>
+        <% } %>
+      </div>
+
+
+      <!-- ADDRESS LINE -->
+      <div>
+        <label class="block text-sm font-semibold mb-2">ADDRESS LINE</label>
+
+        <input
+          id="street"
+          type="text"
+          name="street"
+          value="<%= old?.street || address.street %>"
+          class="w-full border <%= errors?.street ? 'border-red-500' : 'border-[#121212]' %> rounded-lg px-4 py-3 focus:outline-none transition hover:border-[#333]"
+        >
+
+        <p id="streetError" class="text-red-500 text-sm mt-1"></p>
+
+        <% if (errors?.street) { %>
+          <p class="text-red-500 text-sm mt-1"><%= errors.street %></p>
+        <% } %>
+      </div>
+
+
+      <!-- CITY + PINCODE -->
+      <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
+
+        <div>
+          <label class="block text-sm font-semibold mb-2">CITY</label>
+
+          <input
+            id="city"
+            type="text"
+            name="city"
+            value="<%= old?.city || address.city %>"
+            class="w-full border <%= errors?.city ? 'border-red-500' : 'border-[#121212]' %> rounded-lg px-4 py-3 focus:outline-none transition hover:border-[#333]"
+          >
+
+          <p id="cityError" class="text-red-500 text-sm mt-1"></p>
+
+          <% if (errors?.city) { %>
+            <p class="text-red-500 text-sm mt-1"><%= errors.city %></p>
+          <% } %>
+        </div>
+
+
+        <div>
+          <label class="block text-sm font-semibold mb-2">POSTAL CODE</label>
+
+          <input
+            id="pincode"
+            type="text"
+            name="pincode"
+            value="<%= old?.pincode || address.pincode %>"
+            class="w-full border <%= errors?.pincode ? 'border-red-500' : 'border-[#121212]' %> rounded-lg px-4 py-3 focus:outline-none transition hover:border-[#333]"
+          >
+
+          <p id="pincodeError" class="text-red-500 text-sm mt-1"></p>
+
+          <% if (errors?.pincode) { %>
+            <p class="text-red-500 text-sm mt-1"><%= errors.pincode %></p>
+          <% } %>
+        </div>
+
+      </div>
+
+
+      <!-- STATE + PHONE -->
+      <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
+
+        <div>
+          <label class="block text-sm font-semibold mb-2">STATE</label>
+
+          <input
+            id="state"
+            type="text"
+            name="state"
+            value="<%= old?.state || address.state %>"
+            class="w-full border <%= errors?.state ? 'border-red-500' : 'border-[#121212]' %> rounded-lg px-4 py-3 focus:outline-none transition hover:border-[#333]"
+          >
+
+          <p id="stateError" class="text-red-500 text-sm mt-1"></p>
+
+          <% if (errors?.state) { %>
+            <p class="text-red-500 text-sm mt-1"><%= errors.state %></p>
+          <% } %>
+        </div>
+
+
+        <div>
+          <label class="block text-sm font-semibold mb-2">PHONE NUMBER</label>
+
+          <input
+            id="phone"
+            type="tel"
+            name="phone"
+            value="<%= old?.phone || address.phone %>"
+            class="w-full border <%= errors?.phone ? 'border-red-500' : 'border-[#121212]' %> rounded-lg px-4 py-3 focus:outline-none transition hover:border-[#333]"
+          >
+
+          <p id="phoneError" class="text-red-500 text-sm mt-1"></p>
+
+          <% if (errors?.phone) { %>
+            <p class="text-red-500 text-sm mt-1"><%= errors.phone %></p>
+          <% } %>
+        </div>
+
+      </div>
+
+
+      <!-- DEFAULT -->
+      <div class="flex items-center gap-2">
+
+        <input
+          type="checkbox"
+          name="isDefault"
+          value="true"
+          id="isDefault"
+          <%= address.isDefault ? "checked" : "" %>
+          class="w-4 h-4 border border-[#121212]"
+        >
+
+        <label for="isDefault" class="text-sm">
+          Set as default shipping address
+        </label>
+
+      </div>
+
+
+      <!-- BUTTON -->
+      <div class="flex justify-center pt-6">
+
+        <button
+          id="submitBtn"
+          type="submit"
+          class="bg-[#121212] text-white px-16 py-3 rounded-lg font-medium transition hover:opacity-90 active:scale-[0.98]"
+        >
+          Save
+        </button>
+
+      </div>
+
+    </form>
+
+  </div>
+
+</section>

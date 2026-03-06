@@ -1,8 +1,9 @@
 import { changeEmailService, changePasswordService, profileService, updateProfileService } from "../../services/user/profile.service.js";
 import { changeEmailSchema, changePasswordSchema, editProfileSchema } from "../../validators/user/profile.validator.js";
 import HTTP_STATUS from "../../utils/httpStatus.js";
-import { addAddressService, getUserAddressesService } from "../../services/user/address.service.js";
+import { addAddressService, deleteAddressService, editAddressService, getUserAddressesService } from "../../services/user/address.service.js";
 import { addressSchema } from "../../validators/user/address.validator.js";
+import * as addressRepo from '../../repositories/user/address.repo.js'
 
 export const loadProfile = async (req, res, next) => {
   try {
@@ -397,3 +398,128 @@ export const addAddress = async (req, res, next) => {
   }
 };
 
+
+export const loadEditAddress = async (req, res, next) => {
+  try {
+
+    const { id } = req.params;
+
+    const success = req.session.success || null;
+    const error = req.session.error || null;
+
+    delete req.session.success;
+    delete req.session.error;
+
+    const address = await addressRepo.getAddressById(id);
+
+    if (!address || address.userId.toString() !== req.user._id.toString()) {
+      req.session.error = "Address not found";
+      return res.redirect("/profile/address");
+    }
+
+    res.render("user/editAddress", {
+      title: "Edit Address | BooksKart",
+      headerType: "main",
+      address,
+      errors: {},
+      old: {},
+      success,
+      error,
+      pageScript: "/js/editAddress.js"
+    });
+
+  } catch (error) {
+    next(error);
+  }
+};
+
+
+export const editAddress = async (req, res, next) => {
+
+  const { id } = req.params;
+
+  req.body.isDefault = req.body.isDefault === "true";
+
+  const { error, value } = addressSchema.validate(req.body, {
+    abortEarly: false
+  });
+
+  if (error) {
+
+    const errors = {};
+
+    error.details.forEach(err => {
+      errors[err.path[0]] = err.message;
+    });
+
+    return res.status(HTTP_STATUS.BAD_REQUEST).render(
+      "user/editAddress",
+      {
+        title: "Edit Address | BooksKart",
+        headerType: "main",
+        errors,
+        old: req.body,
+        address: { _id: id },
+        success: null,
+        error: null,
+        pageScript: "/js/editAddress.js"
+      }
+    );
+  }
+
+  try {
+
+    await editAddressService(req.user._id, id, value);
+
+    req.session.success = "Address updated successfully";
+
+    return res.redirect("/profile/address");
+
+  } catch (err) {
+
+    if (err.type === "GLOBAL") {
+
+      return res.status(HTTP_STATUS.BAD_REQUEST).render(
+        "user/editAddress",
+        {
+          title: "Edit Address | BooksKart",
+          headerType: "main",
+          errors: {},
+          old: req.body,
+          address: { _id: id },
+          success: null,
+          error: err.message,
+          pageScript: "/js/editAddress.js"
+        }
+      );
+
+    }
+
+    next(err);
+  }
+
+};
+
+export const deleteAddress = async (req, res, next) => {
+
+  try {
+
+    const { id } = req.params;
+
+    await deleteAddressService(req.user._id, id);
+
+    return res.json({
+      success: true,
+      message: "Address deleted successfully"
+    });
+
+  } catch (err) {
+
+    return res.status(400).json({
+      success: false,
+      message: err.message
+    });
+
+  }
+
+};

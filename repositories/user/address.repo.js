@@ -12,5 +12,27 @@ export const unsetDefaultAddress = async (userId) => {
 };
 
 export const getUserAddresses = async (userId) => {
-  return await Address.find({ userId }).sort({ createdAt: -1 });
+  return await Address.find({ 
+    userId, 
+    isDeleted: false
+  }).sort({ createdAt: -1 });
+};
+
+export const getAddressById = async (id) => {
+  return await Address.findOne({
+    _id: id,
+    isDeleted: false
+  });
+};
+
+export const updateAddress = async (id, data) => {
+  return await Address.findByIdAndUpdate(id, data, { new: true });
+};
+
+export const softDeleteAddress = async (id) => {
+  return await Address.findByIdAndUpdate(
+    id,
+    { isDeleted: true },
+    { new: true }
+  );
 };

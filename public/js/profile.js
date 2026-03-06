@@ -59,4 +59,65 @@ document.addEventListener("DOMContentLoaded", () => {
     });
   });
 
+  document.querySelectorAll(".deleteAddressBtn").forEach(btn => {
+
+    btn.addEventListener("click", async function () {
+
+      const id = this.dataset.id;
+
+      const result = await Swal.fire({
+        title: "Delete Address?",
+        text: "This address will be removed from your profile.",
+        icon: "warning",
+        showCancelButton: true,
+        confirmButtonText: "Yes, Delete",
+        cancelButtonText: "Cancel",
+        confirmButtonColor: "#121212",
+        cancelButtonColor: "#999"
+      });
+
+      if (!result.isConfirmed) return;
+
+      try {
+
+        const res = await fetch(`/profile/address/delete/${id}`, {
+          method: "DELETE"
+        });
+
+        const data = await res.json();
+
+        if (data.success) {
+
+          await Swal.fire({
+            icon: "success",
+            title: "Deleted",
+            text: data.message,
+            confirmButtonColor: "#121212"
+          });
+
+          location.reload();
+
+        } else {
+
+          Swal.fire({
+            icon: "error",
+            title: "Error",
+            text: data.message
+          });
+
+        }
+
+      } catch (error) {
+
+        Swal.fire({
+          icon: "error",
+          title: "Something went wrong"
+        });
+
+      }
+
+    });
+
+  });
+
 });
