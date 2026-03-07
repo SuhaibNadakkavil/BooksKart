@@ -36,3 +36,29 @@ export const updateUser = async (userId, updateData) => {
         runValidators: true,
     })
 }
+
+export const findUsers = async ({ skip, limit, filter, sort }) => {
+
+  return User.find(filter)
+    .sort(sort)
+    .skip(skip)
+    .limit(limit)
+    .select("name email phone isBlocked createdAt");
+
+};
+
+export const countUsers = async (filter) => {
+
+  return User.countDocuments(filter);
+
+};
+
+export const updateUserBlockStatus = async (userId, isBlocked) => {
+
+  return User.findByIdAndUpdate(
+    userId,
+    { isBlocked },
+    { new: true }
+  );
+
+};

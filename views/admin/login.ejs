@@ -1,0 +1,122 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+
+  <title>Admin Login | BooksKart</title>
+
+  <!-- Fonts -->
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600&family=Merriweather:wght@400;500;600&family=Playfair+Display:wght@600&display=swap" rel="stylesheet">
+
+  <!-- Tailwind -->
+  <link rel="stylesheet" href="/css/output.css">
+
+  <style>
+    body{
+      font-family:'Inter',sans-serif;
+    }
+  </style>
+
+</head>
+
+
+<body class="bg-[#FAFAF8] text-[#121212] min-h-screen flex items-center justify-center px-4">
+
+  <section class="w-full max-w-md border border-[#121212] rounded-3xl p-10 bg-[#FAFAF8]">
+
+    <!-- Heading -->
+    <div class="text-center mb-8">
+
+      <h1 class="text-3xl font-semibold">
+        Admin Login
+      </h1>
+
+      <p class="text-sm mt-2 opacity-80">
+        Enter your credentials to access the dashboard.
+      </p>
+
+    </div>
+
+
+    <!-- Form -->
+    <form action="/admin/login" method="POST" novalidate>
+
+      <!-- Email -->
+      <div class="mb-6">
+
+        <label class="block text-sm font-medium mb-2">
+          Email Address
+        </label>
+
+        <input
+          type="email"
+          name="email"
+          placeholder="Enter your email address"
+          required
+          value="<%= old?.email || '' %>"
+          class="w-full border border-[#121212] rounded-xl px-4 py-3
+                 focus:outline-none focus:border-[#333333]"
+        />
+
+        <!-- Backend Error -->
+        <p class="text-sm text-red-600 mt-1 min-h-[18px]">
+          <%= errors?.email || '' %>
+        </p>
+
+      </div>
+
+
+      <!-- Password -->
+      <div class="mb-2">
+
+        <label class="block text-sm font-medium mb-2">
+          Password
+        </label>
+
+        <div class="relative">
+
+          <input
+            type="password"
+            name="password"
+            placeholder="Enter your password"
+            required
+            minlength="6"
+            class="w-full border border-[#121212] rounded-xl px-4 py-3
+                   focus:outline-none focus:border-[#333333]"
+          />
+
+        </div>
+
+        <!-- Backend Error -->
+        <p class="text-sm text-red-600 mt-1 min-h-[18px]">
+          <%= errors?.password || '' %>
+        </p>
+
+      </div>
+
+
+      <!-- General Backend Error -->
+      <p class="text-sm text-red-600 mt-3 text-center min-h-[18px]">
+        <%= errors?.general || '' %>
+      </p>
+
+
+      <!-- Submit -->
+      <button
+        type="submit"
+        class="w-full bg-[#121212] text-[#FAFAF8] py-3 rounded-xl mt-6
+               font-medium transition hover:opacity-90">
+
+        Login
+
+      </button>
+
+    </form>
+
+  </section>
+
+</body>
+</html>

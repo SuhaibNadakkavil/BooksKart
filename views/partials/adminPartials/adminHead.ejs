@@ -1,0 +1,43 @@
+<head>
+
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+
+<title><%= title || "BooksKart Admin" %></title>
+
+<!-- Fonts -->
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600&family=Merriweather:wght@400;500;600&family=Playfair+Display:wght@600&display=swap" rel="stylesheet">
+
+<!-- Tailwind -->
+<link rel="stylesheet" href="/css/output.css">
+
+<link rel="stylesheet" href="/vendor/toastify/toastify.css">
+
+<!-- Base Styles -->
+<style>
+
+body{
+font-family:'Inter',sans-serif;
+}
+
+.sidebar-link{
+display:block;
+padding:10px 14px;
+font-size:16px;
+font-weight:500;
+transition:all .2s ease;
+}
+
+.sidebar-link:hover{
+color:#333333;
+}
+
+.sidebar-active{
+font-weight:600;
+}
+
+</style>
+
+<%- typeof pageCSS !== 'undefined' ? pageCSS : '' %>
+
+</head>

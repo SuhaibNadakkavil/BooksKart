@@ -1,0 +1,33 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<%- include('../partials/adminPartials/adminHead', { title }) %>
+
+<body class="bg-[#FAFAF8] text-[#121212] min-h-screen flex"
+  data-success="<%= success || '' %>"
+  data-error="<%= error || '' %>"
+  >
+
+  <!-- Sidebar -->
+  <%- include('../partials/adminPartials/adminSidebar') %>
+
+  <!-- Content -->
+  <div class="flex-1 flex flex-col min-h-screen">
+
+    <!-- Mobile top bar -->
+    <div class="lg:hidden flex items-center justify-between px-6 py-4 border-b border-gray-200">
+      <button id="adminMenuBtn" class="text-[16px] font-medium">
+        ☰
+      </button>
+    </div>
+
+    <main class="flex-1 w-full max-w-7xl mx-auto px-6 py-10">
+      <%- body %>
+    </main>
+
+  </div>
+
+  <%- include('../partials/adminPartials/adminScripts') %>
+
+</body>
+</html>

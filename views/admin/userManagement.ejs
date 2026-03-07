@@ -1,0 +1,261 @@
+<section class="w-full">
+
+  <!-- Page Header -->
+  <div class="mb-8">
+    <h1 class="text-xl font-medium">Customer Management</h1>
+    <div class="w-12 h-[2px] bg-[#121212] mt-2"></div>
+  </div>
+
+
+  <form method="GET" action="/admin/users"
+      class="flex flex-col md:flex-row md:items-center md:justify-between gap-4 mb-8">
+
+  <!-- Search -->
+  <div class="flex items-center gap-3">
+
+    <div class="relative">
+      <input
+        type="text"
+        name="search"
+        value="<%= query?.search || '' %>"
+        placeholder="Search by name or email..."
+        class="border border-[#121212] rounded-lg px-4 py-2 pr-10 w-64
+               focus:outline-none focus:border-[#333333]"
+      />
+    </div>
+
+    <button
+      type="submit"
+      class="bg-[#121212] text-[#FAFAF8] px-4 py-2 rounded-lg text-sm
+             hover:opacity-90 transition">
+      Search
+    </button>
+
+    <% if(query?.search){ %>
+      <a href="/admin/users"
+         class="text-xs tracking-widest hover:underline">
+        CANCEL
+      </a>
+    <% } %>
+
+  </div>
+
+
+  <!-- Filter + Sort -->
+  <div class="flex items-center gap-6 text-sm tracking-wide">
+
+    <!-- Filter -->
+    <select
+      id="statusFilter"
+      name="status"
+      class="border border-[#121212] px-3 py-2 rounded-lg
+             focus:outline-none focus:border-[#333333]">
+
+      <option value="">FILTER</option>
+
+      <option value="active"
+        <%= query?.status === "active" ? "selected" : "" %>>
+        Active
+      </option>
+
+      <option value="blocked"
+        <%= query?.status === "blocked" ? "selected" : "" %>>
+        Blocked
+      </option>
+
+    </select>
+
+
+    <!-- Sort -->
+    <select
+      id="sortSelect"
+      name="sort"
+      class="border border-[#121212] px-3 py-2 rounded-lg
+             focus:outline-none focus:border-[#333333]">
+
+      <option value="new"
+        <%= query?.sort === "new" ? "selected" : "" %>>
+        Newest
+      </option>
+
+      <option value="old"
+        <%= query?.sort === "old" ? "selected" : "" %>>
+        Oldest
+      </option>
+
+      <option value="az"
+        <%= query?.sort === "az" ? "selected" : "" %>>
+        A-Z
+      </option>
+
+      <option value="za"
+        <%= query?.sort === "za" ? "selected" : "" %>>
+        Z-A
+      </option>
+
+    </select>
+
+  </div>
+
+</form>
+
+
+
+  <!-- Users Table -->
+  <div class="overflow-x-auto">
+
+    <table class="w-full text-sm">
+
+      <!-- Table Head -->
+      <thead>
+
+        <tr class="border-b border-gray-300 text-left text-xs tracking-wider uppercase">
+
+          <th class="py-4">Name</th>
+          <th>Email</th>
+          <th>Phone</th>
+          <th>Status</th>
+          <th class="text-right">Actions</th>
+
+        </tr>
+
+      </thead>
+
+
+
+      <!-- Table Body -->
+      <tbody>
+
+        <% if(users && users.length > 0){ %>
+
+          <% users.forEach(user => { %>
+
+            <tr class="border-b border-gray-200 hover:bg-gray-50 transition">
+
+              <td class="py-4 font-medium">
+                <%= user.name %>
+              </td>
+
+              <td class="opacity-80">
+                <%= user.email %>
+              </td>
+
+              <td>
+                <%= user.phone || "-" %>
+              </td>
+
+              <td>
+                <% if(user.isBlocked){ %>
+
+                  <span class="text-red-600">
+                    Blocked
+                  </span>
+
+                <% } else { %>
+
+                  <span class="text-green-700">
+                    Active
+                  </span>
+
+                <% } %>
+              </td>
+
+
+              <!-- Actions -->
+              <td class="text-right">
+
+                <% if(user.isBlocked){ %>
+
+                  <button
+                    class="text-sm tracking-widest hover:underline unblockUserBtn"
+                    data-id="<%= user._id %>">
+                    UNBLOCK
+                  </button>
+
+                <% } else { %>
+
+                  <button
+                    class="text-sm tracking-widest hover:underline blockUserBtn"
+                    data-id="<%= user._id %>">
+                    BLOCK
+                  </button>
+
+                <% } %>
+
+              </td>
+
+            </tr>
+
+          <% }) %>
+
+        <% } else { %>
+
+          <tr>
+            <td colspan="5" class="py-10 text-center opacity-70">
+              No users found
+            </td>
+          </tr>
+
+        <% } %>
+
+      </tbody>
+
+    </table>
+
+  </div>
+
+
+
+  <!-- Footer Pagination -->
+  <div class="flex flex-col md:flex-row md:items-center md:justify-between mt-6 text-sm">
+
+    <!-- Showing Count -->
+    <p class="opacity-70 mb-4 md:mb-0">
+      Showing <%= users?.length || 0 %> of <%= totalUsers || 0 %> customers
+    </p>
+
+
+    <!-- Pagination -->
+    <div class="flex items-center gap-4">
+
+      <% if(page > 1){ %>
+
+        <a
+          href="?page=<%= page - 1 %>"
+          class="hover:underline">
+          ← Previous
+        </a>
+
+      <% } %>
+
+
+      <div class="flex items-center gap-2">
+
+        <% for(let i = 1; i <= totalPages; i++){ %>
+
+          <a
+            href="?search=<%= query.search || '' %>&status=<%= query.status || '' %>&sort=<%= query.sort || '' %>&page=<%= i %>"
+            class="px-2 <%= page === i ? 'font-semibold underline' : 'hover:underline' %>">
+            <%= i %>
+          </a>
+
+        <% } %>
+
+      </div>
+
+
+      <% if(page < totalPages){ %>
+
+        <a
+          href="?page=<%= page + 1 %>"
+          class="hover:underline">
+          Next →
+        </a>
+
+      <% } %>
+
+    </div>
+
+  </div>
+
+</section>

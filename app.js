@@ -9,6 +9,8 @@ import passport from "./config/passport.js";
 
 import errorMiddleware from "./middlewares/error.middleware.js";
 import userRoutes from "./routes/user/index.js";
+import adminRoutes from './routes/admin/index.js'
+
 import sessionMiddleware from "./middlewares/session.middleware.js";
 import { globalLimiter } from "./middlewares/rateLimit.middleware.js";
 
@@ -52,6 +54,7 @@ app.use(globalLimiter);
 
 // Routes
 app.use("/", userRoutes);
+app.use('/admin', adminRoutes)
 
 // 404 Handler
 app.use((req, res, next) => {
