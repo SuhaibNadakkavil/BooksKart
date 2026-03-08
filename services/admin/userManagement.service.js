@@ -72,7 +72,6 @@ export const blockUserService = async (userId) => {
 
   if (!user) {
     const error = new Error("User not found");
-    error.type = "GLOBAL";
     throw error;
   }
 
@@ -87,7 +86,6 @@ export const unblockUserService = async (userId) => {
 
   if (!user) {
     const error = new Error("User not found");
-    error.type = "GLOBAL";
     throw error;
   }
 

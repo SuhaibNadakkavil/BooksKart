@@ -30,10 +30,28 @@ document.addEventListener("DOMContentLoaded", () => {
         icon: "warning",
         showCancelButton: true,
         confirmButtonText: "Yes, Block",
-      }).then((result) => {
+      }).then(async (result) => {
 
-        if(result.isConfirmed){
-          window.location.href = `/admin/users/block/${id}`;
+        if (result.isConfirmed) {
+
+          const res = await fetch(`/admin/users/${id}/block`, {
+            method: "PATCH"
+          });
+
+          const data = await res.json();
+
+          if (data.success) {
+
+            showToast(data.message, "success");
+
+            setTimeout(() => {
+              location.reload();
+            }, 800);
+
+          } else {
+            showToast(data.message, "error");
+          }
+
         }
 
       });
@@ -54,10 +72,28 @@ document.addEventListener("DOMContentLoaded", () => {
         icon: "question",
         showCancelButton: true,
         confirmButtonText: "Yes, Unblock",
-      }).then((result) => {
+      }).then(async (result) => {
 
-        if(result.isConfirmed){
-          window.location.href = `/admin/users/unblock/${id}`;
+        if (result.isConfirmed) {
+
+          const res = await fetch(`/admin/users/${id}/unblock`, {
+            method: "PATCH"
+          });
+
+          const data = await res.json();
+
+          if (data.success) {
+
+            showToast(data.message, "success");
+
+            setTimeout(() => {
+              location.reload();
+            }, 800);
+
+          } else {
+            showToast(data.message, "error");
+          }
+
         }
 
       });

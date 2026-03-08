@@ -1,7 +1,25 @@
-import { changeEmailService, changePasswordService, profileService, updateProfileService } from "../../services/user/profile.service.js";
-import { changeEmailSchema, changePasswordSchema, editProfileSchema } from "../../validators/user/profile.validator.js";
+import { 
+  changeEmailService, 
+  changePasswordService, 
+  profileService, 
+  updateProfileService 
+} from "../../services/user/profile.service.js";
+
+import { 
+  changeEmailSchema, 
+  changePasswordSchema, 
+  editProfileSchema 
+} from "../../validators/user/profile.validator.js";
+
 import HTTP_STATUS from "../../utils/httpStatus.js";
-import { addAddressService, deleteAddressService, editAddressService, getUserAddressesService } from "../../services/user/address.service.js";
+
+import { 
+  addAddressService, 
+  deleteAddressService, 
+  editAddressService, 
+  getUserAddressesService 
+} from "../../services/user/address.service.js";
+
 import { addressSchema } from "../../validators/user/address.validator.js";
 import * as addressRepo from '../../repositories/user/address.repo.js'
 

@@ -44,48 +44,45 @@ export const loadUserManagement = async (req, res, next) => {
 };
 
 export const blockUser = async (req, res, next) => {
-
   try {
 
     const { id } = req.params;
 
     await blockUserService(id);
 
-    req.session.success = "User blocked successfully";
-
-    return res.redirect(req.get("referer") || "/admin/users");
+    return res.status(HTTP_STATUS.OK).json({
+      success: true,
+      message: "User blocked successfully"
+    });
 
   } catch (err) {
-
-    req.session.error = err.message || "Something went wrong";
-
-    return res.redirect(req.get("referer") || "/admin/users");
-
+    return res.status(HTTP_STATUS.UNAUTHORIZED).json({
+      success: false,
+      message: err.message || "Something went wrong",
+    });
   }
-
 };
 
 
 export const unblockUser = async (req, res, next) => {
-
   try {
 
     const { id } = req.params;
 
     await unblockUserService(id);
 
-    req.session.success = "User unblocked successfully";
-
-    return res.redirect(req.get("referer") || "/admin/users");
+    return res.status(HTTP_STATUS.OK).json({
+      success: true,
+      message: "User unblocked successfully"
+    });
 
   } catch (err) {
 
-    req.session.error = err.message || "Something went wrong";
-
-    return res.redirect(req.get("referer") || "/admin/users");
-
+    return res.status(HTTP_STATUS.UNAUTHORIZED).json({
+      success: false,
+      message: err.message || "Something went wrong",
+    });
   }
-
 };
 
 

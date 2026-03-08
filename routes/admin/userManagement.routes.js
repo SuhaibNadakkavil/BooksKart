@@ -10,8 +10,8 @@ import {
 const router = express.Router()
 
 router.get('/users', verifyAdminAuth, loadUserManagement)
-router.get('/users/block/:id', verifyAdminAuth, blockUser)
-router.get('/users/unblock/:id', verifyAdminAuth, unblockUser)
+router.patch('/users/:id/block', verifyAdminAuth, blockUser)
+router.patch('/users/:id/unblock', verifyAdminAuth, unblockUser)
 router.post('/logout', verifyAdminAuth, logout)
 
 export default router

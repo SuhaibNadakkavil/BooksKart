@@ -221,7 +221,7 @@
       <% if(page > 1){ %>
 
         <a
-          href="?page=<%= page - 1 %>"
+          href="?search=<%= query.search || '' %>&status=<%= query.status || '' %>&sort=<%= query.sort || '' %>&page=<%= page - 1 %>"
           class="hover:underline">
           ← Previous
         </a>
@@ -247,7 +247,7 @@
       <% if(page < totalPages){ %>
 
         <a
-          href="?page=<%= page + 1 %>"
+          href="?search=<%= query.search || '' %>&status=<%= query.status || '' %>&sort=<%= query.sort || '' %>&page=<%= page + 1 %>"
           class="hover:underline">
           Next →
         </a>
