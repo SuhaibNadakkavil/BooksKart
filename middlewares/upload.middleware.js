@@ -1,35 +1,37 @@
 import multer from "multer";
-import path from "path";
-import fs from "fs";
+import { CloudinaryStorage } from "multer-storage-cloudinary";
+import cloudinary from "../config/cloudinary.js";
 
-const uploadPath = "public/uploads/profile";
+const profileStorage = new CloudinaryStorage({
+  cloudinary,
+  params: {
+    folder: "bookskart/profile",
+    allowed_formats: ["jpg", "jpeg", "png", "webp"],
 
-// Ensure folder exists
-if (!fs.existsSync(uploadPath)) {
-  fs.mkdirSync(uploadPath, { recursive: true });
-}
-
-const storage = multer.diskStorage({
-  destination: (req, file, cb) => {
-    cb(null, uploadPath);
-  },
-  filename: (req, file, cb) => {
-    const uniqueSuffix = Date.now() + "-" + Math.round(Math.random() * 1e9);
-    const ext = path.extname(file.originalname);
-    cb(null, `profile-${uniqueSuffix}${ext}`);
-  },
+    transformation: [
+      {
+        width: 400,
+        height: 400,
+        crop: "fill",
+        gravity: "face"
+      }
+    ]
+  }
 });
 
 const fileFilter = (req, file, cb) => {
+
   if (file.mimetype.startsWith("image/")) {
     cb(null, true);
   } else {
-    cb(new Error("Only image files are allowed"), false);
+    req.fileValidationError = "Only image files are allowed";
+    cb(null, false);
   }
+
 };
 
 export const uploadProfileImage = multer({
-  storage,
+  storage: profileStorage,
   fileFilter,
-  limits: { fileSize: 2 * 1024 * 1024 }, // 2MB
-});
+  limits: { fileSize: 2 * 1024 * 1024 }
+}).single("profileImage");

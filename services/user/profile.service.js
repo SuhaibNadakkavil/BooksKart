@@ -3,6 +3,7 @@ import HTTP_STATUS from "../../utils/httpStatus.js";
 import bcrypt from "bcrypt"
 import { generateOTP } from "../../utils/otp.js";
 import { sendSignupOTPEmail, storeChangeEmailOTP } from "./otp.service.js";
+import { deleteCloudinaryImage } from "../../utils/cloudinary.util.js";
 
 export const profileService = async (user) => {
   return user;
@@ -29,6 +30,10 @@ export const updateProfileService = async (userId, data) => {
       error.field = "phone";
       throw error;
     }
+  }
+
+  if (data.profileImage && existingUser.profileImage) {
+    await deleteCloudinaryImage(existingUser.profileImage);
   }
 
   const updatedUser = await userRepo.updateUser(userId, data);

@@ -70,6 +70,19 @@ export const loadEditProfile = async (req, res, next) => {
 };
 
 export const updateProfile = async (req, res, next) => {
+
+  if (req.fileValidationError) {
+    return res.status(400).render("user/editProfile", {
+      title: "Edit Profile | BooksKart",
+      headerType: "main",
+      errors: {},
+      old: req.body,
+      error: req.fileValidationError,
+      success: null,
+      pageScript: "/js/editProfile.js",
+    });
+  }
+
   try {
 
     const { error, value } = editProfileSchema.validate(req.body, {
@@ -101,7 +114,7 @@ export const updateProfile = async (req, res, next) => {
     };
 
     if (req.file) {
-      updateData.profileImage = `/uploads/profile/${req.file.filename}`;
+      updateData.profileImage = req.file.path;
     }
 
     await updateProfileService(req.user._id, updateData);
