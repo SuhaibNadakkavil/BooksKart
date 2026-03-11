@@ -1,6 +1,8 @@
 import express from "express";
 import adminAuthRoutes from './adminAuth.routes.js'
 import userManagement from "./userManagement.routes.js";
+import categoryManagement from './categoryManagement.routes.js'
+import offerRoutes from './offer.routes.js'
 
 const router = express.Router()
 
@@ -11,5 +13,7 @@ router.use((req, res, next) => {
 
 router.use('/', adminAuthRoutes)
 router.use('/', userManagement)
+router.use('/', categoryManagement)
+router.use('/', offerRoutes)
 
 export default router
