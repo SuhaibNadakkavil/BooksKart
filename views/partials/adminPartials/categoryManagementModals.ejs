@@ -1,0 +1,433 @@
+<!-- OVERLAY -->
+<div id="categoryModalOverlay"
+class="fixed inset-0 bg-black bg-opacity-30 hidden z-40"></div>
+
+
+
+<!-- ========================================================= -->
+<!-- ADD CATEGORY MODAL -->
+<!-- ========================================================= -->
+
+<div id="addCategoryModal"
+class="fixed inset-0 flex items-center justify-center hidden z-50 px-4">
+
+<div class="bg-[#FAFAF8] w-full max-w-md border border-gray-300 rounded-lg p-8">
+
+<h2 class="text-lg font-medium mb-6">Add Category</h2>
+
+<form id="addCategoryForm" method="POST" action="/admin/categories">
+
+<!-- Name -->
+<div class="mb-5">
+
+<label class="text-sm mb-2 block">Category Name</label>
+
+<input
+type="text"
+name="name"
+class="w-full border border-gray-300 rounded-md px-3 py-2
+focus:outline-none focus:border-[#333333]"
+/>
+
+<p class="text-xs text-red-600 mt-1 hidden" id="addCategoryNameError"></p>
+
+</div>
+
+
+<!-- Description -->
+<div class="mb-5">
+
+<label class="text-sm mb-2 block">Description</label>
+
+<textarea
+name="description"
+rows="4"
+class="w-full border border-gray-300 rounded-md px-3 py-2
+focus:outline-none focus:border-[#333333]"></textarea>
+
+<p class="text-xs text-red-600 mt-1 hidden" id="addCategoryDescriptionError"></p>
+
+</div>
+
+
+
+<!-- Status -->
+<div class="flex items-center justify-between mb-6">
+
+<div>
+<p class="text-sm">Status</p>
+<p class="text-xs opacity-70">Active</p>
+</div>
+
+<label class="relative inline-flex items-center cursor-pointer">
+
+<input
+type="checkbox"
+name="status"
+checked
+class="sr-only peer"
+/>
+
+<div
+class="w-10 h-5 bg-gray-300 rounded-full peer
+peer-checked:bg-[#121212]
+after:content-['']
+after:absolute after:top-[2px] after:left-[2px]
+after:bg-white after:border after:rounded-full
+after:h-4 after:w-4 after:transition-all
+peer-checked:after:translate-x-5">
+</div>
+
+</label>
+
+</div>
+
+
+
+<hr class="my-6">
+
+
+
+<!-- Actions -->
+<div class="flex items-center justify-between">
+
+<button
+type="submit"
+class="bg-[#121212] text-[#FAFAF8] px-6 py-2 rounded-md text-sm
+hover:opacity-90">
+Save
+</button>
+
+<button
+type="button"
+class="closeCategoryModal border border-gray-300 px-5 py-2 rounded-md text-sm hover:bg-gray-100">
+Cancel
+</button>
+
+</div>
+
+</form>
+
+</div>
+
+</div>
+
+
+
+<!-- ========================================================= -->
+<!-- EDIT CATEGORY MODAL -->
+<!-- ========================================================= -->
+
+<div id="editCategoryModal"
+class="fixed inset-0 flex items-center justify-center hidden z-50 px-4">
+
+<div class="bg-[#FAFAF8] w-full max-w-md border border-gray-300 rounded-lg p-8">
+
+<h2 class="text-lg font-medium mb-6">Edit Category</h2>
+
+<form id="editCategoryForm" method="POST" novalidate>
+
+
+<!-- Name -->
+<div class="mb-5">
+
+<label class="text-sm mb-2 block">Category Name</label>
+
+<input
+type="text"
+name="name"
+id="editCategoryName"
+class="w-full border border-gray-300 rounded-md px-3 py-2
+focus:outline-none focus:border-[#333333]"
+/>
+
+<p class="text-xs text-red-600 mt-1 hidden" id="editCategoryNameError"></p>
+
+</div>
+
+
+
+<!-- Description -->
+<div class="mb-5">
+
+<label class="text-sm mb-2 block">Description</label>
+
+<textarea
+name="description"
+id="editCategoryDescription"
+rows="4"
+class="w-full border border-gray-300 rounded-md px-3 py-2
+focus:outline-none focus:border-[#333333]"></textarea>
+
+<p class="text-xs text-red-600 mt-1 hidden" id="editCategoryDescriptionError"></p>
+
+</div>
+
+
+
+<!-- Status -->
+<div class="flex items-center justify-between mb-6">
+
+<div>
+<p class="text-sm">Status</p>
+<p class="text-xs opacity-70">Active</p>
+</div>
+
+<label class="relative inline-flex items-center cursor-pointer">
+
+<input
+type="checkbox"
+name="status"
+id="editCategoryStatus"
+class="sr-only peer"
+/>
+
+<div
+class="w-10 h-5 bg-gray-300 rounded-full peer
+peer-checked:bg-[#121212]
+after:content-['']
+after:absolute after:top-[2px] after:left-[2px]
+after:bg-white after:border after:rounded-full
+after:h-4 after:w-4 after:transition-all
+peer-checked:after:translate-x-5">
+</div>
+
+</label>
+
+</div>
+
+
+
+<hr class="my-6">
+
+
+
+<!-- Actions -->
+<div class="flex items-center justify-between">
+
+<button
+type="submit"
+class="bg-[#121212] text-[#FAFAF8] px-6 py-2 rounded-md text-sm
+hover:opacity-90">
+Save Changes
+</button>
+
+<button
+type="button"
+class="closeCategoryModal border border-gray-300 px-5 py-2 rounded-md text-sm hover:bg-gray-100">
+Cancel
+</button>
+
+</div>
+
+</form>
+
+</div>
+
+</div>
+
+
+
+<!-- ========================================================= -->
+<!-- ADD OFFER MODAL -->
+<!-- ========================================================= -->
+
+<div id="addOfferModal"
+class="fixed inset-0 flex items-center justify-center hidden z-50 px-4">
+
+<div class="bg-[#FAFAF8] w-full max-w-md border border-gray-300 rounded-lg p-8">
+
+<h2 class="text-lg font-medium mb-6">Add Offer</h2>
+
+<form id="addOfferForm">
+
+<input type="hidden" name="categoryId" id="addOfferCategoryId">
+
+
+<!-- Offer Type -->
+<div class="mb-5">
+
+<label class="text-sm mb-2 block">Offer Type</label>
+
+<select
+name="type"
+class="w-full border border-gray-300 rounded-md px-3 py-2
+focus:outline-none focus:border-[#333333]">
+
+<option value="">Select</option>
+<option value="percentage">Percentage</option>
+<option value="flat">Flat</option>
+
+</select>
+
+<p class="text-xs text-red-600 mt-1 hidden" id="addOfferTypeError"></p>
+
+</div>
+
+
+
+<!-- Offer Value -->
+<div class="mb-5">
+
+<label class="text-sm mb-2 block">Offer Value</label>
+
+<input
+type="number"
+name="value"
+class="w-full border border-gray-300 rounded-md px-3 py-2
+focus:outline-none focus:border-[#333333]"
+/>
+
+<p class="text-xs text-red-600 mt-1 hidden" id="addOfferValueError"></p>
+
+</div>
+
+
+
+<!-- Expiry Date -->
+<div class="mb-6">
+
+<label class="text-sm mb-2 block">Offer Expiry Date</label>
+
+<input
+type="date"
+name="expiry"
+class="w-full border border-gray-300 rounded-md px-3 py-2
+focus:outline-none focus:border-[#333333]"
+/>
+
+<p class="text-xs text-red-600 mt-1 hidden" id="addOfferExpiryError"></p>
+
+</div>
+
+
+
+<hr class="my-6">
+
+
+
+<div class="flex items-center justify-between">
+
+<button
+type="submit"
+class="bg-[#121212] text-[#FAFAF8] px-6 py-2 rounded-md text-sm
+hover:opacity-90">
+Save
+</button>
+
+<button
+type="button"
+class="closeCategoryModal border border-gray-300 px-5 py-2 rounded-md text-sm hover:bg-gray-100">
+Cancel
+</button>
+
+</div>
+
+</form>
+
+</div>
+
+</div>
+
+
+
+<!-- ========================================================= -->
+<!-- EDIT OFFER MODAL -->
+<!-- ========================================================= -->
+
+<div id="editOfferModal"
+class="fixed inset-0 flex items-center justify-center hidden z-50 px-4">
+
+<div class="bg-[#FAFAF8] w-full max-w-md border border-gray-300 rounded-lg p-8">
+
+<h2 class="text-lg font-medium mb-6">Edit Offer</h2>
+
+<form id="editOfferForm">
+
+<input type="hidden" id="editOfferCategoryId" name="categoryId">
+
+
+<!-- Type -->
+<div class="mb-5">
+
+<label class="text-sm mb-2 block">Offer Type</label>
+
+<select
+id="editOfferType"
+name="type"
+class="w-full border border-gray-300 rounded-md px-3 py-2
+focus:outline-none focus:border-[#333333]">
+
+<option value="percentage">Percentage</option>
+<option value="flat">Flat</option>
+
+</select>
+
+<p class="text-xs text-red-600 mt-1 hidden" id="editOfferTypeError"></p>
+
+</div>
+
+
+
+<!-- Value -->
+<div class="mb-5">
+
+<label class="text-sm mb-2 block">Offer Value</label>
+
+<input
+type="number"
+id="editOfferValue"
+name="value"
+class="w-full border border-gray-300 rounded-md px-3 py-2
+focus:outline-none focus:border-[#333333]"
+/>
+
+<p class="text-xs text-red-600 mt-1 hidden" id="editOfferValueError"></p>
+
+</div>
+
+
+
+<!-- Expiry -->
+<div class="mb-6">
+
+<label class="text-sm mb-2 block">Offer Expiry Date</label>
+
+<input
+type="date"
+id="editOfferExpiry"
+name="expiry"
+class="w-full border border-gray-300 rounded-md px-3 py-2
+focus:outline-none focus:border-[#333333]"
+/>
+
+<p class="text-xs text-red-600 mt-1 hidden" id="editOfferExpiryError"></p>
+
+</div>
+
+
+
+<hr class="my-6">
+
+<div class="flex items-center justify-between">
+
+<button
+type="submit"
+class="bg-[#121212] text-[#FAFAF8] px-6 py-2 rounded-md text-sm
+hover:opacity-90">
+Save Changes
+</button>
+
+<button
+type="button"
+class="closeCategoryModal border border-gray-300 px-5 py-2 rounded-md text-sm hover:bg-gray-100">
+Cancel
+</button>
+
+</div>
+
+</form>
+
+</div>
+
+</div>

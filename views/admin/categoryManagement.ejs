@@ -1,0 +1,366 @@
+<section class="w-full">
+
+  <!-- Page Header -->
+  <div class="flex items-center justify-between mb-8">
+
+    <div>
+      <h1 class="text-xl font-medium">Category Management</h1>
+      <div class="w-12 h-[2px] bg-[#121212] mt-2"></div>
+    </div>
+
+    <!-- Add Category -->
+    <button
+      id="openAddCategoryModal"
+      class="bg-[#121212] text-[#FAFAF8] rounded-lg px-5 py-2 text-sm tracking-widest
+             hover:opacity-90 transition">
+      ADD CATEGORY
+    </button>
+
+  </div>
+
+
+  <!-- Search / Filter / Sort -->
+  <form method="GET" action="/admin/categories"
+    class="flex flex-col lg:flex-row lg:items-center lg:justify-between gap-6 mb-10">
+
+    <!-- Search -->
+    <div class="flex items-center gap-3">
+
+      <input
+        type="text"
+        name="search"
+        value="<%= query?.search || '' %>"
+        placeholder="Search categories..."
+        class="border border-[#121212] rounded-lg px-2 py-2 w-64
+               focus:outline-none focus:border-[#333333]"
+      />
+
+      <button
+        type="submit"
+        class="bg-[#121212] text-[#FAFAF8] rounded-lg px-4 py-2 text-sm tracking-widest
+               hover:opacity-90 transition">
+        SEARCH
+      </button>
+
+      <% if(query?.search){ %>
+        <a
+          href="/admin/categories"
+          class="text-xs tracking-widest hover:underline">
+          CANCEL
+        </a>
+      <% } %>
+
+    </div>
+
+
+    <!-- Filter / Sort -->
+    <div class="flex items-center gap-6 text-sm tracking-widest">
+
+      <!-- Filter -->
+      <select
+        id="statusFilter"
+        name="status"
+        class="border border-[#121212] px-3 py-2 rounded-lg
+               focus:outline-none focus:border-[#333333]">
+
+        <option value="">FILTER</option>
+
+        <option value="active"
+          <%= query?.status === "active" ? "selected" : "" %>>
+          Active
+        </option>
+
+        <option value="inactive"
+          <%= query?.status === "inactive" ? "selected" : "" %>>
+          Inactive
+        </option>
+
+      </select>
+
+
+      <!-- Sort -->
+      <select
+        id="sortSelect"
+        name="sort"
+        class="border border-[#121212] px-3 py-2 rounded-lg
+               focus:outline-none focus:border-[#333333]">
+
+        <option value="new"
+          <%= query?.sort === "new" ? "selected" : "" %>>
+          Newest
+        </option>
+
+        <option value="old"
+          <%= query?.sort === "old" ? "selected" : "" %>>
+          Oldest
+        </option>
+
+        <option value="az"
+          <%= query?.sort === "az" ? "selected" : "" %>>
+          A-Z
+        </option>
+
+        <option value="za"
+          <%= query?.sort === "za" ? "selected" : "" %>>
+          Z-A
+        </option>
+
+      </select>
+
+    </div>
+
+  </form>
+
+
+
+  <!-- Category Table -->
+  <div class="overflow-x-auto">
+
+    <table class="w-full text-sm">
+
+      <!-- Table Head -->
+      <thead>
+
+        <tr class="border-b border-gray-300 text-left text-xs tracking-widest uppercase">
+
+          <th class="py-4">Category Name</th>
+          <th>Description</th>
+          <th>Offer</th>
+          <th>Status</th>
+          <th class="text-right">Actions</th>
+
+        </tr>
+
+      </thead>
+
+
+      <!-- Table Body -->
+      <tbody>
+
+        <% if(categories && categories.length > 0){ %>
+
+          <% categories.forEach(category => { %>
+
+            <tr class="border-b border-gray-200 hover:bg-gray-50 transition">
+
+              <!-- Name -->
+              <td class="py-4 font-medium">
+                <%= category.name %>
+              </td>
+
+
+              <!-- Description -->
+              <td class="opacity-80 max-w-md">
+                <%= category.description || "-" %>
+              </td>
+
+
+              <!-- Offer -->
+            <td>
+
+                <% if(category.offer){ %>
+
+                    <div class="flex items-center gap-3">
+
+                    <span>
+                        <% if(category.offer.type === "percentage"){ %>
+                        <%= category.offer.value %>% Off
+                        <% } else { %>
+                        ₹<%= category.offer.value %> Off
+                        <% } %>
+                    </span>
+
+                    <% if(category.isActive){ %>
+
+                        <button
+                        class="text-xs tracking-widest hover:underline editOfferBtn"
+                        data-id="<%= category._id %>"
+                        data-type="<%= category.offer.type %>"
+                        data-value="<%= category.offer.value %>"
+                        data-expiry="<%= category.offer.expiryDate.toISOString().split('T')[0] %>">
+                        EDIT
+                        </button>
+
+                        <button
+                        class="text-xs tracking-widest hover:underline deleteOfferBtn"
+                        data-id="<%= category._id %>">
+                        DELETE
+                        </button>
+
+                    <% } else { %>
+
+                        <button
+                        class="text-xs opacity-40 cursor-not-allowed"
+                        disabled>
+                        EDIT
+                        </button>
+
+                        <button
+                        class="text-xs opacity-40 cursor-not-allowed"
+                        disabled>
+                        DELETE
+                        </button>
+
+                    <% } %>
+
+                    </div>
+
+                <% } else { %>
+
+                    <div class="flex items-center gap-3">
+
+                    <span class="opacity-70">None</span>
+
+                    <% if(category.isActive){ %>
+
+                        <button
+                        class="text-xs tracking-widest hover:underline addOfferBtn"
+                        data-id="<%= category._id %>">
+                        ADD
+                        </button>
+
+                    <% } else { %>
+
+                        <button
+                        class="text-xs opacity-40 cursor-not-allowed"
+                        disabled>
+                        ADD
+                        </button>
+
+                    <% } %>
+
+                    </div>
+
+                <% } %>
+
+            </td>
+
+
+              <!-- Status -->
+              <td>
+
+                <% if(category.isActive){ %>
+
+                  <span class="text-green-700">
+                    ACTIVE
+                  </span>
+
+                <% } else { %>
+
+                  <span class="text-red-600">
+                    INACTIVE
+                  </span>
+
+                <% } %>
+
+              </td>
+
+
+              <!-- Actions -->
+              <td class="text-right space-x-4">
+
+                <button
+                class="text-sm tracking-widest hover:underline editCategoryBtn"
+                data-id="<%= category._id %>"
+                data-name="<%= category.name %>"
+                data-description="<%= category.description %>"
+                data-status="<%= category.isActive %>">
+                EDIT
+                </button>
+
+
+                <% if(category.isActive){ %>
+
+                  <button
+                    class="text-sm tracking-widest hover:underline deactivateCategoryBtn"
+                    data-id="<%= category._id %>">
+                    DEACTIVATE
+                  </button>
+
+                <% } else { %>
+
+                  <button
+                    class="text-sm tracking-widest hover:underline activateCategoryBtn"
+                    data-id="<%= category._id %>">
+                    ACTIVATE
+                  </button>
+
+                <% } %>
+
+              </td>
+
+            </tr>
+
+          <% }) %>
+
+        <% } else { %>
+
+          <tr>
+            <td colspan="5" class="text-center py-12 opacity-70">
+              No categories found
+            </td>
+          </tr>
+
+        <% } %>
+
+      </tbody>
+
+    </table>
+
+  </div>
+
+
+
+  <!-- Pagination -->
+  <div class="flex flex-col md:flex-row md:items-center md:justify-between mt-8 text-sm">
+
+    <p class="opacity-70 mb-4 md:mb-0">
+      Showing <%= categories?.length || 0 %> of <%= totalCategories || 0 %> categories
+    </p>
+
+
+    <div class="flex items-center gap-4">
+
+      <% if(page > 1){ %>
+
+        <a
+          href="?search=<%= query.search || '' %>&status=<%= query.status || '' %>&sort=<%= query.sort || '' %>&page=<%= page - 1 %>"
+          class="hover:underline">
+          ← Previous
+        </a>
+
+      <% } %>
+
+
+      <div class="flex items-center gap-2">
+
+        <% for(let i = 1; i <= totalPages; i++){ %>
+
+          <a
+            href="?search=<%= query.search || '' %>&status=<%= query.status || '' %>&sort=<%= query.sort || '' %>&page=<%= i %>"
+            class="px-2 <%= page === i ? 'font-semibold underline' : 'hover:underline' %>">
+            <%= i %>
+          </a>
+
+        <% } %>
+
+      </div>
+
+
+      <% if(page < totalPages){ %>
+
+        <a
+          href="?search=<%= query.search || '' %>&status=<%= query.status || '' %>&sort=<%= query.sort || '' %>&page=<%= page + 1 %>"
+          class="hover:underline">
+          Next →
+        </a>
+
+      <% } %>
+
+    </div>
+
+  </div>
+
+</section>
+
+<%- include('../partials/adminPartials/categoryManagementModals') %>
