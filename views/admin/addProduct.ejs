@@ -1,0 +1,377 @@
+<section class="w-full">
+
+    <!-- PAGE HEADER -->
+    <div class="mb-10">
+
+        <h1 class="text-2xl font-medium">Add New Product</h1>
+
+    </div>
+
+
+
+    <form id="addProductForm" action="/admin/products" method="POST" enctype="multipart/form-data" class="space-y-12">
+
+        <!-- ===============================
+PRODUCT DETAILS
+================================ -->
+
+        <div class="grid grid-cols-1 lg:grid-cols-3 gap-10 border-b pb-10">
+
+            <!-- LEFT INFO -->
+            <div>
+
+                <h2 class="font-medium mb-2">Product Details</h2>
+
+                <p class="text-sm opacity-70">
+                    Enter the core information for the book.
+                </p>
+
+            </div>
+
+
+            <!-- RIGHT FORM -->
+            <div class="lg:col-span-2 space-y-6">
+
+
+                <!-- TITLE -->
+                <div>
+
+                    <label class="text-xs tracking-widest block mb-1">
+                        BOOK TITLE
+                    </label>
+
+                    <input type="text" name="title" id="title" value="<%= old?.title || '' %>"
+                        placeholder="e.g. The Great Gatsby"
+                        class="w-full border border-[#121212] px-3 py-2 rounded focus:outline-none" />
+
+                    <p id="titleError" class="text-red-600 text-xs mt-1">
+                        <%= errors?.title || "" %>
+                    </p>
+
+                </div>
+
+
+
+                <!-- DESCRIPTION -->
+                <div>
+
+                    <label class="text-xs tracking-widest block mb-1">
+                        DESCRIPTION
+                    </label>
+
+                    <textarea name="description" id="description" rows="4"
+                        placeholder="Enter a compelling summary of the book..."
+                        class="w-full border border-[#121212] px-3 py-2 rounded focus:outline-none"><%= old?.description || "" %></textarea>
+
+                    <p id="descriptionError" class="text-red-600 text-xs mt-1">
+                        <%= errors?.description || "" %>
+                    </p>
+
+                </div>
+
+
+
+                <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
+
+                    <!-- CATEGORY -->
+                    <div>
+
+                        <label class="text-xs tracking-widest block mb-1">
+                            CATEGORY
+                        </label>
+
+                        <select name="category" id="category"
+                            class="w-full border border-[#121212] px-3 py-2 rounded focus:outline-none">
+
+                            <option value="">Select Category</option>
+
+                            <% categories.forEach(cat=> { %>
+                                <option value="<%= cat._id %>" <%=old?.category==cat._id ? "selected" : "" %>>
+                                    <%= cat.name %>
+                                </option>
+                                <% }) %>
+
+                        </select>
+
+                        <p id="categoryError" class="text-red-600 text-xs mt-1">
+                            <%= errors?.category || "" %>
+                        </p>
+
+                    </div>
+
+
+
+                    <!-- AUTHOR -->
+                    <div>
+
+                        <label class="text-xs tracking-widest block mb-1">
+                            AUTHOR
+                        </label>
+
+                        <input type="text" name="author" id="author" value="<%= old?.author || '' %>"
+                            placeholder="Full Name"
+                            class="w-full border border-[#121212] px-3 py-2 rounded focus:outline-none" />
+
+                        <p id="authorError" class="text-red-600 text-xs mt-1">
+                            <%= errors?.author || "" %>
+                        </p>
+
+                    </div>
+
+                </div>
+
+            </div>
+
+        </div>
+
+
+
+
+        <!-- ===============================
+VARIANT & STOCK
+================================ -->
+
+        <div class="grid grid-cols-1 lg:grid-cols-3 gap-10 border-b pb-10">
+
+            <div>
+
+                <h2 class="font-medium mb-2">Variant & Stock Information</h2>
+
+                <p class="text-sm opacity-70">
+                    Manage editions, inventory levels and pricing.
+                </p>
+
+            </div>
+
+
+
+            <div class="lg:col-span-2">
+
+                <div id="variantContainer" class="space-y-6">
+
+                    <!-- VARIANT BLOCK -->
+
+                    <% const variants=old?.variants || [{},]; %>
+
+                        <% variants.forEach((variant,index)=>{ %>
+
+                            <div class="variantRow grid grid-cols-1 md:grid-cols-4 gap-6 items-end">
+
+                                <div>
+                                    <label class="text-xs tracking-widest block mb-1">
+                                        FORMAT / VARIANT
+                                    </label>
+
+                                    <select name="variantType[]"
+                                        class="variantType w-full border border-[#121212] px-3 py-2 rounded">
+
+                                        <option value="">Select</option>
+
+                                        <option value="Hardcover" <%=variant.type==="Hardcover" ? "selected" : "" %>>
+                                            Hardcover
+                                        </option>
+
+                                        <option value="Paperback" <%=variant.type==="Paperback" ? "selected" : "" %>>
+                                            Paperback
+                                        </option>
+
+                                    </select>
+
+                                    <p class="text-red-600 text-xs mt-1 variantTypeError">
+                                        <%= errors?.variants?.[index]?.type || "" %>
+                                    </p>
+
+                                </div>
+
+
+                                <div>
+                                    <label class="text-xs tracking-widest block mb-1">
+                                        REGULAR PRICE
+                                    </label>
+
+                                    <input type="number" name="regularPrice[]" value="<%= variant.regularPrice || '' %>"
+                                        class="variantPrice w-full border border-[#121212] px-3 py-2 rounded" />
+
+                                    <p class="text-red-600 text-xs mt-1 variantPriceError">
+                                        <%= errors?.variants?.[index]?.regularPrice || "" %>
+                                    </p>
+                                </div>
+
+
+                                <div>
+                                    <label class="text-xs tracking-widest block mb-1">
+                                        STOCK QUANTITY
+                                    </label>
+
+                                    <input type="number" name="stock[]" value="<%= variant.stock || '' %>"
+                                        class="variantStock w-full border border-[#121212] px-3 py-2 rounded" />
+
+                                    <p class="text-red-600 text-xs mt-1 variantStockError">
+                                        <%= errors?.variants?.[index]?.stock || "" %>
+                                    </p>
+
+                                </div>
+
+                                <div>
+
+                                    <button type="button"
+                                        class="removeVariantBtn text-sm tracking-widest hover:underline <%= variants.length === 1 ? 'opacity-40 cursor-not-allowed' : '' %>"
+                                        <%=variants.length===1 ? 'disabled' : '' %>>
+                                        REMOVE
+                                    </button>
+
+                                </div>
+
+                            </div>
+
+                            <% }) %>
+
+                </div>
+
+
+                <button type="button" id="addVariantBtn"
+                    class="mt-6 bg-[#121212] text-[#FAFAF8] px-4 py-2 rounded text-sm tracking-widest">
+
+                    + ADD VARIANT
+
+                </button>
+
+                <p id="variantDuplicateError" class="text-red-600 text-xs mt-2">
+                    <%= errors?.variants || "" %>
+                </p>
+
+            </div>
+        </div>
+
+
+
+        <!-- ===============================
+PRODUCT IMAGES
+================================ -->
+
+        <div class="grid grid-cols-1 lg:grid-cols-3 gap-10 pt-10">
+
+            <div>
+
+                <h2 class="font-medium mb-2">Product Images</h2>
+
+                <p class="text-sm opacity-70">
+                    Upload exactly 3 images for the book (3:4 ratio).
+                    Front cover, side view and back view.
+                </p>
+
+            </div>
+
+
+            <div class="lg:col-span-2">
+
+                <div class="grid grid-cols-1 sm:grid-cols-3 gap-6">
+
+                    <!-- FRONT COVER -->
+
+                    <div>
+
+                        <label class="text-xs tracking-widest block mb-2">
+                            FRONT COVER
+                        </label>
+
+                        <label
+                            class="uploadBox border-2 border-dashed border-gray-400 rounded-lg aspect-[3/4] flex items-center justify-center cursor-pointer hover:border-[#121212] transition">
+
+                            <span class="text-xl">+</span>
+
+                            <input type="file" name="coverImage" id="coverImage" accept="image/*" class="hidden" />
+
+                        </label>
+
+                        <img id="coverPreview" class="hidden mt-2 w-full rounded shadow" />
+
+                        <p id="coverError" class="text-red-600 text-xs mt-1">
+                            <%= errors?.coverImage || "" %>
+                        </p>
+
+                    </div>
+
+
+                    <!-- SIDE VIEW -->
+
+                    <div>
+
+                        <label class="text-xs tracking-widest block mb-2">
+                            SIDE VIEW
+                        </label>
+
+                        <label
+                            class="uploadBox border-2 border-dashed border-gray-400 rounded-lg aspect-[3/4] flex items-center justify-center cursor-pointer hover:border-[#121212] transition">
+
+                            <span class="text-xl">+</span>
+
+                            <input type="file" name="sideImage" id="sideImage" accept="image/*" class="hidden" />
+
+                        </label>
+
+                        <img id="sidePreview" class="hidden mt-2 w-full rounded shadow" />
+
+                        <p id="sideError" class="text-red-600 text-xs mt-1">
+                            <%= errors?.sideImage || "" %>
+                        </p>
+
+                    </div>
+
+
+                    <!-- BACK VIEW -->
+
+                    <div>
+
+                        <label class="text-xs tracking-widest block mb-2">
+                            BACK VIEW
+                        </label>
+
+                        <label
+                            class="uploadBox border-2 border-dashed border-gray-400 rounded-lg aspect-[3/4] flex items-center justify-center cursor-pointer hover:border-[#121212] transition">
+
+                            <span class="text-xl">+</span>
+
+                            <input type="file" name="backImage" id="backImage" accept="image/*" class="hidden" />
+
+                        </label>
+
+                        <img id="backPreview" class="hidden mt-2 w-full rounded shadow" />
+
+                        <p id="backError" class="text-red-600 text-xs mt-1">
+                            <%= errors?.backImage || "" %>
+                        </p>
+
+                    </div>
+
+                </div>
+
+            </div>
+
+        </div>
+
+
+        <!-- ===============================
+ACTIONS
+================================ -->
+
+        <div class="flex justify-end items-center gap-6 pt-6 border-t">
+
+            <a href="/admin/products" class="text-sm tracking-widest hover:underline">
+
+                CANCEL
+
+            </a>
+
+
+            <button type="submit" class="bg-[#121212] text-[#FAFAF8] px-5 py-2 rounded text-sm tracking-widest">
+
+                ADD PRODUCT
+
+            </button>
+
+        </div>
+
+    </form>
+
+</section>
