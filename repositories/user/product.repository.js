@@ -189,3 +189,154 @@ export const findNewArrivalProducts = async (limit = 4) => {
     .lean();
 
 };
+
+
+export const findShopProducts = async ({
+  filter,
+  sort,
+  skip,
+  limit,
+  categorySlug
+}) => {
+
+  const pipeline = [
+
+    /* =================================
+       PRODUCT BASE FILTER
+    ================================= */
+
+    {
+      $match: filter
+    },
+
+
+    /* =================================
+       CATEGORY JOIN
+    ================================= */
+
+    {
+      $lookup: {
+        from: "categories",
+        localField: "category",
+        foreignField: "_id",
+        as: "category"
+      }
+    },
+
+    { $unwind: "$category" },
+
+
+    /* =================================
+       FILTER INACTIVE CATEGORY
+    ================================= */
+
+    {
+      $match: {
+        "category.isActive": true,
+        "category.isDeleted": false,
+        ...(categorySlug && { "category.slug": categorySlug })
+      }
+    },
+
+
+    /* =================================
+       PRODUCT OFFER JOIN
+    ================================= */
+
+    {
+      $lookup: {
+        from: "offers",
+        localField: "productOffer",
+        foreignField: "_id",
+        as: "productOffer"
+      }
+    },
+
+    {
+      $unwind: {
+        path: "$productOffer",
+        preserveNullAndEmptyArrays: true
+      }
+    },
+
+
+    /* =================================
+       CATEGORY OFFER JOIN
+    ================================= */
+
+    {
+      $lookup: {
+        from: "offers",
+        localField: "category.offer",
+        foreignField: "_id",
+        as: "category.offer"
+      }
+    },
+
+    {
+      $unwind: {
+        path: "$category.offer",
+        preserveNullAndEmptyArrays: true
+      }
+    },
+
+
+    /* =================================
+       SORT
+    ================================= */
+
+    {
+      $sort: sort
+    },
+
+
+    /* =================================
+       PAGINATION + COUNT
+    ================================= */
+
+    {
+      $facet: {
+
+        products: [
+          { $skip: skip },
+          { $limit: limit },
+
+          /* Reduce payload */
+
+          {
+              $project: {
+                  title: 1,
+                  slug: 1,
+                  author: 1,
+                  images: {
+                      cover: "$images.cover"
+                  },
+                  variants: 1,
+                  productOffer: 1,
+                  category: {
+                      name: "$category.name",
+                      slug: "$category.slug",
+                      offer: "$category.offer"
+                  }
+              }
+          }
+
+        ],
+
+        totalCount: [
+          { $count: "count" }
+        ]
+
+      }
+    }
+
+  ];
+
+  const result = await Product.aggregate(pipeline);
+
+  const products = result[0].products;
+  const totalProducts = result[0].totalCount[0]?.count || 0;
+
+  return { products, totalProducts };
+
+};
