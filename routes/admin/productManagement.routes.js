@@ -7,19 +7,14 @@ import {
     addProduct,
     activateProduct,
     deactivateProduct,
-    loadAddProductPage
+    loadAddProductPage,
+    loadEditProductPage,
+    updateProduct
 } from "../../controllers/admin/productManagement.controller.js";
 
 import { uploadProductImages } from "../../middlewares/uploadProductImages.middleware.js";
 
-
 const router = express.Router();
-
-
-
-/* =========================================
-PRODUCT MANAGEMENT
-========================================= */
 
 router.get(
     "/products",
@@ -40,9 +35,18 @@ router.post(
     addProduct
 );
 
-/* =========================================
-PRODUCT STATUS
-========================================= */
+router.get(
+  "/products/:id/edit",
+  verifyAdminAuth,
+  loadEditProductPage
+);
+
+router.post(
+  "/products/:id",
+  verifyAdminAuth,
+  uploadProductImages,
+  updateProduct
+);
 
 router.patch(
     "/products/:id/activate",
@@ -50,13 +54,10 @@ router.patch(
     activateProduct
 );
 
-
 router.patch(
     "/products/:id/deactivate",
     verifyAdminAuth,
     deactivateProduct
 );
-
-
 
 export default router;

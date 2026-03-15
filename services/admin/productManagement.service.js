@@ -1,7 +1,7 @@
 import * as productRepo from "../../repositories/user/product.repository.js";
-import * as offerRepo from "../../repositories/user/offer.repository.js";
 import { createSlug } from "../../utils/slugify.js";
 import cloudinary from "../../config/cloudinary.js";
+import { deleteCloudinaryImage } from "../../utils/cloudinary.util.js";
 
 const uploadImage = async (buffer, name) => {
 
@@ -33,17 +33,31 @@ const uploadImage = async (buffer, name) => {
 };
 
 
+const calculateSalePrice = (price, offer) => {
+
+  if (!offer) return price;
+
+  if (offer.type === "percentage") {
+    return Math.max(1, Math.round(price - (price * offer.value) / 100));
+  }
+
+  if (offer.type === "flat") {
+    return Math.max(1, price - offer.value);
+  }
+
+  return price;
+};
+
+
 export const getProductsService = async (query) => {
 
     const page = parseInt(query.page) || 1;
     const limit = 5;
-
     const skip = (page - 1) * limit;
 
     const filter = {
         isDeleted: false
     };
-
 
     /* =========================
     SEARCH
@@ -65,13 +79,8 @@ export const getProductsService = async (query) => {
     STATUS FILTER
     ========================= */
 
-    if (query.status === "active") {
-        filter.isActive = true;
-    }
-
-    if (query.status === "inactive") {
-        filter.isActive = false;
-    }
+    if (query.status === "active") filter.isActive = true;
+    if (query.status === "inactive") filter.isActive = false;
 
 
     /* =========================
@@ -80,52 +89,38 @@ export const getProductsService = async (query) => {
 
     let sort = { createdAt: -1 };
 
-    if (query.sort === "old") {
-        sort = { createdAt: 1 };
-    }
-
-    if (query.sort === "az") {
-        sort = { title: 1 };
-    }
-
-    if (query.sort === "za") {
-        sort = { title: -1 };
-    }
-
-    if (query.sort === "priceLow") {
-        sort = { "variants.salePrice": 1 };
-    }
-
-    if (query.sort === "priceHigh") {
-        sort = { "variants.salePrice": -1 };
-    }
+    if (query.sort === "old") sort = { createdAt: 1 };
+    if (query.sort === "az") sort = { title: 1 };
+    if (query.sort === "za") sort = { title: -1 };
+    if (query.sort === "priceLow") sort = { "variants.regularPrice": 1 };
+    if (query.sort === "priceHigh") sort = { "variants.regularPrice": -1 };
 
 
     /* =========================
-    GET PRODUCTS
+    FETCH PRODUCTS
     ========================= */
 
-    const products = await productRepo.findProducts({
-        skip,
-        limit,
+    const { products, totalProducts } = await productRepo.findProductsWithCategoryFilter({
         filter,
-        sort
+        sort,
+        skip,
+        limit
     });
 
 
-    /* =========================
-    OFFER EXPIRY CHECK
-    ========================= */
-
-    const now = new Date();
-
     for (const product of products) {
 
-        if (product.productOffer && product.productOffer.expiryDate < now) {
+        const productOffer = product.productOffer;
+        const categoryOffer = product.category?.offer;
 
-            await offerRepo.deleteOffer(product.productOffer._id);
+        const appliedOffer = productOffer || categoryOffer || null;
 
-            product.productOffer = null;
+        for (const variant of product.variants) {
+
+            variant.salePrice = calculateSalePrice(
+                variant.regularPrice,
+                appliedOffer
+            );
 
         }
 
@@ -136,10 +131,7 @@ export const getProductsService = async (query) => {
     PAGINATION
     ========================= */
 
-    const totalProducts = await productRepo.countProducts(filter);
-
     const totalPages = Math.ceil(totalProducts / limit);
-
 
     return {
         products,
@@ -161,6 +153,16 @@ export const addProductService = async (data, files) => {
         throw error;
 
     }
+    
+    const slug = createSlug(data.title);
+
+    const existingProduct = await productRepo.findProductBySlug(slug);
+
+    if (existingProduct) {
+        const error = new Error("Product already exists");
+        error.type = "GLOBAL";
+        throw error;
+    }
 
     const cover = await uploadImage(files.coverImage[0].buffer, "cover");
     const side = await uploadImage(files.sideImage[0].buffer, "side");
@@ -172,8 +174,6 @@ export const addProductService = async (data, files) => {
         back
     };
 
-    const slug = createSlug(data.title);
-
     await productRepo.createProduct({
         title: data.title,
         slug,
@@ -183,5 +183,109 @@ export const addProductService = async (data, files) => {
         images,
         variants: data.variants
     });
+
+};
+
+
+export const updateProductService = async (id, data, files, existingProduct) => {
+
+  let images = { ...existingProduct.images };
+
+
+  /* =========================
+  COVER IMAGE
+  ========================= */
+
+  if (files.coverImage) {
+
+    await deleteCloudinaryImage(existingProduct.images.cover);
+
+    const cover = await uploadImage(files.coverImage[0].buffer, "cover");
+
+    images.cover = cover;
+
+  }
+
+
+  /* =========================
+  SIDE IMAGE
+  ========================= */
+
+  if (files.sideImage) {
+
+    await deleteCloudinaryImage(existingProduct.images.side);
+
+    const side = await uploadImage(files.sideImage[0].buffer, "side");
+
+    images.side = side;
+
+  }
+
+
+  /* =========================
+  BACK IMAGE
+  ========================= */
+
+  if (files.backImage) {
+
+    await deleteCloudinaryImage(existingProduct.images.back);
+
+    const back = await uploadImage(files.backImage[0].buffer, "back");
+
+    images.back = back;
+
+  }
+
+  const slug = createSlug(data.title);
+
+  const existing = await productRepo.findProductBySlug(slug);
+
+    if (existing && existing._id.toString() !== id) {
+        const error = new Error("Product already exists");
+        error.type = "GLOBAL";
+        throw error;
+    }
+
+
+  await productRepo.updateProduct(id, {
+
+    title: data.title,
+    slug,
+    author: data.author,
+    description: data.description,
+    category: data.category,
+    images,
+    variants: data.variants
+
+  });
+
+};
+
+
+
+export const updateProductStatusService = async (id, isActive) => {
+
+  const product = await productRepo.findProductById(id);
+
+  if (!product) {
+    const error = new Error("Product not found");
+    error.type = "GLOBAL";
+    throw error;
+  }
+
+  if (product.isActive === isActive) {
+
+    const error = new Error(
+      isActive
+        ? "Product is already active"
+        : "Product is already inactive"
+    );
+
+    error.type = "GLOBAL";
+    throw error;
+
+  }
+
+  return productRepo.updateProductStatus(id, isActive);
 
 };

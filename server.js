@@ -3,6 +3,7 @@ dotenv.config();
 
 import app from "./app.js";
 import connectDB from "./config/db.js";
+import { startOfferCleanupJob } from "./utils/offerCleanup.cron.js";
 
 const PORT = process.env.PORT || 3000;
 
@@ -12,6 +13,8 @@ const startServer = async () => {
 
     const server = app.listen(PORT, () => {
       console.log(`🚀 Server running on port ${PORT}`);
+
+      startOfferCleanupJob();
     });
 
     // Handle unhandled promise rejections

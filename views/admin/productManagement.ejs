@@ -196,17 +196,31 @@
                                         </span>
 
                                         <div class="text-xs flex gap-2">
-
-                                            <button class="hover:underline editProductOfferBtn"
-                                                data-id="<%= product._id %>">
-                                                EDIT
-                                            </button>
-
-                                            <button class="hover:underline deleteProductOfferBtn"
-                                                data-id="<%= product._id %>">
-                                                REMOVE
-                                            </button>
-
+                                        
+                                            <% if(product.isActive){ %>
+                                        
+                                                <button class="hover:underline editProductOfferBtn" data-id="<%= product._id %>"
+                                                    data-type="<%= product.productOffer.type %>" data-value="<%= product.productOffer.value %>"
+                                                    data-expiry="<%= product.productOffer.expiryDate.toISOString().split('T')[0] %>">
+                                                    EDIT
+                                                </button>
+                                        
+                                                <button class="hover:underline deleteProductOfferBtn" data-id="<%= product._id %>">
+                                                    REMOVE
+                                                </button>
+                                        
+                                                <% } else { %>
+                                        
+                                                    <button class="opacity-40 cursor-not-allowed" disabled>
+                                                        EDIT
+                                                    </button>
+                                        
+                                                    <button class="opacity-40 cursor-not-allowed" disabled>
+                                                        REMOVE
+                                                    </button>
+                                        
+                                                    <% } %>
+                                        
                                         </div>
 
                                     </div>
@@ -217,10 +231,19 @@
 
                                             <span class="opacity-70">None</span>
 
-                                            <button class="text-xs hover:underline addProductOfferBtn"
-                                                data-id="<%= product._id %>">
-                                                ADD
-                                            </button>
+                                            <% if(product.isActive){ %>
+                                            
+                                                <button class="text-xs hover:underline addProductOfferBtn" data-id="<%= product._id %>">
+                                                    ADD
+                                                </button>
+                                            
+                                                <% } else { %>
+                                            
+                                                    <button class="text-xs opacity-40 cursor-not-allowed" disabled>
+                                                        ADD
+                                                    </button>
+                                            
+                                                    <% } %>
 
                                         </div>
 
@@ -256,19 +279,29 @@
 
                                     <% product.variants.forEach(v=> { %>
 
-                                        <div>
+                                        <% if(v.salePrice && v.salePrice < v.regularPrice){ %>
 
-                                            <span class="opacity-60 line-through text-xs">
-                                                ₹<%= v.regularPrice %>
-                                            </span>
+                                            <div>
 
-                                            <span class="ml-1">
-                                                ₹<%= v.salePrice %>
-                                            </span>
+                                                <span class="opacity-60 line-through text-xs">
+                                                    ₹<%= v.regularPrice %>
+                                                </span>
 
-                                        </div>
+                                                <span class="ml-1">
+                                                    ₹<%= v.salePrice %>
+                                                </span>
 
-                                        <% }) %>
+                                        <% } else { %>
+
+                                                <span>
+                                                    ₹<%= v.regularPrice %>
+                                                </span>
+
+                                            </div>
+
+                                        <% } %>
+
+                                    <% }) %>
 
                                 </div>
 
@@ -334,7 +367,7 @@
 
                                     <button class="text-sm tracking-widest hover:underline deactivateProductBtn"
                                         data-id="<%= product._id %>">
-                                        UNLIST
+                                        DEACTIVATE
                                     </button>
 
                                     <% } else { %>
@@ -422,3 +455,5 @@
     </div>
 
 </section>
+
+<%- include('../partials/adminPartials/productManagementModals') %>
