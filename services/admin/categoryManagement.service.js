@@ -1,5 +1,4 @@
 import * as categoryRepo from '../../repositories/user/category.repository.js'
-import * as offerRepo from '../../repositories/user/offer.repository.js'
 import { createSlug } from "../../utils/slugify.js";
 
 export const getCategoriesService = async (query) => {
@@ -49,26 +48,6 @@ export const getCategoriesService = async (query) => {
     filter,
     sort
   });
-
-  const now = new Date();
-
-  for (const category of categories) {
-
-    if (category.offer && category.offer.expiryDate < now) {
-
-      // delete expired offer
-      await offerRepo.deleteOffer(category.offer._id);
-
-      // remove reference from category
-      await categoryRepo.updateCategory(category._id, {
-        offer: null
-      });
-
-      category.offer = null;
-
-    }
-
-  }
 
   const totalCategories = await categoryRepo.countCategories(filter);
 

@@ -1,0 +1,459 @@
+<section class="w-full">
+
+    <!-- PAGE HEADER -->
+    <div class="flex items-center justify-between mb-8">
+
+        <div>
+            <h1 class="text-xl font-medium">Product Management</h1>
+            <div class="w-12 h-[2px] bg-[#121212] mt-2"></div>
+        </div>
+
+        <a href="/admin/products/add"
+            class="bg-[#121212] text-[#FAFAF8] rounded-lg px-5 py-2 text-sm tracking-widest hover:opacity-90 transition">
+            ADD PRODUCT
+        </a>
+
+    </div>
+
+
+
+    <!-- SEARCH / FILTER / SORT -->
+    <form method="GET" action="/admin/products"
+        class="flex flex-col lg:flex-row lg:items-center lg:justify-between gap-6 mb-10">
+
+
+        <!-- SEARCH -->
+        <div class="flex items-center gap-3">
+
+            <input type="text" name="search" value="<%= query?.search || '' %>"
+                placeholder="Search by title or author..." class="border border-[#121212] rounded-lg px-3 py-2 w-72
+             focus:outline-none focus:border-[#333333]" />
+
+            <button type="submit"
+                class="bg-[#121212] text-[#FAFAF8] rounded-lg px-4 py-2 text-sm tracking-widest hover:opacity-90 transition">
+                SEARCH
+            </button>
+
+            <% if(query?.search){ %>
+                <a href="/admin/products" class="text-xs tracking-widest hover:underline">
+                    CANCEL
+                </a>
+                <% } %>
+
+        </div>
+
+
+        <!-- FILTER + SORT -->
+        <div class="flex items-center gap-6 text-sm tracking-widest">
+
+            <!-- FILTER -->
+            <select id="statusFilter" name="status" class="border border-[#121212] px-3 py-2 rounded-lg
+             focus:outline-none focus:border-[#333333]">
+
+                <option value="">FILTER</option>
+
+                <option value="active" <%=query?.status==="active" ? "selected" : "" %>>
+                    Active
+                </option>
+
+                <option value="inactive" <%=query?.status==="inactive" ? "selected" : "" %>>
+                    Inactive
+                </option>
+
+            </select>
+
+
+            <!-- SORT -->
+            <select id="sortSelect" name="sort" class="border border-[#121212] px-3 py-2 rounded-lg
+             focus:outline-none focus:border-[#333333]">
+
+                <option value="new" <%=query?.sort==="new" ? "selected" : "" %>>
+                    Newest
+                </option>
+
+                <option value="old" <%=query?.sort==="old" ? "selected" : "" %>>
+                    Oldest
+                </option>
+
+                <option value="az" <%=query?.sort==="az" ? "selected" : "" %>>
+                    A-Z
+                </option>
+
+                <option value="za" <%=query?.sort==="za" ? "selected" : "" %>>
+                    Z-A
+                </option>
+
+                <option value="priceLow" <%=query?.sort==="priceLow" ? "selected" : "" %>>
+                    Price Low → High
+                </option>
+
+                <option value="priceHigh" <%=query?.sort==="priceHigh" ? "selected" : "" %>>
+                    Price High → Low
+                </option>
+
+            </select>
+
+        </div>
+
+    </form>
+
+
+
+    <!-- PRODUCT TABLE -->
+    <div class="overflow-x-auto">
+
+        <table class="w-full text-sm">
+
+            <thead>
+
+                <tr class="border-b border-gray-300 text-left text-xs tracking-widest uppercase">
+
+                    <th class="py-4">Product</th>
+                    <th>Category</th>
+                    <th>Offer</th>
+                    <th>Variant</th>
+                    <th>Price</th>
+                    <th>Stock</th>
+                    <th>Status</th>
+                    <th class="text-right">Actions</th>
+
+                </tr>
+
+            </thead>
+
+
+
+            <tbody>
+
+                <% if(products && products.length> 0){ %>
+
+                    <% products.forEach(product=> { %>
+
+                        <tr class="border-b border-gray-200 hover:bg-gray-50 transition">
+
+                            <!-- PRODUCT INFO -->
+                            <td class="py-5 max-w-xs">
+
+                                <div class="font-medium">
+                                    <%= product.title %>
+                                </div>
+
+                                <div class="text-xs opacity-70">
+                                    <%= product.author %>
+                                </div>
+
+                            </td>
+
+
+
+                            <!-- CATEGORY -->
+                            <td>
+
+                                <div>
+                                    <%= product.category?.name || "-" %>
+                                </div>
+
+                                <% if(!product.productOffer && product.category?.offer){ %>
+
+                                    <div class="text-xs opacity-70">
+                                        <% if(product.category?.offer.type==="percentage" ){ %>
+                                            <%= product.category.offer.value %>% OFF
+                                                <% } else { %>
+                                                    ₹<%= product.category.offer.value %> OFF
+                                                        <% } %>
+                                    </div>
+                                    <% } else if(product.productOffer && product.category?.offer){ %>
+
+                                        <div class="text-xs line-through opacity-70">
+                                            <% if(product.category?.offer.type==="percentage" ){ %>
+                                                <%= product.category.offer.value %>% OFF
+                                                    <% } else { %>
+                                                        ₹<%= product.category.offer.value %> OFF
+                                                            <% } %>
+                                        </div>
+
+                                        <% } %>
+
+                            </td>
+
+
+
+                            <!-- PRODUCT OFFER -->
+                            <td>
+
+                                <% if(product.productOffer){ %>
+
+                                    <div class="flex flex-col gap-1">
+
+                                        <span class="text-sm">
+
+                                            <% if(product.productOffer.type==="percentage" ){ %>
+                                                <%= product.productOffer.value %>% OFF
+                                                    <% } else { %>
+                                                        ₹<%= product.productOffer.value %> OFF
+                                                            <% } %>
+
+                                        </span>
+
+                                        <div class="text-xs flex gap-2">
+                                        
+                                            <% if(product.isActive){ %>
+                                        
+                                                <button class="hover:underline editProductOfferBtn" data-id="<%= product._id %>"
+                                                    data-type="<%= product.productOffer.type %>" data-value="<%= product.productOffer.value %>"
+                                                    data-expiry="<%= product.productOffer.expiryDate.toISOString().split('T')[0] %>">
+                                                    EDIT
+                                                </button>
+                                        
+                                                <button class="hover:underline deleteProductOfferBtn" data-id="<%= product._id %>">
+                                                    REMOVE
+                                                </button>
+                                        
+                                                <% } else { %>
+                                        
+                                                    <button class="opacity-40 cursor-not-allowed" disabled>
+                                                        EDIT
+                                                    </button>
+                                        
+                                                    <button class="opacity-40 cursor-not-allowed" disabled>
+                                                        REMOVE
+                                                    </button>
+                                        
+                                                    <% } %>
+                                        
+                                        </div>
+
+                                    </div>
+
+                                    <% } else { %>
+
+                                        <div class="flex items-center gap-2">
+
+                                            <span class="opacity-70">None</span>
+
+                                            <% if(product.isActive){ %>
+                                            
+                                                <button class="text-xs hover:underline addProductOfferBtn" data-id="<%= product._id %>">
+                                                    ADD
+                                                </button>
+                                            
+                                                <% } else { %>
+                                            
+                                                    <button class="text-xs opacity-40 cursor-not-allowed" disabled>
+                                                        ADD
+                                                    </button>
+                                            
+                                                    <% } %>
+
+                                        </div>
+
+                                        <% } %>
+
+                            </td>
+
+
+
+                            <!-- VARIANT -->
+                            <td>
+
+                                <div class="flex flex-col gap-1">
+
+                                    <% product.variants.forEach(v=> { %>
+
+                                        <span>
+                                            <%= v.type %>
+                                        </span>
+
+                                        <% }) %>
+
+                                </div>
+
+                            </td>
+
+
+
+                            <!-- PRICE -->
+                            <td>
+
+                                <div class="flex flex-col gap-1">
+
+                                    <% product.variants.forEach(v=> { %>
+
+                                        <% if(v.salePrice && v.salePrice < v.regularPrice){ %>
+
+                                            <div>
+
+                                                <span class="opacity-60 line-through text-xs">
+                                                    ₹<%= v.regularPrice %>
+                                                </span>
+
+                                                <span class="ml-1">
+                                                    ₹<%= v.salePrice %>
+                                                </span>
+
+                                        <% } else { %>
+
+                                                <span>
+                                                    ₹<%= v.regularPrice %>
+                                                </span>
+
+                                            </div>
+
+                                        <% } %>
+
+                                    <% }) %>
+
+                                </div>
+
+                            </td>
+
+
+
+                            <!-- STOCK -->
+                            <td>
+
+                                <div class="flex flex-col gap-1">
+
+                                    <% product.variants.forEach(v=> { %>
+
+                                        <span>
+
+                                            <% if(v.stock> 0){ %>
+                                                <%= v.stock %>
+                                                    <% } else { %>
+                                                        Out of Stock
+                                                        <% } %>
+
+                                        </span>
+
+                                        <% }) %>
+
+                                </div>
+
+                            </td>
+
+
+
+                            <!-- STATUS -->
+                            <td>
+
+                                <% if(product.isActive){ %>
+
+                                    <span class="text-green-700">
+                                        ACTIVE
+                                    </span>
+
+                                    <% } else { %>
+
+                                        <span class="text-red-600">
+                                            INACTIVE
+                                        </span>
+
+                                        <% } %>
+
+                            </td>
+
+
+
+                            <!-- ACTIONS -->
+                            <td class="text-right space-x-4">
+
+                                <a href="/admin/products/<%= product._id %>/edit"
+                                    class="text-sm tracking-widest hover:underline">
+                                    EDIT
+                                </a>
+
+                                <% if(product.isActive){ %>
+
+                                    <button class="text-sm tracking-widest hover:underline deactivateProductBtn"
+                                        data-id="<%= product._id %>">
+                                        DEACTIVATE
+                                    </button>
+
+                                    <% } else { %>
+
+                                        <button class="text-sm tracking-widest hover:underline activateProductBtn"
+                                            data-id="<%= product._id %>">
+                                            ACTIVATE
+                                        </button>
+
+                                        <% } %>
+
+                            </td>
+
+                        </tr>
+
+                        <% }) %>
+
+                            <% } else { %>
+
+                                <tr>
+                                    <td colspan="9" class="text-center py-12 opacity-70">
+                                        No products found
+                                    </td>
+                                </tr>
+
+                                <% } %>
+
+            </tbody>
+
+        </table>
+
+    </div>
+
+
+
+    <!-- PAGINATION -->
+    <div class="flex flex-col md:flex-row md:items-center md:justify-between mt-8 text-sm">
+
+        <p class="opacity-70 mb-4 md:mb-0">
+
+            Showing <%= products?.length || 0 %> of <%= totalProducts || 0 %> products
+
+        </p>
+
+
+        <div class="flex items-center gap-4">
+
+            <% if(page> 1){ %>
+
+                <a href="?search=<%= query.search || '' %>&status=<%= query.status || '' %>&sort=<%= query.sort || '' %>&page=<%= page - 1 %>"
+                    class="hover:underline">
+                    ← Previous
+                </a>
+
+                <% } %>
+
+
+                    <div class="flex items-center gap-2">
+
+                        <% for(let i=1; i <=totalPages; i++){ %>
+
+                            <a href="?search=<%= query.search || '' %>&status=<%= query.status || '' %>&sort=<%= query.sort || '' %>&page=<%= i %>"
+                                class="px-2 <%= page === i ? 'font-semibold underline' : 'hover:underline' %>">
+
+                                <%= i %>
+
+                            </a>
+
+                            <% } %>
+
+                    </div>
+
+
+                    <% if(page < totalPages){ %>
+
+                        <a href="?search=<%= query.search || '' %>&status=<%= query.status || '' %>&sort=<%= query.sort || '' %>&page=<%= page + 1 %>"
+                            class="hover:underline">
+                            Next →
+                        </a>
+
+                        <% } %>
+
+        </div>
+
+    </div>
+
+</section>
+
+<%- include('../partials/adminPartials/productManagementModals') %>

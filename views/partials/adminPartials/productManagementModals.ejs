@@ -1,0 +1,201 @@
+<div id="productModalOverlay"
+class="fixed inset-0 bg-black/40 hidden z-40"></div>
+
+<!-- ========================================================= -->
+<!-- ADD PRODUCT OFFER MODAL -->
+<!-- ========================================================= -->
+
+<div id="addProductOfferModal"
+class="fixed inset-0 flex items-center justify-center hidden z-50 px-4">
+
+<div class="bg-[#FAFAF8] w-full max-w-md border border-gray-300 rounded-lg p-8">
+
+<h2 class="text-lg font-medium mb-6">Add Product Offer</h2>
+
+<form id="addProductOfferForm">
+
+<input type="hidden" name="productId" id="addProductOfferProductId">
+
+
+<!-- Offer Type -->
+<div class="mb-5">
+
+<label class="text-sm mb-2 block">Offer Type</label>
+
+<select
+name="type"
+class="w-full border border-gray-300 rounded-md px-3 py-2
+focus:outline-none focus:border-[#333333]">
+
+<option value="">Select</option>
+<option value="percentage">Percentage</option>
+<option value="flat">Flat</option>
+
+</select>
+
+<p class="text-xs text-red-600 mt-1 hidden" id="addProductOfferTypeError"></p>
+
+</div>
+
+
+<!-- Offer Value -->
+<div class="mb-5">
+
+<label class="text-sm mb-2 block">Offer Value</label>
+
+<input
+type="number"
+name="value"
+class="w-full border border-gray-300 rounded-md px-3 py-2
+focus:outline-none focus:border-[#333333]"
+/>
+
+<p class="text-xs text-red-600 mt-1 hidden" id="addProductOfferValueError"></p>
+
+</div>
+
+
+<!-- Expiry Date -->
+<div class="mb-6">
+
+<label class="text-sm mb-2 block">Offer Expiry Date</label>
+
+<input
+type="date"
+name="expiry"
+class="w-full border border-gray-300 rounded-md px-3 py-2
+focus:outline-none focus:border-[#333333]"
+/>
+
+<p class="text-xs text-red-600 mt-1 hidden" id="addProductOfferExpiryError"></p>
+
+</div>
+
+
+<hr class="my-6">
+
+
+<div class="flex items-center justify-between">
+
+<button
+type="submit"
+class="bg-[#121212] text-[#FAFAF8] px-6 py-2 rounded-md text-sm hover:opacity-90">
+
+Save
+
+</button>
+
+<button
+type="button"
+class="closeProductModal border border-gray-300 px-5 py-2 rounded-md text-sm hover:bg-gray-100">
+
+Cancel
+
+</button>
+
+</div>
+
+</form>
+
+</div>
+
+</div>
+
+
+<!-- ========================================================= -->
+<!-- EDIT PRODUCT OFFER MODAL -->
+<!-- ========================================================= -->
+
+<div id="editProductOfferModal"
+class="fixed inset-0 flex items-center justify-center hidden z-50 px-4">
+
+<div class="bg-[#FAFAF8] w-full max-w-md border border-gray-300 rounded-lg p-8">
+
+<h2 class="text-lg font-medium mb-6">Edit Product Offer</h2>
+
+<form id="editProductOfferForm">
+
+<input type="hidden" id="editProductOfferProductId" name="productId">
+
+
+<!-- Offer Type -->
+<div class="mb-5">
+
+<label class="text-sm mb-2 block">Offer Type</label>
+
+<select
+id="editProductOfferType"
+name="type"
+class="w-full border border-gray-300 rounded-md px-3 py-2">
+
+<option value="percentage">Percentage</option>
+<option value="flat">Flat</option>
+
+</select>
+
+<p class="text-xs text-red-600 mt-1 hidden" id="editProductOfferTypeError"></p>
+
+</div>
+
+
+<!-- Offer Value -->
+<div class="mb-5">
+
+<label class="text-sm mb-2 block">Offer Value</label>
+
+<input
+type="number"
+id="editProductOfferValue"
+name="value"
+class="w-full border border-gray-300 rounded-md px-3 py-2"
+/>
+
+<p class="text-xs text-red-600 mt-1 hidden" id="editProductOfferValueError"></p>
+
+</div>
+
+
+<!-- Expiry -->
+<div class="mb-6">
+
+<label class="text-sm mb-2 block">Offer Expiry Date</label>
+
+<input
+type="date"
+id="editProductOfferExpiry"
+name="expiry"
+class="w-full border border-gray-300 rounded-md px-3 py-2"
+/>
+
+<p class="text-xs text-red-600 mt-1 hidden" id="editProductOfferExpiryError"></p>
+
+</div>
+
+
+<hr class="my-6">
+
+<div class="flex items-center justify-between">
+
+<button
+type="submit"
+class="bg-[#121212] text-[#FAFAF8] px-6 py-2 rounded-md text-sm">
+
+Save Changes
+
+</button>
+
+<button
+type="button"
+class="closeProductModal border border-gray-300 px-5 py-2 rounded-md text-sm">
+
+Cancel
+
+</button>
+
+</div>
+
+</form>
+
+</div>
+
+</div>
