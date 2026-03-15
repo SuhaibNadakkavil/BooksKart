@@ -2,7 +2,6 @@ import express from "express";
 import passport from "passport";
 
 import {
-  loadHome,
   loadSignup,
   loadLogin,
   loadVerifyOtp,
@@ -24,8 +23,6 @@ import { preventAuthPages } from "../../middlewares/guest.middleware.js";
 import { loginLimiter, otpResendLimiter, otpVerifyLimiter } from "../../middlewares/rateLimit.middleware.js";
 
 const router = express.Router();
-
-router.get("/", loadHome);
 
 // Get Signup
 router.get("/signup", preventAuthPages, loadSignup);

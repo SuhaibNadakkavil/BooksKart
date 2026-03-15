@@ -153,3 +153,39 @@ export const findProductsWithCategoryFilter = async ({
     return { products, totalProducts };
 
 };
+
+
+export const findNewArrivalProducts = async (limit = 4) => {
+
+  return Product.find(
+    {
+      isDeleted: false,
+      isActive: true
+    },
+    {
+      title: 1,
+      author: 1,
+      slug: 1,
+      "images.cover": 1,
+      "variants.regularPrice": 1,
+      productOffer: 1,
+      category: 1
+    }
+  )
+    .populate({
+      path: "category",
+      match: {
+        isActive: true,
+        isDeleted: false
+      },
+      select: "offer"
+    })
+    .populate({
+      path: "productOffer",
+      select: "type value"
+    })
+    .sort({ createdAt: -1 })
+    .limit(limit)
+    .lean();
+
+};

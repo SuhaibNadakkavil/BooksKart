@@ -28,25 +28,6 @@ import {
 
 import * as userRepo from '../../repositories/user/user.repository.js'
 
-
-export const loadHome = async (req, res) => {
-  const isAuth = !!req.session.userId;
-
-  const success = req.session.success || null;
-  const error = req.session.error || null;
-
-  delete req.session.success;
-  delete req.session.error;
-
-  res.render("user/home", {
-    title: "Home | BooksKart",
-    headerType: isAuth ? "main" : "landing",
-    success,
-    error,
-    pageScript: null,
-  });
-};
-
 //signup controller
 export const signup = async (req, res, next) => {
   try {

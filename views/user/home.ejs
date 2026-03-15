@@ -244,99 +244,35 @@
     </div>
 
     <div class="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 gap-10">
-
-      <!-- Book Card -->
-      <a href="/product/5" class="group space-y-4">
-
-        <div class="overflow-hidden">
-          <img src="/images/feel-good.jpeg"
-               class="w-full h-[260px] object-fill transition-transform duration-500 group-hover:scale-105"
-               alt="Feel Good Productivity">
-        </div>
-
-        <div class="space-y-1">
-          <h3 class="text-sm font-medium group-hover:underline">
-            Feel Good Productivity
-          </h3>
-          <p class="text-xs opacity-70">
-            Ali Abdaal
-          </p>
-          <p class="text-sm font-semibold">
-            ₹349
-          </p>
-        </div>
-
-      </a>
-
-      <!-- Book Card -->
-      <a href="/product/5" class="group space-y-4">
-
-        <div class="overflow-hidden">
-          <img src="/images/feel-good.jpeg"
-               class="w-full h-[260px] object-fill transition-transform duration-500 group-hover:scale-105"
-               alt="Feel Good Productivity">
-        </div>
-
-        <div class="space-y-1">
-          <h3 class="text-sm font-medium group-hover:underline">
-            Feel Good Productivity
-          </h3>
-          <p class="text-xs opacity-70">
-            Ali Abdaal
-          </p>
-          <p class="text-sm font-semibold">
-            ₹349
-          </p>
-        </div>
-
-      </a>
-
-      <!-- Book Card -->
-      <a href="/product/5" class="group space-y-4">
-
-        <div class="overflow-hidden">
-          <img src="/images/feel-good.jpeg"
-               class="w-full h-[260px] object-fill transition-transform duration-500 group-hover:scale-105"
-               alt="Feel Good Productivity">
-        </div>
-
-        <div class="space-y-1">
-          <h3 class="text-sm font-medium group-hover:underline">
-            Feel Good Productivity
-          </h3>
-          <p class="text-xs opacity-70">
-            Ali Abdaal
-          </p>
-          <p class="text-sm font-semibold">
-            ₹349
-          </p>
-        </div>
-
-      </a>
-
-      <!-- Book Card -->
-      <a href="/product/5" class="group space-y-4">
-
-        <div class="overflow-hidden">
-          <img src="/images/feel-good.jpeg"
-               class="w-full h-[260px] object-fill transition-transform duration-500 group-hover:scale-105"
-               alt="Feel Good Productivity">
-        </div>
-
-        <div class="space-y-1">
-          <h3 class="text-sm font-medium group-hover:underline">
-            Feel Good Productivity
-          </h3>
-          <p class="text-xs opacity-70">
-            Ali Abdaal
-          </p>
-          <p class="text-sm font-semibold">
-            ₹349
-          </p>
-        </div>
-
-      </a>
-
+    
+      <% newArrivals.forEach(product=> { %>
+    
+        <a href="/product/<%= product.slug %>" class="group space-y-4">
+    
+          <div class="overflow-hidden aspect-[3/4]">
+            <img src="<%= product.images.cover %>"
+              class="w-full h-full object-cover transition-transform duration-500 group-hover:scale-105"
+              alt="<%= product.title %>">
+          </div>
+    
+          <div class="space-y-1">
+            <h3 class="text-sm font-medium group-hover:underline">
+              <%= product.title %>
+            </h3>
+    
+            <p class="text-xs opacity-70">
+              <%= product.author %>
+            </p>
+    
+            <p class="text-sm font-semibold">
+              ₹<%= product.variants[0].salePrice %>
+            </p>
+          </div>
+    
+        </a>
+    
+        <% }) %>
+    
     </div>
 
   </div>
