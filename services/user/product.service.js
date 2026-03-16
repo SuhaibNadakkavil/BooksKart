@@ -181,3 +181,81 @@ export const getShopProductsService = async (query) => {
   };
 
 };
+
+
+/* =================================
+   PRODUCT DETAILS SERVICE
+================================= */
+
+export const getProductDetailsService = async (slug) => {
+
+  /* ==============================
+     FETCH PRODUCT
+  ============================== */
+
+  const product = await productRepo.findProductDetailsBySlug(slug);
+
+  if (!product) {
+    return null;
+  }
+
+  /* ==============================
+     VALIDATE PRODUCT STATUS
+  ============================== */
+
+  if (!product.isActive) {
+    return { blocked: true };
+  }
+
+  /* ==============================
+     APPLY OFFERS
+  ============================== */
+
+  const productOffer = product.productOffer;
+  const categoryOffer = product.category?.offer;
+
+  const appliedOffer = productOffer || categoryOffer || null;
+
+  for (const variant of product.variants) {
+
+    variant.salePrice = calculateSalePrice(
+      variant.regularPrice,
+      appliedOffer
+    );
+
+  }
+
+  /* ==============================
+     RELATED PRODUCTS
+  ============================== */
+
+  const relatedProducts = await productRepo.findRelatedProducts({
+    categoryId: product.category._id,
+    productId: product._id,
+    limit: 4
+  });
+
+  for (const item of relatedProducts) {
+
+    const productOffer = item.productOffer;
+    const categoryOffer = item.category?.offer;
+
+    const appliedOffer = productOffer || categoryOffer || null;
+
+    for (const variant of item.variants) {
+
+      variant.salePrice = calculateSalePrice(
+        variant.regularPrice,
+        appliedOffer
+      );
+
+    }
+
+  }
+
+  return {
+    product,
+    relatedProducts
+  };
+
+};

@@ -340,3 +340,266 @@ export const findShopProducts = async ({
   return { products, totalProducts };
 
 };
+
+
+
+export const findProductDetailsBySlug = async (slug) => {
+
+  const pipeline = [
+
+    /* ==============================
+       MATCH PRODUCT
+    ============================== */
+
+    {
+      $match: {
+        slug: slug,
+        isDeleted: false
+      }
+    },
+
+
+    /* ==============================
+       CATEGORY JOIN
+    ============================== */
+
+    {
+      $lookup: {
+        from: "categories",
+        localField: "category",
+        foreignField: "_id",
+        as: "category"
+      }
+    },
+
+    { $unwind: "$category" },
+
+
+    /* ==============================
+       FILTER BLOCKED CATEGORY
+    ============================== */
+
+    {
+      $match: {
+        "category.isActive": true,
+        "category.isDeleted": false
+      }
+    },
+
+
+    /* ==============================
+       PRODUCT OFFER
+    ============================== */
+
+    {
+      $lookup: {
+        from: "offers",
+        localField: "productOffer",
+        foreignField: "_id",
+        as: "productOffer"
+      }
+    },
+
+    {
+      $unwind: {
+        path: "$productOffer",
+        preserveNullAndEmptyArrays: true
+      }
+    },
+
+
+    /* ==============================
+       CATEGORY OFFER
+    ============================== */
+
+    {
+      $lookup: {
+        from: "offers",
+        localField: "category.offer",
+        foreignField: "_id",
+        as: "category.offer"
+      }
+    },
+
+    {
+      $unwind: {
+        path: "$category.offer",
+        preserveNullAndEmptyArrays: true
+      }
+    },
+
+
+    /* ==============================
+       REDUCE PAYLOAD
+    ============================== */
+
+    {
+      $project: {
+
+        title: 1,
+        slug: 1,
+        author: 1,
+        description: 1,
+
+        isActive: 1,
+        stock: 1,
+
+        images: 1,
+        variants: 1,
+
+        productOffer: 1,
+
+        category: {
+          _id: "$category._id",
+          name: "$category.name",
+          slug: "$category.slug",
+          offer: "$category.offer"
+        }
+
+      }
+    }
+
+  ];
+
+  const result = await Product.aggregate(pipeline);
+
+  return result[0] || null;
+
+};
+
+
+export const findRelatedProducts = async ({
+  categoryId,
+  productId,
+  limit = 4
+}) => {
+
+  const pipeline = [
+
+    /* ==============================
+       BASE FILTER
+    ============================== */
+
+    {
+      $match: {
+        category: categoryId,
+        _id: { $ne: productId },
+        isActive: true,
+        isDeleted: false
+      }
+    },
+
+
+    /* ==============================
+       CATEGORY JOIN
+    ============================== */
+
+    {
+      $lookup: {
+        from: "categories",
+        localField: "category",
+        foreignField: "_id",
+        as: "category"
+      }
+    },
+
+    { $unwind: "$category" },
+
+
+    {
+      $match: {
+        "category.isActive": true,
+        "category.isDeleted": false
+      }
+    },
+
+
+    /* ==============================
+       PRODUCT OFFER
+    ============================== */
+
+    {
+      $lookup: {
+        from: "offers",
+        localField: "productOffer",
+        foreignField: "_id",
+        as: "productOffer"
+      }
+    },
+
+    {
+      $unwind: {
+        path: "$productOffer",
+        preserveNullAndEmptyArrays: true
+      }
+    },
+
+
+    /* ==============================
+       CATEGORY OFFER
+    ============================== */
+
+    {
+      $lookup: {
+        from: "offers",
+        localField: "category.offer",
+        foreignField: "_id",
+        as: "category.offer"
+      }
+    },
+
+    {
+      $unwind: {
+        path: "$category.offer",
+        preserveNullAndEmptyArrays: true
+      }
+    },
+
+
+    /* ==============================
+       SORT
+    ============================== */
+
+    {
+      $sort: { createdAt: -1 }
+    },
+
+
+    /* ==============================
+       LIMIT
+    ============================== */
+
+    { $limit: limit },
+
+
+    /* ==============================
+       REDUCE PAYLOAD
+    ============================== */
+
+    {
+      $project: {
+
+        title: 1,
+        slug: 1,
+        author: 1,
+
+        images: {
+          cover: "$images.cover"
+        },
+
+        variants: 1,
+
+        productOffer: 1,
+
+        category: {
+          offer: "$category.offer"
+        }
+
+      }
+    }
+
+  ];
+
+  return Product.aggregate(pipeline);
+
+};

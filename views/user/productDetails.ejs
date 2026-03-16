@@ -1,0 +1,327 @@
+
+<!-- Breadcrumb -->
+<nav class="text-sm mb-6">
+  <a href="/" class="hover:underline">Home</a>
+  <span class="mx-2">/</span>
+  <a href="/shop" class="hover:underline">Shop</a>
+  <span class="mx-2">/</span>
+  <span class="font-medium"><%= product.title %></span>
+</nav>
+
+
+<div class="grid grid-cols-1 lg:grid-cols-2 gap-12">
+
+<!-- LEFT : IMAGES -->
+<div class="flex gap-4">
+
+  <!-- THUMBNAILS -->
+  <div class="flex flex-col gap-3 mt-1">
+    <% Object.values(product.images).forEach((img)=>{ %>
+      <img 
+        src="<%= img %>"
+        class="w-20 h-28 object-cover cursor-pointer border hover:opacity-80 thumbnail"
+        loading="lazy"
+      >
+    <% }) %>
+  </div>
+
+
+  <!-- MAIN IMAGE -->
+  <div class="relative overflow-hidden border bg-white flex items-center justify-center w-full max-w-[420px] h-[520px] lg:h-[560px]" id="imageContainer">
+    <img 
+      id="mainImage"
+      src="<%= product.images.cover %>"
+      class="max-h-full max-w-full object-contain transition-transform duration-200"
+    >
+  </div>
+
+</div>
+
+
+
+<!-- RIGHT : PRODUCT INFO -->
+<div>
+
+<p class="text-sm mb-2 uppercase">
+<%= product.category.name %>
+</p>
+
+<div class="flex justify-between items-start">
+
+<div>
+<h1 class="text-2xl font-semibold"><%= product.title %></h1>
+
+<p class="text-sm mt-1">
+by <%= product.author %>
+</p>
+</div>
+
+
+<% if(product.rating) { %>
+<div class="flex items-center gap-1">
+<% for(let i=0;i<5;i++){ %>
+<span>
+<%= i < product.rating ? "★" : "☆" %>
+</span>
+<% } %>
+</div>
+<% } %>
+
+</div>
+
+
+
+<!-- PRICE -->
+
+<% const defaultVariant = product.variants[0]; %>
+
+<div class="mt-6" id="priceContainer">
+
+<% if(defaultVariant.salePrice !== defaultVariant.regularPrice){ %>
+
+<div class="flex items-center gap-3">
+
+<p id="salePrice" class="text-xl font-semibold text-red-600">
+₹<%= defaultVariant.salePrice %>
+</p>
+
+<p id="regularPrice" class="line-through text-xl opacity-50">
+₹<%= defaultVariant.regularPrice %>
+</p>
+
+<span class="text-xl font-semibold text-green-600" id="offerLabel">
+
+<% if(product.productOffer){ %>
+    <% if(product.productOffer.type === "percentage"){ %>
+        <%= product.productOffer.value %>% OFF
+    <% } else { %>
+        ₹<%= product.productOffer.value %> OFF
+    <% } %>
+<% } else if(product.category?.offer){ %>
+    <% if(product.category.offer.type === "percentage"){ %>
+        <%= product.category.offer.value %>% OFF
+    <% } else { %>
+        ₹<%= product.category.offer.value %> OFF
+    <% } %>
+<% } %>
+
+</span>
+
+</div>
+
+<% } else { %>
+
+<p id="regularPrice" class="text-xl font-semibold">
+₹<%= defaultVariant.regularPrice %>
+</p>
+
+<% } %>
+
+</div>
+
+
+
+<!-- FORMAT -->
+
+<div class="mt-6">
+
+<p class="text-sm mb-2">Select Format</p>
+
+<div class="flex gap-3">
+
+<% const paperback = product.variants.find(v => v.type.toLowerCase() === "paperback"); %>
+<% const hardcover = product.variants.find(v => v.type.toLowerCase() === "hardcover"); %>
+
+<% if(product?.variants?.[0]?.type === "Hardcover"){ %>
+<button
+class="variant-btn border px-4 py-2 text-sm rounded-lg <%= !hardcover ? 'opacity-40 cursor-not-allowed' : 'hover:bg-black hover:text-white' %>"
+data-type="hardcover"
+data-price="<%= hardcover?.regularPrice || '' %>"
+data-sale="<%= hardcover?.salePrice || '' %>"
+data-stock="<%= hardcover?.stock || 0 %>"
+<%= !hardcover ? "disabled" : "" %>
+>
+Hardcover
+</button>
+
+<button
+class="variant-btn border px-4 py-2 text-sm rounded-lg <%= !paperback ? 'opacity-40 cursor-not-allowed' : 'hover:bg-black hover:text-white' %>"
+data-type="paperback"
+data-price="<%= paperback?.regularPrice || '' %>"
+data-sale="<%= paperback?.salePrice || '' %>"
+data-stock="<%= paperback?.stock || 0 %>"
+<%= !paperback ? "disabled" : "" %>
+>
+Paperback
+</button>
+
+<% } else { %>
+
+<button
+class="variant-btn border px-4 py-2 text-sm rounded-lg <%= !paperback ? 'opacity-40 cursor-not-allowed' : 'hover:bg-black hover:text-white' %>"
+data-type="paperback"
+data-price="<%= paperback?.regularPrice || '' %>"
+data-sale="<%= paperback?.salePrice || '' %>"
+data-stock="<%= paperback?.stock || 0 %>"
+<%= !paperback ? "disabled" : "" %>
+>
+Paperback
+</button>
+
+<button
+class="variant-btn border px-4 py-2 text-sm rounded-lg <%= !hardcover ? 'opacity-40 cursor-not-allowed' : 'hover:bg-black hover:text-white' %>"
+data-type="hardcover"
+data-price="<%= hardcover?.regularPrice || '' %>"
+data-sale="<%= hardcover?.salePrice || '' %>"
+data-stock="<%= hardcover?.stock || 0 %>"
+<%= !hardcover ? "disabled" : "" %>
+>
+Hardcover
+</button>
+
+<% } %>
+
+</div>
+
+</div>
+
+
+
+<!-- CART SECTION -->
+
+<div class="mt-6 flex gap-3 items-center">
+
+<button
+id="cartButton"
+data-stock="<%= defaultVariant.stock %>"
+class="<%= defaultVariant.stock > 0 
+? 'bg-black text-white' 
+: 'bg-red-500 text-white cursor-not-allowed' %> px-8 py-3 text-sm rounded-lg"
+>
+
+<%= defaultVariant.stock > 0 ? "ADD TO CART" : "OUT OF STOCK" %>
+
+</button>
+
+<button class="border p-2 hover:bg-black hover:text-white rounded-lg">
+<svg xmlns="http://www.w3.org/2000/svg" class="w-6 h-6" fill="none"
+viewBox="0 0 24 24" stroke="currentColor" stroke-width="1.7">
+<path stroke-linecap="round" stroke-linejoin="round"
+d="M4.318 6.318a4.5 4.5 0 016.364 0L12 7.636l1.318-1.318a4.5 4.5 0 116.364 6.364L12 20.364 4.318 12.682a4.5 4.5 0 010-6.364z" />
+</svg>
+</button>
+
+</div>
+
+
+<!-- DESCRIPTION / REVIEWS -->
+
+<div class="mt-16">
+
+<div class="flex gap-10 border-b pb-3">
+
+<button id="descTab" class="tabButton font-medium">
+Description
+</button>
+
+<button id="reviewTab" class="tabButton text-gray-500">
+Reviews (<%= product.reviewCount || 0 %>)
+</button>
+
+</div>
+
+
+
+<div id="descContent" class="mt-6 text-sm leading-7 max-w-3xl">
+<%= product.description %>
+</div>
+
+
+
+<div id="reviewContent" class="hidden mt-6">
+
+<% if(reviews.length === 0){ %>
+
+<p>No reviews yet</p>
+
+<% } else { %>
+
+<% reviews.forEach((review)=>{ %>
+
+<div class="mb-6">
+
+<div class="flex gap-2 mb-1">
+
+<% for(let i=0;i<5;i++){ %>
+<span>
+<%= i < review.rating ? "★" : "☆" %>
+</span>
+<% } %>
+
+</div>
+
+<p class="text-sm font-medium">
+<%= review.user.name %>
+</p>
+
+<p class="text-sm mt-1">
+<%= review.comment %>
+</p>
+
+</div>
+
+<% }) %>
+
+<% } %>
+
+</div>
+
+</div>
+
+
+</div>
+
+</div>
+
+
+
+
+
+
+
+
+
+<!-- RELATED PRODUCTS -->
+
+<section class="mt-20">
+
+<h3 class="text-sm uppercase tracking-widest text-center mb-10">
+You Might Also Like
+</h3>
+
+<div class="grid grid-cols-2 md:grid-cols-4 gap-6">
+
+<% relatedProducts.forEach((book)=>{ %>
+
+<a href="/product/<%= book.slug %>" class="group">
+
+<img 
+src="<%= book.images.cover %>" 
+class="w-full object-cover transition-transform duration-500 group-hover:scale-105"
+>
+
+<p class="text-sm mt-3 font-medium group-hover:underline">
+<%= book.title %>
+</p>
+
+<p class="text-sm">
+₹<%= book.variants?.[0]?.salePrice %>
+</p>
+
+</a>
+
+<% }) %>
+
+</div>
+
+</section>
