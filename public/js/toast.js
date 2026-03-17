@@ -16,7 +16,7 @@ document.addEventListener("DOMContentLoaded", () => {
 function showToast(message, type) {
   Toastify({
     text: message,
-    duration: 4000,
+    duration: 2000,
     gravity: "top",
     position: "center",
     stopOnFocus: true,

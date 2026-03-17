@@ -203,12 +203,25 @@ class="<%= defaultVariant.stock > 0
 
 </button>
 
-<button class="border p-2 hover:bg-black hover:text-white rounded-lg">
-<svg xmlns="http://www.w3.org/2000/svg" class="w-6 h-6" fill="none"
-viewBox="0 0 24 24" stroke="currentColor" stroke-width="1.7">
-<path stroke-linecap="round" stroke-linejoin="round"
-d="M4.318 6.318a4.5 4.5 0 016.364 0L12 7.636l1.318-1.318a4.5 4.5 0 116.364 6.364L12 20.364 4.318 12.682a4.5 4.5 0 010-6.364z" />
+<button
+id="wishlistBtn"
+data-product="<%= product._id %>"
+data-variant="<%= defaultVariant.type %>"
+class="p-2 hover:bg-black hover:text-white rounded-lg transition wishlistBtn">
+
+<svg xmlns="http://www.w3.org/2000/svg"
+class="w-6 h-6 wishlistIcon"
+fill="none"
+viewBox="0 0 24 24"
+stroke="currentColor"
+stroke-width="1.7">
+
+<path stroke-linecap="round"
+stroke-linejoin="round"
+d="M4.318 6.318a4.5 4.5 0 016.364 0L12 7.636l1.318-1.318a4.5 4.5 0 116.364 6.364L12 20.364 4.318 12.682a4.5 4.5 0 010-6.364z"/>
+
 </svg>
+
 </button>
 
 </div>

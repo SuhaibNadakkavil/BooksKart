@@ -1,30 +1,92 @@
-document.addEventListener("DOMContentLoaded", () => {
+document.addEventListener("DOMContentLoaded", async () => {
 
-const cartButtons = document.querySelectorAll(".addCartBtn");
-const wishlistButtons = document.querySelectorAll(".wishlistBtn");
+  const wishlistButtons = document.querySelectorAll(".wishlistBtn");
 
-cartButtons.forEach(btn => {
+  /* =========================
+     INITIAL LOAD (SET STATE)
+  ========================= */
 
-btn.addEventListener("click", () => {
+  for (const btn of wishlistButtons) {
 
-const productId = btn.dataset.product;
+    const productId = btn.dataset.product;
+    const variantType = btn.dataset.variant;
 
-console.log("Add to cart:", productId);
+    if (!productId || !variantType) continue;
 
-});
+    try {
 
-});
+      const res = await fetch(`/wishlist/check/${productId}/${variantType}`);
+      const data = await res.json();
 
-wishlistButtons.forEach(btn => {
+      const icon = btn.querySelector(".wishlistIcon");
 
-btn.addEventListener("click", () => {
+      if (data.exists && icon) {
+        icon.setAttribute("fill", "currentColor");
+      }
 
-const productId = btn.dataset.product;
+    } catch (err) {
+      console.error(err);
+    }
 
-console.log("Wishlist toggle:", productId);
+  }
 
-});
+  /* =========================
+     CLICK HANDLER
+  ========================= */
 
-});
+  wishlistButtons.forEach(btn => {
+
+    btn.addEventListener("click", async () => {
+
+      const productId = btn.dataset.product;
+      const variantType = btn.dataset.variant;
+
+      if (!productId || !variantType) return;
+
+      try {
+
+        const res = await fetch("/wishlist/toggle", {
+
+          method: "POST",
+
+          headers: {
+            "Content-Type": "application/json"
+          },
+
+          body: JSON.stringify({
+            productId,
+            variantType
+          })
+
+        });
+
+        const data = await res.json();
+
+        if (!data.success) {
+          showToast(data.message, "error");
+          return;
+        }
+
+        /* SUCCESS MESSAGE */
+        showToast(data.message, "success");
+
+        /* HEART TOGGLE */
+        const icon = btn.querySelector(".wishlistIcon");
+
+        if (!icon) return;
+
+        if (data.action === "added") {
+          icon.setAttribute("fill", "currentColor");
+        } else {
+          icon.setAttribute("fill", "none");
+        }
+
+      } catch (err) {
+        console.error(err);
+      }
+
+    });
+
+  });
 
 });

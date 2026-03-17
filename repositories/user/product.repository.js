@@ -157,36 +157,115 @@ export const findProductsWithCategoryFilter = async ({
 
 export const findNewArrivalProducts = async (limit = 4) => {
 
-  return Product.find(
+  const pipeline = [
+
+    /* =========================
+       BASE FILTER
+    ========================= */
     {
-      isDeleted: false,
-      isActive: true
-    },
-    {
-      title: 1,
-      author: 1,
-      slug: 1,
-      "images.cover": 1,
-      "variants.regularPrice": 1,
-      productOffer: 1,
-      category: 1
-    }
-  )
-    .populate({
-      path: "category",
-      match: {
+      $match: {
         isActive: true,
         isDeleted: false
-      },
-      select: "offer"
-    })
-    .populate({
-      path: "productOffer",
-      select: "type value"
-    })
-    .sort({ createdAt: -1 })
-    .limit(limit)
-    .lean();
+      }
+    },
+
+    /* =========================
+       SORT (NEW ARRIVALS)
+    ========================= */
+    {
+      $sort: { createdAt: -1 }
+    },
+
+    {
+      $limit: limit
+    },
+
+    /* =========================
+       CATEGORY JOIN
+    ========================= */
+    {
+      $lookup: {
+        from: "categories",
+        localField: "category",
+        foreignField: "_id",
+        as: "category"
+      }
+    },
+
+    { $unwind: "$category" },
+
+    {
+      $match: {
+        "category.isActive": true,
+        "category.isDeleted": false
+      }
+    },
+
+    /* =========================
+       PRODUCT OFFER
+    ========================= */
+    {
+      $lookup: {
+        from: "offers",
+        localField: "productOffer",
+        foreignField: "_id",
+        as: "productOffer"
+      }
+    },
+
+    {
+      $unwind: {
+        path: "$productOffer",
+        preserveNullAndEmptyArrays: true
+      }
+    },
+
+    /* =========================
+       CATEGORY OFFER
+    ========================= */
+    {
+      $lookup: {
+        from: "offers",
+        localField: "category.offer",
+        foreignField: "_id",
+        as: "category.offer"
+      }
+    },
+
+    {
+      $unwind: {
+        path: "$category.offer",
+        preserveNullAndEmptyArrays: true
+      }
+    },
+
+    /* =========================
+       FINAL SHAPE
+    ========================= */
+    {
+      $project: {
+
+        title: 1,
+        author: 1,
+        slug: 1,
+
+        images: {
+          cover: "$images.cover"
+        },
+
+        variants: 1,
+
+        productOffer: 1,
+        category: {
+          offer: "$category.offer"
+        }
+
+      }
+    }
+
+  ];
+
+  return Product.aggregate(pipeline);
 
 };
 

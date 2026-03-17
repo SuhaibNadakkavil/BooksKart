@@ -74,72 +74,195 @@ descTab.classList.remove("font-medium")
 })
 
 
+  /* =========================
+     ELEMENTS
+  ========================= */
 
+  const variantButtons = document.querySelectorAll(".variant-btn");
+  const salePriceEl = document.getElementById("salePrice");
+  const regularPriceEl = document.getElementById("regularPrice");
+  const cartButton = document.getElementById("cartButton");
+  const wishlistBtn = document.getElementById("wishlistBtn");
 
-const variantButtons = document.querySelectorAll(".variant-btn");
+  if (!variantButtons.length) return;
 
-const salePriceEl = document.getElementById("salePrice");
-const regularPriceEl = document.getElementById("regularPrice");
-const cartButton = document.getElementById("cartButton");
+  /* =========================
+     DEFAULT VARIANT
+  ========================= */
 
-const firstEnabled = [...variantButtons].find(btn => !btn.disabled);
-firstEnabled?.classList.add("bg-black","text-white");
+  let selectedVariant =
+    document.querySelector(".variant-btn.bg-black")?.dataset.type;
 
-variantButtons.forEach(btn => {
+  const firstEnabled = [...variantButtons].find(btn => !btn.disabled);
+
+  if (!selectedVariant && firstEnabled) {
+    selectedVariant = firstEnabled.dataset.type;
+    firstEnabled.classList.add("bg-black", "text-white");
+  }
+
+  /* =========================
+     WISHLIST STATE UPDATE
+  ========================= */
+
+  const updateWishlistState = async () => {
+
+    if (!wishlistBtn) return;
+
+    const productId = wishlistBtn.dataset.product;
+
+    if (!productId || !selectedVariant) return;
+
+    try {
+
+      const res = await fetch(`/wishlist/check/${productId}/${selectedVariant}`);
+      const data = await res.json();
+
+      const icon = wishlistBtn.querySelector(".wishlistIcon");
+
+      if (!icon) return;
+
+      if (data.exists) {
+        icon.setAttribute("fill", "currentColor");
+      } else {
+        icon.setAttribute("fill", "none");
+      }
+
+    } catch (err) {
+      console.error(err);
+    }
+
+  };
+
+  /* =========================
+     VARIANT CLICK
+  ========================= */
+
+  variantButtons.forEach(btn => {
 
     if (btn.disabled) return;
 
-  btn.addEventListener("click", () => {
+    btn.addEventListener("click", async () => {
 
-    const price = btn.dataset.price;
-    const sale = btn.dataset.sale;
-    const stock = parseInt(btn.dataset.stock);
+      selectedVariant = btn.dataset.type;
 
-    /* PRICE UPDATE */
+      const price = btn.dataset.price;
+      const sale = btn.dataset.sale;
+      const stock = parseInt(btn.dataset.stock);
 
-    if (sale && sale !== price) {
+      /* PRICE UPDATE */
 
-      if (salePriceEl) salePriceEl.textContent = `₹${sale}`;
+      if (sale && sale !== price) {
 
-      if (regularPriceEl) {
-        regularPriceEl.textContent = `₹${price}`;
-        regularPriceEl.classList.add("line-through","opacity-50");
+        if (salePriceEl) salePriceEl.textContent = `₹${sale}`;
+
+        if (regularPriceEl) {
+          regularPriceEl.textContent = `₹${price}`;
+          regularPriceEl.classList.add("line-through", "opacity-50");
+        }
+
+      } else {
+
+        if (regularPriceEl) {
+          regularPriceEl.textContent = `₹${price}`;
+          regularPriceEl.classList.remove("line-through", "opacity-50");
+        }
+
+        if (salePriceEl) salePriceEl.textContent = "";
+
       }
 
-    } else {
+      /* CART BUTTON UPDATE */
 
-      if (regularPriceEl) {
-        regularPriceEl.textContent = `₹${price}`;
-        regularPriceEl.classList.remove("line-through","opacity-50");
+      if (stock > 0) {
+
+        cartButton.textContent = "ADD TO CART";
+        cartButton.classList.remove("bg-red-500", "cursor-not-allowed");
+        cartButton.classList.add("bg-black");
+
+      } else {
+
+        cartButton.textContent = "OUT OF STOCK";
+        cartButton.classList.remove("bg-black");
+        cartButton.classList.add("bg-red-500", "cursor-not-allowed");
+
       }
 
-      if (salePriceEl) salePriceEl.textContent = "";
+      /* ACTIVE STYLE */
 
-    }
+      variantButtons.forEach(v =>
+        v.classList.remove("bg-black", "text-white")
+      );
 
-    /* CART BUTTON UPDATE */
+      btn.classList.add("bg-black", "text-white");
 
-    if (stock > 0) {
+      /* UPDATE WISHLIST STATE */
 
-      cartButton.textContent = "ADD TO CART";
-      cartButton.classList.remove("bg-red-500","cursor-not-allowed");
-      cartButton.classList.add("bg-black");
+      await updateWishlistState();
 
-    } else {
-
-      cartButton.textContent = "OUT OF STOCK";
-      cartButton.classList.remove("bg-black");
-      cartButton.classList.add("bg-red-500","cursor-not-allowed");
-
-    }
-
-    /* ACTIVE BUTTON STYLE */
-
-    variantButtons.forEach(v => v.classList.remove("bg-black","text-white"));
-    btn.classList.add("bg-black","text-white");
+    });
 
   });
 
-});
+  /* =========================
+     WISHLIST CLICK
+  ========================= */
+
+  if (wishlistBtn) {
+
+    wishlistBtn.addEventListener("click", async () => {
+
+      const productId = wishlistBtn.dataset.product;
+
+      if (!productId || !selectedVariant) return;
+
+      try {
+
+        const res = await fetch("/wishlist/toggle", {
+
+          method: "POST",
+
+          headers: {
+            "Content-Type": "application/json"
+          },
+
+          body: JSON.stringify({
+            productId,
+            variantType: selectedVariant
+          })
+
+        });
+
+        const data = await res.json();
+
+        if (!data.success) {
+          showToast(data.message, "error");
+          return;
+        }
+
+        showToast(data.message, "success");
+
+        const icon = wishlistBtn.querySelector(".wishlistIcon");
+
+        if (!icon) return;
+
+        if (data.action === "added") {
+          icon.setAttribute("fill", "currentColor");
+        } else {
+          icon.setAttribute("fill", "none");
+        }
+
+      } catch (err) {
+        console.error(err);
+      }
+
+    });
+
+  }
+
+  /* =========================
+     INITIAL LOAD
+  ========================= */
+
+  updateWishlistState();
 
 });
