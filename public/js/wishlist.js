@@ -33,7 +33,9 @@ document.addEventListener("DOMContentLoaded", () => {
 
         showToast(data.message, "success");
 
-        btn.closest(".group").remove();
+        btn.closest(".wishlist-item").remove();
+
+        checkEmptyState()
 
       } catch (err) {
         console.error(err);
@@ -85,9 +87,10 @@ document.addEventListener("DOMContentLoaded", () => {
 
       showToast(cartData.message, "success");
 
-      btn.closest(".group").remove();
+      btn.closest(".wishlist-item").remove();
 
       updateCartCount()
+      checkEmptyState()
 
     } catch (err) {
       console.error(err);
@@ -96,4 +99,21 @@ document.addEventListener("DOMContentLoaded", () => {
   });
 
 });
+
+function checkEmptyState() {
+
+  const wishlistContainer = document.getElementById("wishlistContainer");
+  const emptyState = document.getElementById("emptyState");
+
+  if (!wishlistContainer || !emptyState) return; // 🔥 prevent crash
+
+  const items = document.querySelectorAll(".wishlist-item");
+
+  if (items.length === 0) {
+    wishlistContainer.classList.add("hidden");
+    emptyState.classList.remove("hidden");
+  }
+
+}
+
 });
