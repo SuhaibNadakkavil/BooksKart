@@ -1,6 +1,6 @@
 
 <!-- Breadcrumb -->
-<nav class="text-sm mb-6">
+<nav class="text-sm mb-6 text-blue-500">
   <a href="/" class="hover:underline">Home</a>
   <span class="mx-2">/</span>
   <a href="/shop" class="hover:underline">Shop</a>
@@ -17,17 +17,19 @@
   <!-- THUMBNAILS -->
   <div class="flex flex-col gap-3 mt-1">
     <% Object.values(product.images).forEach((img)=>{ %>
+      <div class="group overflow-hidden">
       <img 
         src="<%= img %>"
-        class="w-20 h-28 object-cover cursor-pointer border hover:opacity-80 thumbnail"
+        class="w-20 h-28 object-cover cursor-pointer transition-transform duration-500 group-hover:scale-105 rounded-lg thumbnail"
         loading="lazy"
       >
+      </div>
     <% }) %>
   </div>
 
 
   <!-- MAIN IMAGE -->
-  <div class="relative overflow-hidden border bg-white flex items-center justify-center w-full max-w-[420px] h-[520px] lg:h-[560px]" id="imageContainer">
+  <div class="relative overflow-hidden bg-white flex items-center justify-center w-full max-w-[420px] h-[520px] lg:h-[560px] rounded-lg" id="imageContainer">
     <img 
       id="mainImage"
       src="<%= product.images.cover %>"
@@ -197,18 +199,18 @@ data-product="<%= product._id %>"
 data-stock="<%= defaultVariant.stock %>"
 class="<%= defaultVariant.stock > 0 
 ? 'bg-black text-white' 
-: 'bg-red-500 text-white cursor-not-allowed' %> px-8 py-3 text-sm rounded-lg"
+: 'bg-red-500 text-white cursor-not-allowed' %> px-8 py-3 text-sm rounded-lg group"
 >
-
+<span class="inline-block transition-transform duration-300 group-hover:scale-110">
 <%= defaultVariant.stock > 0 ? "ADD TO CART" : "OUT OF STOCK" %>
-
+</span>
 </button>
 
 <button
 id="wishlistBtn"
 data-product="<%= product._id %>"
 data-variant="<%= defaultVariant.type %>"
-class="p-2 hover:bg-black hover:text-white rounded-lg transition wishlistBtn">
+class="p-2 text-red-500 hover:bg-red-500 hover:text-white rounded-lg transition wishlistBtn">
 
 <svg xmlns="http://www.w3.org/2000/svg"
 class="w-6 h-6 wishlistIcon"
@@ -317,13 +319,16 @@ You Might Also Like
 
 <% relatedProducts.forEach((book)=>{ %>
 
-<a href="/product/<%= book.slug %>" class="group">
+<div class="rounded-lg bg-white hover:shadow-xl p-6 group">
 
+<a href="/product/<%= book.slug %>">
+
+<div class="overflow-hidden aspect-[3/4] bg-white flex items-center justify-center">
 <img 
 src="<%= book.images.cover %>" 
-class="w-full object-cover transition-transform duration-500 group-hover:scale-105"
+class="w-full object-cover transition-transform duration-500 group-hover:scale-105 rounded-lg"
 >
-
+</div>
 <p class="text-sm mt-3 font-medium group-hover:underline">
 <%= book.title %>
 </p>
@@ -333,7 +338,7 @@ class="w-full object-cover transition-transform duration-500 group-hover:scale-1
 </p>
 
 </a>
-
+</div>
 <% }) %>
 
 </div>
