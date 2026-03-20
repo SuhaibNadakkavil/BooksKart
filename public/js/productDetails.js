@@ -265,4 +265,57 @@ descTab.classList.remove("font-medium")
 
   updateWishlistState();
 
+  /* =========================
+   ADD TO CART
+========================= */
+
+if (cartButton) {
+
+  cartButton.addEventListener("click", async () => {
+
+    if (cartButton.classList.contains("cursor-not-allowed")) return;
+
+    const productId = cartButton.dataset.product;
+
+    if (!productId || !selectedVariant) return;
+
+    try {
+
+      const res = await fetch("/cart/add", {
+
+        method: "POST",
+
+        headers: {
+          "Content-Type": "application/json"
+        },
+
+        body: JSON.stringify({
+          productId,
+          variantType: selectedVariant
+        })
+
+      });
+
+      const data = await res.json();
+
+      if (!data.success) {
+        showToast(data.message, "error");
+        return;
+      }
+
+      showToast(data.message, "success");
+      updateCartCount();
+
+      /* remove wishlist highlight */
+      const icon = wishlistBtn?.querySelector(".wishlistIcon");
+      if (icon) icon.setAttribute("fill", "none");
+
+    } catch (err) {
+      console.error(err);
+    }
+
+  });
+
+}
+
 });

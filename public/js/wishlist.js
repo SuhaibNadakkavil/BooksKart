@@ -43,45 +43,57 @@ document.addEventListener("DOMContentLoaded", () => {
 
   });
 
-  /* =========================
-     MOVE TO CART
-  ========================= */
-
   cartButtons.forEach(btn => {
 
-    btn.addEventListener("click", async () => {
+  btn.addEventListener("click", async () => {
 
-      const productId = btn.dataset.product;
-      const variantType = btn.dataset.variant;
+    const productId = btn.dataset.product;
+    const variantType = btn.dataset.variant;
 
-      try {
+    try {
 
-        const res = await fetch("/wishlist/move-to-cart", {
-          method: "POST",
-          headers: {
-            "Content-Type": "application/json"
-          },
-          body: JSON.stringify({ productId, variantType })
-        });
+      /* =========================
+         ADD TO CART
+      ========================= */
 
-        const data = await res.json();
+      const cartRes = await fetch("/cart/add", {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json"
+        },
+        body: JSON.stringify({ productId, variantType })
+      });
 
-        if (!data.success) {
-          showToast(data.message, "error");
-          return;
-        }
+      const cartData = await cartRes.json();
 
-        showToast(data.message, "success");
-
-        // remove from UI
-        btn.closest(".group").remove();
-
-      } catch (err) {
-        console.error(err);
+      if (!cartData.success) {
+        showToast(cartData.message, "error");
+        return;
       }
 
-    });
+      /* =========================
+         REMOVE FROM WISHLIST
+      ========================= */
+
+      await fetch("/wishlist", {
+        method: "DELETE",
+        headers: {
+          "Content-Type": "application/json"
+        },
+        body: JSON.stringify({ productId, variantType })
+      });
+
+      showToast(cartData.message, "success");
+
+      btn.closest(".group").remove();
+
+      updateCartCount()
+
+    } catch (err) {
+      console.error(err);
+    }
 
   });
 
+});
 });

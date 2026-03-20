@@ -89,4 +89,66 @@ document.addEventListener("DOMContentLoaded", async () => {
 
   });
 
+  /* =========================
+   ADD TO CART
+========================= */
+
+  const cartButtons = document.querySelectorAll(".addCartBtn");
+
+  cartButtons.forEach(btn => {
+
+    btn.addEventListener("click", async () => {
+
+      const productId = btn.dataset.product;
+      const variantType = btn.dataset.variant?.toLowerCase();
+
+      if (!productId || !variantType) return;
+
+      try {
+
+        const res = await fetch("/cart/add", {
+
+          method: "POST",
+
+          headers: {
+            "Content-Type": "application/json"
+          },
+
+          body: JSON.stringify({
+            productId,
+            variantType
+          })
+
+        });
+
+        const data = await res.json();
+
+        if (!data.success) {
+          showToast(data.message, "error");
+          return;
+        }
+
+        /* 🔥 DYNAMIC MESSAGE */
+        showToast(data.message, "success");
+
+        /* 🔥 OPTIONAL: update wishlist icon */
+        const wishlistBtn = document.querySelector(
+          `.wishlistBtn[data-product="${productId}"][data-variant="${variantType}"]`
+        );
+
+        if (wishlistBtn) {
+          const icon = wishlistBtn.querySelector(".wishlistIcon");
+          if (icon) icon.setAttribute("fill", "none");
+        }
+
+        updateCartCount();
+
+      } catch (err) {
+        console.error(err);
+      }
+
+    });
+
+  });
+
 });

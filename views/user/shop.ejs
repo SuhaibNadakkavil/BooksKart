@@ -326,6 +326,7 @@ const sale = product.variants?.[0]?.salePrice || regular
 
 <button
 data-product="<%= product._id %>"
+data-variant="<%= product.variants[0]?.type %>"
 class="addCartBtn flex-1 text-sm bg-[#121212] text-[#FAFAF8] py-2 hover:opacity-90 rounded-lg">
 
 Add to Cart

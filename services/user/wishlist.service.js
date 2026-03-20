@@ -113,20 +113,3 @@ export const removeWishlistItemService = async ({
   });
 
 };
-
-
-export const moveWishlistToCartService = async ({
-  userId,
-  productId,
-  variantType
-}) => {
-
-  /* cart logic will go here later */
-
-  await wishlistRepo.removeFromWishlist({
-    userId,
-    productId,
-    variantType
-  });
-
-};

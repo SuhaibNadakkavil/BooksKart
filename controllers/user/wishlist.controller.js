@@ -2,7 +2,6 @@ import {
     getWishlistService, 
     toggleWishlistService,
     removeWishlistItemService,
-    moveWishlistToCartService
 } from "../../services/user/wishlist.service.js";
 
 import HTTP_STATUS from "../../utils/httpStatus.js";
@@ -130,35 +129,6 @@ export const removeWishlistItem = async (req, res, next) => {
     res.status(HTTP_STATUS.OK).json({
       success: true,
       message: "Removed from wishlist"
-    });
-
-  } catch (err) {
-    next(err);
-  }
-
-};
-
-
-/* =========================
-   MOVE TO CART
-========================= */
-
-export const moveWishlistToCart = async (req, res, next) => {
-
-  try {
-
-    const userId = req.user._id;
-    const { productId, variantType } = req.body;
-
-    await moveWishlistToCartService({
-      userId,
-      productId,
-      variantType
-    });
-
-    res.status(HTTP_STATUS.OK).json({
-      success: true,
-      message: "Moved to cart"
     });
 
   } catch (err) {
