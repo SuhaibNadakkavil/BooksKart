@@ -10,6 +10,51 @@ document.addEventListener("DOMContentLoaded", () => {
   const storageKey = `otp_expiry_${mode}`;
   const TIMER_DURATION = 60;
 
+
+  const form = document.querySelector("form");
+
+form.addEventListener("submit", async (e) => {
+  e.preventDefault(); // 🚫 STOP PAGE RELOAD
+
+  const otp = combinedOtp.value;
+
+  if (!otp || otp.length !== 6) {
+    showToast("Please enter valid OTP", "error");
+    return;
+  }
+
+  try {
+    const response = await fetch(form.action, {
+      method: "POST",
+      headers: {
+        "Content-Type": "application/json",
+      },
+      body: JSON.stringify({
+        email,
+        otp,
+        mode,
+      }),
+    });
+
+    const data = await response.json();
+
+    if (!data.success) {
+      showToast(data.message, "error");
+      return;
+    }
+
+    // ✅ SUCCESS FLOW
+    showToast(data.message || "Success", "success");
+
+    if (data.redirect) {
+      window.location.href = data.redirect;
+    }
+
+  } catch (err) {
+    showToast("Something went wrong", "error");
+  }
+});
+
   /* ---------------- OTP INPUT LOGIC ---------------- */
 
   inputs.forEach((input, index) => {

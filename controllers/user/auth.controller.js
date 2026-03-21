@@ -155,14 +155,9 @@ export const verifySignupOTP = async (req, res, next) => {
       const storedData = await getChangeEmailOTP(email);
 
       if (!storedData || storedData.otp !== otp) {
-        return res.render("user/verify-otp", {
-          mode: "change-email",
-          title: "Verify New Email | BooksKart",
-          headerType: "main",
-          error: "Invalid or expired OTP",
-          success: null,
-          email,
-          pageScript: "/js/verify-otp.js",
+        return res.status(400).json({
+          success: false,
+          message: "Invalid or expired OTP"
         });
       }
 
@@ -173,8 +168,11 @@ export const verifySignupOTP = async (req, res, next) => {
 
       await deleteChangeEmailOTP(email);
 
-      req.session.success = "Email updated successfully";
-      return res.redirect("/profile");
+      return res.status(200).json({
+        success: true,
+        message: "Email updated successfully",
+        redirect: "/profile",
+      });
     }
 
     /* =========================================================
@@ -183,29 +181,12 @@ export const verifySignupOTP = async (req, res, next) => {
 
     const storedData = await getSignupOTP(email);
 
-    if (!storedData) {
-      return res.render("user/verify-otp", {
-        mode: "signup",
-        title: "Verify Email | BooksKart",
-        headerType: "auth",
-        error: "OTP expired. Please signup again.",
-        success: null,
-        email,
-        pageScript: "/js/verify-otp.js",
-      });
-    }
-
-    if (storedData.otp !== otp) {
-      return res.render("user/verify-otp", {
-        mode: "signup",
-        title: "Verify Email | BooksKart",
-        headerType: "auth",
-        error: "Invalid OTP",
-        success: null,
-        email,
-        pageScript: "/js/verify-otp.js",
-      });
-    }
+    if (!storedData || storedData.otp !== otp) {
+        return res.status(400).json({
+          success: false,
+          message: "Invalid or expired OTP"
+        });
+      }
 
     const user = await userRepo.createUser({
       ...storedData.userData,
@@ -220,8 +201,11 @@ export const verifySignupOTP = async (req, res, next) => {
       req.session.userId = user._id;
       req.session.isAuthenticated = true;
 
-      req.session.success = "Authenticated";
-      return res.redirect("/");
+      return res.status(200).json({
+        success: true,
+        message: "Authenticated",
+        redirect: "/",
+      });
     });
 
   } catch (error) {
@@ -475,37 +459,29 @@ export const resendResetOTP = async (req, res) => {
 
 export const verifyResetOTP = async (req, res, next) => {
 
+  try {
   const { email, otp } = req.body;
 
   if (!email || !otp) {
-    return res.render("user/verify-otp", {
-      mode: "reset",
-      title: "Verify OTP | BooksKart",
-      headerType: "auth",
-      error: "Invalid request",
-      success: null,
-      email: email || "",
-      pageScript: "/js/verify-otp.js",
-    });
-  }
-
-  try {
+      return res.status(400).json({
+        success: false,
+        message: "Invalid request",
+      });
+    }
 
     await verifyResetOTPService(email, otp);
 
-    req.session.success = "OTP Verification successfully";
-    return res.redirect(`/set-new-password?email=${email}`);
+    return res.status(200).json({
+      success: true,
+      message: "OTP verified successfully",
+      redirect: `/set-new-password?email=${encodeURIComponent(email)}`,
+    });
 
   } catch (err) {
 
-    return res.render("user/verify-otp", {
-      mode: "reset",
-      title: "Verify OTP | BooksKart",
-      headerType: "auth",
-      error: err.message,
-      success: null,
-      email: email || "",
-      pageScript: "/js/verify-otp.js",
+    return res.status(400).json({
+      success: false,
+      message: err.message || "Invalid OTP",
     });
   }
 };
