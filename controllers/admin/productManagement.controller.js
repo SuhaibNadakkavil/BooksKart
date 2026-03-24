@@ -96,18 +96,10 @@ export const addProduct = async (req, res, next) => {
 
     if (req.fileValidationError) {
 
-        return res.status(HTTP_STATUS.BAD_REQUEST).render("admin/addProduct", {
-            title: "Add Product | BooksKart",
-            categories,
-            errors: {},
-            old: {
-                ...req.body,
-                variants
-            },
-            error: req.fileValidationError,
-            success: null,
-            pageScript: "/js/adminAddProduct.js"
-        });
+        return res.status(HTTP_STATUS.BAD_REQUEST).json({
+                success: false,
+                message: req.fileValidationError
+            });
 
     }
 
@@ -148,47 +140,35 @@ export const addProduct = async (req, res, next) => {
             errors[err.path[0]] = err.message;
         });
 
-        return res.status(HTTP_STATUS.BAD_REQUEST).render("admin/addProduct", {
-            title: "Add Product | BooksKart",
-            categories,
-            errors,
-            old: {
-                ...req.body,
-                variants
-            },
-            error: null,
-            success: null,
-            pageScript: "/js/adminAddProduct.js"
-        });
+        return res.status(HTTP_STATUS.BAD_REQUEST).json({
+                success: false,
+                errors, 
+                message: "Validation failed"
+            });
 
     }
 
     try {
 
-        await addProductService({
+        const product = await addProductService({
             ...value,
             variants
         }, req.files)
 
-        req.session.success = "Product added successfully";
-
-        return res.redirect("/admin/products");
+        return res.status(HTTP_STATUS.CREATED).json({
+            success: true,
+            message: "Product added successfully",
+            redirect: "/admin/products",
+            productId: product._id
+        });
 
     } catch (err) {
 
         if (err.type === "GLOBAL") {
 
-            return res.status(HTTP_STATUS.BAD_REQUEST).render("admin/addProduct", {
-                title: "Add Product | BooksKart",
-                categories,
-                errors: {},
-                old: {
-                    ...req.body,
-                    variants
-                },
-                error: err.message,
-                success: null,
-                pageScript: "/js/adminAddProduct.js"
+            return res.status(HTTP_STATUS.BAD_REQUEST).json({
+                success: false,
+                message: err.message
             });
 
         }
@@ -241,7 +221,10 @@ export const loadEditProductPage = async (req, res, next) => {
       error,
 
       errors: {},
-      old: product,
+      old: {
+        ...product,
+        category: product.category?._id || product.category
+        },
 
       pageScript: "/js/adminEditProduct.js"
 
@@ -259,136 +242,115 @@ export const loadEditProductPage = async (req, res, next) => {
 
 export const updateProduct = async (req, res, next) => {
 
-  const { id } = req.params;
-
-  const product = await productRepo.findProductById(id);
-
-  const categories = await categoryRepo.findCategories({
-    skip: 0,
-    limit: 100,
-    filter: { isActive: true, isDeleted: false },
-    sort: { name: 1 }
-  });
-
-
-  if (!product) {
-
-    req.session.error = "Product not found";
-    return res.redirect("/admin/products");
-
-  }
-
-
-  if (req.fileValidationError) {
-
-    return res.status(HTTP_STATUS.BAD_REQUEST).render("admin/editProduct", {
-      title: "Edit Product | BooksKart",
-      product,
-      categories,
-      errors: {},
-      old: req.body,
-      error: req.fileValidationError,
-      success: null,
-      pageScript: "/js/adminEditProduct.js"
-    });
-
-  }
-
-
-
-  /* =========================
-  VARIANTS TRANSFORM
-  ========================= */
-
-  const types = Array.isArray(req.body.variantType)
-    ? req.body.variantType
-    : [req.body.variantType];
-
-  const prices = Array.isArray(req.body.regularPrice)
-    ? req.body.regularPrice
-    : [req.body.regularPrice];
-
-  const stocks = Array.isArray(req.body.stock)
-    ? req.body.stock
-    : [req.body.stock];
-
-  const variants = types.map((type, i) => ({
-    type,
-    regularPrice: Number(prices[i]),
-    stock: Number(stocks[i])
-  }));
-
-  delete req.body.variantType;
-  delete req.body.regularPrice;
-  delete req.body.stock;
-
-  req.body.variants = variants;
-  req.body.images = product.images;
-
-
-  /* =========================
-  VALIDATION
-  ========================= */
-
-  const { error, value } = createProductSchema.validate(req.body, {
-    abortEarly: false
-  });
-
-  if (error) {
-
-    const errors = {};
-
-    error.details.forEach(err => {
-      errors[err.path[0]] = err.message;
-    });
-
-    return res.status(HTTP_STATUS.BAD_REQUEST).render("admin/editProduct", {
-      title: "Edit Product | BooksKart",
-      product,
-      categories,
-      errors,
-      old: req.body,
-      error: null,
-      success: null,
-      pageScript: "/js/adminEditProduct.js"
-    });
-
-  }
-
-
-
   try {
 
-    await updateProductService(id, {
-      ...value,
-      variants
-    }, req.files, product);
+    const { id } = req.params;
 
-    req.session.success = "Product updated successfully";
+    const product = await productRepo.findProductById(id);
 
-    return res.redirect("/admin/products");
+    if (!product) {
+      return res.status(HTTP_STATUS.NOT_FOUND).json({
+        success: false,
+        message: "Product not found"
+      });
+    }
+
+    /* =========================
+       FILE VALIDATION
+    ========================= */
+
+    if (req.fileValidationError) {
+      return res.status(HTTP_STATUS.BAD_REQUEST).json({
+        success: false,
+        message: req.fileValidationError
+      });
+    }
+
+    /* =========================
+       VARIANTS TRANSFORM
+    ========================= */
+
+    const types = Array.isArray(req.body.variantType)
+      ? req.body.variantType
+      : [req.body.variantType];
+
+    const prices = Array.isArray(req.body.regularPrice)
+      ? req.body.regularPrice
+      : [req.body.regularPrice];
+
+    const stocks = Array.isArray(req.body.stock)
+      ? req.body.stock
+      : [req.body.stock];
+
+    const variants = types.map((type, i) => ({
+      type,
+      regularPrice: Number(prices[i]),
+      stock: Number(stocks[i])
+    }));
+
+    delete req.body.variantType;
+    delete req.body.regularPrice;
+    delete req.body.stock;
+
+    req.body.variants = variants;
+    req.body.images = product.images;
+
+    /* =========================
+       VALIDATION
+    ========================= */
+
+    const { error, value } = createProductSchema.validate(req.body, {
+      abortEarly: false
+    });
+
+    if (error) {
+
+      const errors = {};
+
+      error.details.forEach(err => {
+        errors[err.path[0]] = err.message;
+      });
+
+      return res.status(HTTP_STATUS.BAD_REQUEST).json({
+        success: false,
+        errors,
+        message: "Validation failed"
+      });
+    }
+
+    /* =========================
+       SERVICE
+    ========================= */
+
+    const updatedProduct = await updateProductService(
+      id,
+      { ...value, variants },
+      req.files,
+      product
+    );
+
+    /* =========================
+       SUCCESS
+    ========================= */
+
+    return res.status(HTTP_STATUS.OK).json({
+      success: true,
+      message: "Product updated successfully",
+      redirect: "/admin/products",
+      productId: updatedProduct._id
+    });
 
   } catch (err) {
 
     if (err.type === "GLOBAL") {
-
-      return res.status(HTTP_STATUS.BAD_REQUEST).render("admin/editProduct", {
-        title: "Edit Product | BooksKart",
-        product,
-        categories,
-        errors: {},
-        old: req.body,
-        error: err.message,
-        success: null,
-        pageScript: "/js/adminEditProduct.js"
+      return res.status(HTTP_STATUS.BAD_REQUEST).json({
+        success: false,
+        message: err.message
       });
-
     }
 
     next(err);
-
   }
-
 };
 
 

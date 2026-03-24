@@ -174,7 +174,7 @@ export const addProductService = async (data, files) => {
         back
     };
 
-    await productRepo.createProduct({
+    const product = await productRepo.createProduct({
         title: data.title,
         slug,
         author: data.author,
@@ -184,6 +184,8 @@ export const addProductService = async (data, files) => {
         variants: data.variants
     });
 
+    return product;
+
 };
 
 
@@ -191,64 +193,47 @@ export const updateProductService = async (id, data, files, existingProduct) => 
 
   let images = { ...existingProduct.images };
 
-
   /* =========================
-  COVER IMAGE
+     IMAGE UPDATES (SAFE CHECK)
   ========================= */
 
-  if (files.coverImage) {
-
+  if (files?.coverImage?.[0]) {
     await deleteCloudinaryImage(existingProduct.images.cover);
-
     const cover = await uploadImage(files.coverImage[0].buffer, "cover");
-
     images.cover = cover;
-
   }
 
-
-  /* =========================
-  SIDE IMAGE
-  ========================= */
-
-  if (files.sideImage) {
-
+  if (files?.sideImage?.[0]) {
     await deleteCloudinaryImage(existingProduct.images.side);
-
     const side = await uploadImage(files.sideImage[0].buffer, "side");
-
     images.side = side;
-
   }
 
+  if (files?.backImage?.[0]) {
+    await deleteCloudinaryImage(existingProduct.images.back);
+    const back = await uploadImage(files.backImage[0].buffer, "back");
+    images.back = back;
+  }
 
   /* =========================
-  BACK IMAGE
+     SLUG + DUPLICATE CHECK
   ========================= */
-
-  if (files.backImage) {
-
-    await deleteCloudinaryImage(existingProduct.images.back);
-
-    const back = await uploadImage(files.backImage[0].buffer, "back");
-
-    images.back = back;
-
-  }
 
   const slug = createSlug(data.title);
 
   const existing = await productRepo.findProductBySlug(slug);
 
-    if (existing && existing._id.toString() !== id) {
-        const error = new Error("Product already exists");
-        error.type = "GLOBAL";
-        throw error;
-    }
+  if (existing && existing._id.toString() !== id) {
+    const error = new Error("Product already exists");
+    error.type = "GLOBAL";
+    throw error;
+  }
 
+  /* =========================
+     UPDATE
+  ========================= */
 
-  await productRepo.updateProduct(id, {
-
+  const updatedProduct = await productRepo.updateProduct(id, {
     title: data.title,
     slug,
     author: data.author,
@@ -256,9 +241,9 @@ export const updateProductService = async (id, data, files, existingProduct) => 
     category: data.category,
     images,
     variants: data.variants
-
   });
 
+  return updatedProduct; // ✅ IMPORTANT
 };
 
 

@@ -81,10 +81,9 @@ PRODUCT DETAILS
                     
                             <% categories.forEach(cat=> { %>
                     
-                                <option value="<%= cat._id %>" <%=(old?.category || product.category._id.toString())===cat._id.toString() ? "selected" : "" %>>
-                    
-                                    <%= cat.name %>
-                    
+                                <option value="<%= cat._id %>"
+                                <%= old?.category.toString() === cat._id.toString() ? "selected" : "" %>>
+                                <%= cat.name %>
                                 </option>
                     
                                 <% }) %>
@@ -384,3 +383,5 @@ ACTIONS
     </form>
 
 </section>
+
+<%- include('../partials/adminPartials/imageCropModal.ejs') %>

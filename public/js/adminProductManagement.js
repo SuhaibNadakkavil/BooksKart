@@ -378,5 +378,64 @@ deleteProductOfferBtns.forEach(btn => {
 
 });
 
+const modal = document.getElementById("variantModal");
+    const modalBody = document.getElementById("variantModalBody");
+    const modalTitle = document.getElementById("variantModalTitle");
+    const closeBtn = document.getElementById("closeVariantModal");
+
+    // OPEN MODAL
+    document.querySelectorAll(".viewVariantsBtn").forEach(btn => {
+        btn.addEventListener("click", () => {
+
+            const variants = JSON.parse(btn.dataset.product);
+            const title = btn.dataset.title;
+
+            modalTitle.textContent = `${title} - Variants`;
+
+            modalBody.innerHTML = "";
+
+            variants.forEach(v => {
+
+                const priceHtml = (v.salePrice && v.salePrice < v.regularPrice)
+                    ? `
+                        <span class="line-through text-xs opacity-60">₹${v.regularPrice}</span>
+                        <span class="ml-1 text-red-600">₹${v.salePrice}</span>
+                      `
+                    : `₹${v.regularPrice}`;
+
+                const stockHtml = v.stock > 0
+                    ? v.stock
+                    : `<span class="text-red-600">Out of Stock</span>`;
+
+                const row = `
+                    <tr class="border-b border-gray-300">
+                        <td class="py-2">${v.type}</td>
+                        <td>${priceHtml}</td>
+                        <td>${stockHtml}</td>
+                    </tr>
+                `;
+
+                modalBody.insertAdjacentHTML("beforeend", row);
+            });
+
+            modal.classList.remove("hidden");
+            modal.classList.add("flex");
+        });
+    });
+
+    // CLOSE MODAL
+    closeBtn.addEventListener("click", () => {
+        modal.classList.add("hidden");
+        modal.classList.remove("flex");
+    });
+
+    // OPTIONAL: click outside to close
+    modal.addEventListener("click", (e) => {
+        if (e.target === modal) {
+            modal.classList.add("hidden");
+            modal.classList.remove("flex");
+        }
+    });
+
 });
 

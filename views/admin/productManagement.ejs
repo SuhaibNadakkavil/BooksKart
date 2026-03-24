@@ -9,8 +9,10 @@
         </div>
 
         <a href="/admin/products/add"
-            class="bg-[#121212] text-[#FAFAF8] rounded-lg px-5 py-2 text-sm tracking-widest hover:opacity-90 transition">
+            class="bg-[#121212] text-[#FAFAF8] rounded-lg px-5 py-2 text-sm tracking-widest group">
+            <span class="inline-block transition-transform duration-300 group-hover:scale-110">
             ADD PRODUCT
+            </span>
         </a>
 
     </div>
@@ -30,8 +32,10 @@
              focus:outline-none focus:border-[#333333]" />
 
             <button type="submit"
-                class="bg-[#121212] text-[#FAFAF8] rounded-lg px-4 py-2 text-sm tracking-widest hover:opacity-90 transition">
+                class="bg-[#121212] text-[#FAFAF8] rounded-lg px-4 py-2 text-sm tracking-widest group">
+                <span class="inline-block transition-transform duration-300 group-hover:scale-110">
                 SEARCH
+                </span>
             </button>
 
             <% if(query?.search){ %>
@@ -111,9 +115,7 @@
                     <th class="py-4">Product</th>
                     <th>Category</th>
                     <th>Offer</th>
-                    <th>Variant</th>
-                    <th>Price</th>
-                    <th>Stock</th>
+                    <th>Variant Details</th>
                     <th>Status</th>
                     <th class="text-right">Actions</th>
 
@@ -155,7 +157,7 @@
 
                                 <% if(!product.productOffer && product.category?.offer){ %>
 
-                                    <div class="text-xs opacity-70">
+                                    <div class="text-xs text-green-600 opacity-70">
                                         <% if(product.category?.offer.type==="percentage" ){ %>
                                             <%= product.category.offer.value %>% OFF
                                                 <% } else { %>
@@ -164,7 +166,7 @@
                                     </div>
                                     <% } else if(product.productOffer && product.category?.offer){ %>
 
-                                        <div class="text-xs line-through opacity-70">
+                                        <div class="text-xs line-through text-green-600 opacity-70">
                                             <% if(product.category?.offer.type==="percentage" ){ %>
                                                 <%= product.category.offer.value %>% OFF
                                                     <% } else { %>
@@ -185,7 +187,7 @@
 
                                     <div class="flex flex-col gap-1">
 
-                                        <span class="text-sm">
+                                        <span class="text-sm text-green-600">
 
                                             <% if(product.productOffer.type==="percentage" ){ %>
                                                 <%= product.productOffer.value %>% OFF
@@ -199,23 +201,23 @@
                                         
                                             <% if(product.isActive){ %>
                                         
-                                                <button class="hover:underline editProductOfferBtn" data-id="<%= product._id %>"
+                                                <button class="border rounded-md px-1 py-0.5 text-blue-600 hover:bg-blue-600 hover:text-white transition editProductOfferBtn" data-id="<%= product._id %>"
                                                     data-type="<%= product.productOffer.type %>" data-value="<%= product.productOffer.value %>"
                                                     data-expiry="<%= product.productOffer.expiryDate.toISOString().split('T')[0] %>">
                                                     EDIT
                                                 </button>
                                         
-                                                <button class="hover:underline deleteProductOfferBtn" data-id="<%= product._id %>">
+                                                <button class="border rounded-md px-1 py-0.5 text-red-600 hover:bg-red-600 hover:text-white transition deleteProductOfferBtn" data-id="<%= product._id %>">
                                                     REMOVE
                                                 </button>
                                         
                                                 <% } else { %>
                                         
-                                                    <button class="opacity-40 cursor-not-allowed" disabled>
+                                                    <button class="opacity-40 cursor-not-allowed border rounded-md px-1 py-0.5 text-blue-600 hover:bg-blue-600 hover:text-white transition" disabled>
                                                         EDIT
                                                     </button>
                                         
-                                                    <button class="opacity-40 cursor-not-allowed" disabled>
+                                                    <button class="opacity-40 cursor-not-allowed border rounded-md px-1 py-0.5 text-red-600 hover:bg-red-600 hover:text-white transition" disabled>
                                                         REMOVE
                                                     </button>
                                         
@@ -233,13 +235,13 @@
 
                                             <% if(product.isActive){ %>
                                             
-                                                <button class="text-xs hover:underline addProductOfferBtn" data-id="<%= product._id %>">
+                                                <button class="text-xs border rounded-md px-1 py-0.5 text-black hover:bg-black hover:text-white transition addProductOfferBtn" data-id="<%= product._id %>">
                                                     ADD
                                                 </button>
                                             
                                                 <% } else { %>
                                             
-                                                    <button class="text-xs opacity-40 cursor-not-allowed" disabled>
+                                                    <button class="text-xs opacity-40 border rounded-md px-1 py-0.5 text-black hover:bg-black hover:text-white transition cursor-not-allowed" disabled>
                                                         ADD
                                                     </button>
                                             
@@ -255,81 +257,10 @@
 
                             <!-- VARIANT -->
                             <td>
-
-                                <div class="flex flex-col gap-1">
-
-                                    <% product.variants.forEach(v=> { %>
-
-                                        <span>
-                                            <%= v.type %>
-                                        </span>
-
-                                        <% }) %>
-
-                                </div>
-
-                            </td>
-
-
-
-                            <!-- PRICE -->
-                            <td>
-
-                                <div class="flex flex-col gap-1">
-
-                                    <% product.variants.forEach(v=> { %>
-
-                                        <% if(v.salePrice && v.salePrice < v.regularPrice){ %>
-
-                                            <div>
-
-                                                <span class="opacity-60 line-through text-xs">
-                                                    ₹<%= v.regularPrice %>
-                                                </span>
-
-                                                <span class="ml-1">
-                                                    ₹<%= v.salePrice %>
-                                                </span>
-
-                                        <% } else { %>
-
-                                                <span>
-                                                    ₹<%= v.regularPrice %>
-                                                </span>
-
-                                            </div>
-
-                                        <% } %>
-
-                                    <% }) %>
-
-                                </div>
-
-                            </td>
-
-
-
-                            <!-- STOCK -->
-                            <td>
-
-                                <div class="flex flex-col gap-1">
-
-                                    <% product.variants.forEach(v=> { %>
-
-                                        <span>
-
-                                            <% if(v.stock> 0){ %>
-                                                <%= v.stock %>
-                                                    <% } else { %>
-                                                        Out of Stock
-                                                        <% } %>
-
-                                        </span>
-
-                                        <% }) %>
-
-                                </div>
-
+                                <button class="text-xs border rounded-md px-2 py-1 hover:bg-black hover:text-white transition viewVariantsBtn"
+                                    data-product='<%- JSON.stringify(product.variants) %>' data-title="<%= product.title %>">
+                                    VIEW
+                                </button>
                             </td>
 
 
@@ -339,7 +270,7 @@
 
                                 <% if(product.isActive){ %>
 
-                                    <span class="text-green-700">
+                                    <span class="text-green-600">
                                         ACTIVE
                                     </span>
 
@@ -359,20 +290,20 @@
                             <td class="text-right space-x-4">
 
                                 <a href="/admin/products/<%= product._id %>/edit"
-                                    class="text-sm tracking-widest hover:underline">
+                                    class="text-sm tracking-widest border rounded-md px-1 py-0.5 text-blue-600 hover:bg-blue-600 hover:text-white transition">
                                     EDIT
                                 </a>
 
                                 <% if(product.isActive){ %>
 
-                                    <button class="text-sm tracking-widest hover:underline deactivateProductBtn"
+                                    <button class="text-sm tracking-widest border rounded-md px-1 py-0.5 text-red-600 hover:bg-red-600 hover:text-white transition deactivateProductBtn"
                                         data-id="<%= product._id %>">
                                         DEACTIVATE
                                     </button>
 
                                     <% } else { %>
 
-                                        <button class="text-sm tracking-widest hover:underline activateProductBtn"
+                                        <button class="text-sm tracking-widest border rounded-md px-1 py-0.5 text-red-600 hover:bg-red-600 hover:text-white transition activateProductBtn"
                                             data-id="<%= product._id %>">
                                             ACTIVATE
                                         </button>

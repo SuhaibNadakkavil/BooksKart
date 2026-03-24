@@ -37,12 +37,19 @@ app.use(
       directives: {
         defaultSrc: ["'self'"],
 
-        scriptSrc: ["'self'", "'unsafe-inline'"],
+        scriptSrc: [
+          "'self'",
+          "'unsafe-inline'",
+          "https://unpkg.com",
+          "https://cdnjs.cloudflare.com"
+        ],
 
         styleSrc: [
           "'self'",
           "'unsafe-inline'",
-          "https://fonts.googleapis.com"
+          "https://fonts.googleapis.com",
+          "https://unpkg.com",
+          "https://cdnjs.cloudflare.com"
         ],
 
         fontSrc: [

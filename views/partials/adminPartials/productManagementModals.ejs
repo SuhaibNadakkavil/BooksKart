@@ -199,3 +199,40 @@ Cancel
 </div>
 
 </div>
+
+
+
+<!-- VARIANT DETAILS MODAL -->
+<div id="variantModal" class="fixed inset-0 bg-black/40 hidden items-center justify-center z-50">
+
+    <div class="bg-[#FAFAF8] w-[500px] rounded-lg p-6">
+
+        <!-- HEADER -->
+        <div class="flex justify-between items-center mb-6">
+            <h2 id="variantModalTitle" class="text-lg font-medium">Variants</h2>
+
+            <button id="closeVariantModal" class="text-sm hover:underline">
+                CLOSE
+            </button>
+        </div>
+
+        <!-- TABLE -->
+        <table class="w-full text-sm">
+
+            <thead>
+                <tr class="border-b text-xs uppercase tracking-widest">
+                    <th class="py-2 text-left">Variant</th>
+                    <th class="text-left">Price</th>
+                    <th class="text-left">Stock</th>
+                </tr>
+            </thead>
+
+            <tbody id="variantModalBody">
+                <!-- dynamic -->
+            </tbody>
+
+        </table>
+
+    </div>
+
+</div>
