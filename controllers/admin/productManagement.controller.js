@@ -29,6 +29,7 @@ export const loadProductManagement = async (req, res, next) => {
         res.status(HTTP_STATUS.OK).render("admin/productManagement", {
 
             title: "Product Management | BooksKart",
+            activePage: 'products',
 
             products: data.products,
             totalProducts: data.totalProducts,
@@ -70,6 +71,7 @@ export const loadAddProductPage = async (req, res, next) => {
 
         res.status(HTTP_STATUS.OK).render("admin/addProduct", {
             title: "Add Product | BooksKart",
+            activePage: 'products',
             success,
             error,
             categories,
@@ -213,6 +215,7 @@ export const loadEditProductPage = async (req, res, next) => {
     res.status(HTTP_STATUS.OK).render("admin/editProduct", {
 
       title: "Edit Product | BooksKart",
+      activePage: 'products',
 
       product,
       categories,

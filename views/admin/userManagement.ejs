@@ -26,9 +26,10 @@
 
     <button
       type="submit"
-      class="bg-[#121212] text-[#FAFAF8] px-4 py-2 rounded-lg text-sm
-             hover:opacity-90 transition">
+      class="bg-[#121212] text-[#FAFAF8] px-4 py-2 rounded-lg text-sm group">
+      <span class="inline-block transition-transform duration-300 group-hover:scale-110">
       Search
+      </span>
     </button>
 
     <% if(query?.search){ %>
@@ -167,7 +168,7 @@
                 <% if(user.isBlocked){ %>
 
                   <button
-                    class="text-sm tracking-widest hover:underline unblockUserBtn"
+                    class="text-sm tracking-widest border rounded-md px-1 py-0.5 text-red-600 hover:bg-red-600 hover:text-white transition unblockUserBtn"
                     data-id="<%= user._id %>">
                     UNBLOCK
                   </button>
@@ -175,7 +176,7 @@
                 <% } else { %>
 
                   <button
-                    class="text-sm tracking-widest hover:underline blockUserBtn"
+                    class="text-sm tracking-widest border rounded-md px-1 py-0.5 text-red-600 hover:bg-red-600 hover:text-white transition blockUserBtn"
                     data-id="<%= user._id %>">
                     BLOCK
                   </button>

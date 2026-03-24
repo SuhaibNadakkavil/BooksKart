@@ -11,9 +11,10 @@
     <!-- Add Category -->
     <button
       id="openAddCategoryModal"
-      class="bg-[#121212] text-[#FAFAF8] rounded-lg px-5 py-2 text-sm tracking-widest
-             hover:opacity-90 transition">
+      class="bg-[#121212] text-[#FAFAF8] rounded-lg px-5 py-2 text-sm tracking-widest group">
+      <span class="inline-block transition-transform duration-300 group-hover:scale-110">
       ADD CATEGORY
+      </span>
     </button>
 
   </div>
@@ -37,9 +38,10 @@
 
       <button
         type="submit"
-        class="bg-[#121212] text-[#FAFAF8] rounded-lg px-4 py-2 text-sm tracking-widest
-               hover:opacity-90 transition">
+        class="bg-[#121212] text-[#FAFAF8] rounded-lg px-4 py-2 text-sm tracking-widest group">
+        <span class="inline-block transition-transform duration-300 group-hover:scale-110">
         SEARCH
+        </span>
       </button>
 
       <% if(query?.search){ %>
@@ -160,7 +162,7 @@
 
                 <% if(category.offer){ %>
 
-                    <div class="flex items-center gap-3">
+                    <div class="flex items-center text-green-600 gap-3">
 
                     <span>
                         <% if(category.offer.type === "percentage"){ %>
@@ -173,7 +175,7 @@
                     <% if(category.isActive){ %>
 
                         <button
-                        class="text-xs tracking-widest hover:underline editOfferBtn"
+                        class="text-xs tracking-widest border rounded-md px-1 py-0.5 text-blue-600 hover:bg-blue-600 hover:text-white transition editOfferBtn"
                         data-id="<%= category._id %>"
                         data-type="<%= category.offer.type %>"
                         data-value="<%= category.offer.value %>"
@@ -182,7 +184,7 @@
                         </button>
 
                         <button
-                        class="text-xs tracking-widest hover:underline deleteOfferBtn"
+                        class="text-xs tracking-widest border rounded-md px-1 py-0.5 text-red-600 hover:bg-red-600 hover:text-white transition deleteOfferBtn"
                         data-id="<%= category._id %>">
                         DELETE
                         </button>
@@ -190,13 +192,13 @@
                     <% } else { %>
 
                         <button
-                        class="text-xs opacity-40 cursor-not-allowed"
+                        class="text-xs opacity-40 cursor-not-allowed border rounded-md px-1 py-0.5 text-blue-600 hover:bg-blue-600 hover:text-white transition"
                         disabled>
                         EDIT
                         </button>
 
                         <button
-                        class="text-xs opacity-40 cursor-not-allowed"
+                        class="text-xs opacity-40 cursor-not-allowed border rounded-md px-1 py-0.5 text-red-600 hover:bg-red-600 hover:text-white transition"
                         disabled>
                         DELETE
                         </button>
@@ -214,7 +216,7 @@
                     <% if(category.isActive){ %>
 
                         <button
-                        class="text-xs tracking-widest hover:underline addOfferBtn"
+                        class="text-xs tracking-widest border rounded-md px-1 py-0.5 text-black hover:bg-black hover:text-white transition addOfferBtn"
                         data-id="<%= category._id %>">
                         ADD
                         </button>
@@ -222,7 +224,7 @@
                     <% } else { %>
 
                         <button
-                        class="text-xs opacity-40 cursor-not-allowed"
+                        class="text-xs opacity-40 cursor-not-allowed border rounded-md px-1 py-0.5 text-black hover:bg-black hover:text-white transition"
                         disabled>
                         ADD
                         </button>
@@ -260,7 +262,7 @@
               <td class="text-right space-x-4">
 
                 <button
-                class="text-sm tracking-widest hover:underline editCategoryBtn"
+                class="text-sm tracking-widest border rounded-md px-1 py-0.5 text-blue-600 hover:bg-blue-600 hover:text-white transition editCategoryBtn"
                 data-id="<%= category._id %>"
                 data-name="<%= category.name %>"
                 data-description="<%= category.description %>"
@@ -272,7 +274,7 @@
                 <% if(category.isActive){ %>
 
                   <button
-                    class="text-sm tracking-widest hover:underline deactivateCategoryBtn"
+                    class="text-sm tracking-widest border rounded-md px-1 py-0.5 text-red-600 hover:bg-red-600 hover:text-white transition deactivateCategoryBtn"
                     data-id="<%= category._id %>">
                     DEACTIVATE
                   </button>
@@ -280,7 +282,7 @@
                 <% } else { %>
 
                   <button
-                    class="text-sm tracking-widest hover:underline activateCategoryBtn"
+                    class="text-sm tracking-widest border rounded-md px-1 py-0.5 text-red-600 hover:bg-red-600 hover:text-white transition activateCategoryBtn"
                     data-id="<%= category._id %>">
                     ACTIVATE
                   </button>

@@ -17,6 +17,7 @@ export const loadCategoryManagement = async (req, res, next) => {
     res.status(HTTP_STATUS.OK).render("admin/categoryManagement", {
 
       title: "Category Management | BooksKart",
+      activePage: 'categories',
 
       categories: data.categories,
       totalCategories: data.totalCategories,

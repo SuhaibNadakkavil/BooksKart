@@ -22,6 +22,7 @@ export const loadUserManagement = async (req, res, next) => {
     res.status(HTTP_STATUS.OK).render("admin/userManagement", {
 
       title: "Customer Management | BooksKart",
+      activePage: 'users',
 
       users: data.users,
       totalUsers: data.totalUsers,
