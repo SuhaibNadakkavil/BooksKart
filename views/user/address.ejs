@@ -1,7 +1,7 @@
 <section class="flex min-h-screen bg-[#FAFAF8]">
 
   <!-- Sidebar -->
-  <%- include("../partials/userPartials/sidebar") %>
+  <%- include("../partials/userPartials/sidebar", { activePage }) %>
 
   <!-- Main Content -->
   <div class="flex-1 px-6 py-10 lg:px-12">
@@ -28,10 +28,10 @@
 
       <a
         href="/profile/address/add"
-        class="border border-[#121212] px-6 py-3 rounded-lg font-medium text-[#121212]
-        transition hover:bg-[#121212] hover:text-white"
-      >
+        class="group px-6 py-3 rounded-lg font-medium bg-[#121212] text-white">
+        <span class="inline-block transition-transform duration-300 group-hover:scale-110">
         ADD ADDRESS
+        </span>
       </a>
 
     </div>
@@ -73,23 +73,19 @@
 
 
             <!-- Actions -->
-            <div class="flex md:flex-col gap-4 text-sm font-medium">
+            <div class="flex md:flex-col gap-2 text-sm font-medium">
 
               <a
                 href="/profile/address/edit/<%= address._id %>"
-                class="text-[#121212] relative group"
-              >
+                class="border text-[#121212] px-2 py-1.5 rounded-md hover:bg-black hover:text-white ">
                 EDIT ADDRESS
-                <span class="absolute left-0 -bottom-1 w-0 h-[1px] bg-[#121212] transition-all duration-300 group-hover:w-full"></span>
               </a>
 
             <% if (!address.isDefault) { %>
               <button
                 data-id="<%= address._id %>"
-                class="text-[#121212] relative group deleteAddressBtn"
-              >
+                class="border text-red-600 px-2 py-1.5 rounded-md hover:bg-red-600 hover:text-white deleteAddressBtn">
                 DELETE
-                <span class="absolute left-0 -bottom-1 w-0 h-[1px] bg-[#121212] transition-all duration-300 group-hover:w-full"></span>
               </button>
             <% } %>
 

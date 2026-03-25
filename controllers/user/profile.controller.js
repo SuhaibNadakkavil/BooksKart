@@ -36,6 +36,7 @@ export const loadProfile = async (req, res, next) => {
 
     return res.render("user/profile", {
       title: "Profile | BooksKart",
+      activePage: 'profile',
       user: profileData,
       headerType: "main",
       success,
@@ -339,6 +340,7 @@ export const loadAddressPage = async (req, res, next) => {
 
     res.render("user/address", {
       title: "Address | BooksKart",
+      activePage: 'address',
       headerType: "main",
       addresses,
       success,

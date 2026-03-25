@@ -1,30 +1,52 @@
 <!-- Desktop Sidebar -->
-<aside class="hidden lg:block w-64 shrink-0 lg:sticky lg:top-24">
+<aside class="hidden lg:block w-52 shrink-0 lg:sticky lg:top-24">
 
-  <div class="space-y-8">
+  <div class="space-y-4">
 
-    <div>
       <p class="text-[14px] font-medium tracking-widest opacity-60 mb-6">
         ACCOUNT
       </p>
 
-      <nav class="flex flex-col gap-5 text-[16px]">
-        <a href="/profile" class="hover:underline">Profile</a>
-        <a href="/orders" class="hover:underline">My Orders</a>
-        <a href="/wallet" class="hover:underline">Wallet</a>
-        <a href="/profile/address" class="hover:underline">Address</a>
-        <a href="/refer" class="hover:underline">Refer & Earn</a>
-      </nav>
-    </div>
+      <nav class="flex flex-col gap-2 text-[16px]">
 
-    <div class="pt-6 border-t border-gray-200">
+        <% 
+          const activeClass='bg-gray-200 border-l-4 shadow-md hover:translate-x-2' ; 
+          const inactiveClass='hover:translate-x-2 hover:bg-white hover:shadow-md' ; 
+        %>
+
+        <a href="/profile" class="px-4 py-3 transition-all duration-300 transform rounded-lg
+          <%= activePage === 'profile' ? activeClass : inactiveClass %>">
+          Profile
+        </a>
+
+        <a href="/orders" class="px-4 py-3 transition-all duration-300 transform rounded-lg
+          <%= activePage === 'orders' ? activeClass : inactiveClass %>">
+          My Orders
+        </a>
+
+        <a href="/wallet" class="px-4 py-3 transition-all duration-300 transform rounded-lg
+          <%= activePage === 'wallet' ? activeClass : inactiveClass %>">
+          Wallet
+        </a>
+
+        <a href="/profile/address" class="px-4 py-3 transition-all duration-300 transform rounded-lg
+          <%= activePage === 'address' ? activeClass : inactiveClass %>">
+          Address
+        </a>
+
+        <a href="/refer" class="px-4 py-3 transition-all duration-300 transform rounded-lg
+              <%= activePage === 'refer' ? activeClass : inactiveClass %>">
+          Refer & Earn
+        </a>
+
+      </nav>
+
       <form action="/logout" method="POST" id="logoutFormDesktop">
         <button type="button"
-                class="text-red-600 hover:underline text-[16px] font-medium logoutBtn">
+                class="text-red-600 px-4 py-3 transition-all duration-300 transform hover:translate-x-2 hover:bg-white rounded-lg hover:shadow-md tracking-widest logoutBtn">
           Sign Out
         </button>
       </form>
-    </div>
 
   </div>
 </aside>
@@ -52,16 +74,37 @@
       </button>
     </div>
 
-    <nav class="flex flex-col gap-6 text-[16px]">
-      <a href="/profile" class="hover:underline">Profile</a>
-      <a href="/orders" class="hover:underline">My Orders</a>
-      <a href="/wallet" class="hover:underline">Wallet</a>
-      <a href="/profile/address" class="hover:underline">Address</a>
-      <a href="/refer" class="hover:underline">Refer & Earn</a>
+    <nav class="flex flex-col gap-2 text-[16px]">
+      <a href="/profile" class="px-4 py-3 transition-all duration-300 transform rounded-lg
+          <%= activePage === 'profile' ? activeClass : inactiveClass %>">
+          Profile
+        </a>
 
-      <form action="/logout" method="POST" id="logoutFormMobile">
+        <a href="/orders" class="px-4 py-3 transition-all duration-300 transform rounded-lg
+          <%= activePage === 'orders' ? activeClass : inactiveClass %>">
+          My Orders
+        </a>
+
+        <a href="/wallet" class="px-4 py-3 transition-all duration-300 transform rounded-lg
+          <%= activePage === 'wallet' ? activeClass : inactiveClass %>">
+          Wallet
+        </a>
+
+        <a href="/profile/address" class="px-4 py-3 transition-all duration-300 transform rounded-lg
+          <%= activePage === 'address' ? activeClass : inactiveClass %>">
+          Address
+        </a>
+
+        <a href="/refer" class="px-4 py-3 transition-all duration-300 transform rounded-lg
+              <%= activePage === 'refer' ? activeClass : inactiveClass %>">
+          Refer & Earn
+        </a>
+
+      </nav>
+
+      <form action="/logout" method="POST" id="logoutFormDesktop">
         <button type="button"
-                class="text-red-600 hover:underline pt-6 border-t border-gray-200 text-left w-full logoutBtn">
+                class="text-red-600 px-4 py-3 transition-all duration-300 transform hover:translate-x-2 hover:bg-white rounded-lg hover:shadow-md tracking-widest logoutBtn">
           Sign Out
         </button>
       </form>

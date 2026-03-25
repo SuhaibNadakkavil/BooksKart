@@ -574,7 +574,7 @@ export const logout = async (req, res, next) => {
     req.session.destroy((err) => {
       if (err) return next(err);
 
-      res.clearCookie("bookskart.sid");
+      res.clearCookie("user.sid");
 
       return res.redirect("/login");
     });

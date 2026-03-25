@@ -11,7 +11,7 @@ import errorMiddleware from "./middlewares/error.middleware.js";
 import userRoutes from "./routes/user/index.js";
 import adminRoutes from './routes/admin/index.js'
 
-import sessionMiddleware from "./middlewares/session.middleware.js";
+import sessionConfig from "./middlewares/session.middleware.js";
 import { globalLimiter } from "./middlewares/rateLimit.middleware.js";
 
 const app = express();
@@ -77,7 +77,7 @@ app.use((req, res, next) => {
 });
 
 // Session
-app.use(sessionMiddleware)
+sessionConfig(app);
 
 // Passport.js(Google Oauth)
 app.use(passport.initialize());

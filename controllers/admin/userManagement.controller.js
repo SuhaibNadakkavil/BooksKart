@@ -95,7 +95,7 @@ export const logout = (req, res, next) => {
       return next(err);
     }
 
-    res.clearCookie("bookskart.sid");
+    res.clearCookie("admin.sid");
 
     return res.redirect("/admin/login");
 
