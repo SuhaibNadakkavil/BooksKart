@@ -202,10 +202,10 @@ class="border border-[#121212] px-4 py-2 text-sm w-64 focus:outline-none rounded
 <input type="hidden" name="price" value="<%= query.price || '' %>">
 <input type="hidden" name="sort" value="<%= query.sort || '' %>">
 
-<button class="bg-[#121212] text-[#FAFAF8] rounded-lg px-5 py-2 text-sm hover:opacity-90">
-
+<button class="bg-[#121212] text-[#FAFAF8] rounded-lg px-5 py-2 text-sm group">
+<span class="inline-block transition-transform duration-300 group-hover:scale-110">
 Search
-
+</span>
 </button>
 
 <% if(query?.search){ %>
@@ -224,7 +224,7 @@ CANCEL
 <!-- PRODUCTS GRID -->
 <!-- ============================= -->
 
-<div class="grid grid-cols-2 md:grid-cols-3 gap-10">
+<div class="grid grid-cols-2 md:grid-cols-3 gap-6">
 
 <% if(!products || products.length === 0){ %>
 
@@ -237,7 +237,7 @@ No books found.
 
 <% products.forEach(product => { %>
 
-<div class="group space-y-3 relative hover:shadow-sm transition">
+<div class="group space-y-3 relative hover:shadow-xl transition rounded-lg p-6 bg-white">
 
 <a href="/product/<%= product.slug %>">
 
@@ -245,7 +245,7 @@ No books found.
 
 <img
 src="<%= product.images.cover %>"
-class="w-full h-full object-cover transition-transform duration-500 group-hover:scale-105"
+class="w-full h-full object-cover transition-transform duration-500 group-hover:scale-105 rounded-lg"
 alt="<%= product.title %>"
 >
 
@@ -327,18 +327,18 @@ const sale = product.variants?.[0]?.salePrice || regular
 <button
 data-product="<%= product._id %>"
 data-variant="<%= product.variants[0]?.type %>"
-class="addCartBtn flex-1 text-sm bg-[#121212] text-[#FAFAF8] py-2 hover:opacity-90 rounded-lg">
-
+class="addCartBtn flex-1 text-sm bg-[#121212] text-[#FAFAF8] py-2 group rounded-lg">
+<span class="inline-block transition-transform duration-300 group-hover:scale-110">
 Add to Cart
-
+</span>
 </button>
 
 <% } else { %>
 
-<div class="flex-1 text-center text-sm py-2 bg-red-500 text-[#FAFAF8] rounded-lg">
-
+<div class="flex-1 text-center text-sm py-2 bg-red-600 text-[#FAFAF8] rounded-lg group">
+<span class="inline-block transition-transform duration-300 group-hover:scale-110">
 Out of Stock
-
+</span>
 </div>
 
 <% } %>
@@ -347,7 +347,7 @@ Out of Stock
 <button
 data-product="<%= product._id %>"
 data-variant="<%= product.variants[0].type.toLowerCase() %>"
-class="wishlistBtn p-1 hover:bg-[#121212] hover:text-white transition rounded-lg">
+class="wishlistBtn p-1 text-red-600 hover:bg-red-600 hover:text-white transition rounded-lg">
 
 <svg xmlns="http://www.w3.org/2000/svg"
 class="w-6 h-6 wishlistIcon"
