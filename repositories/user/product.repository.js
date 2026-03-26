@@ -275,7 +275,7 @@ export const findShopProducts = async ({
   sort,
   skip,
   limit,
-  categorySlug
+  categorySlugs
 }) => {
 
   const pipeline = [
@@ -313,7 +313,9 @@ export const findShopProducts = async ({
       $match: {
         "category.isActive": true,
         "category.isDeleted": false,
-        ...(categorySlug && { "category.slug": categorySlug })
+        ...(categorySlugs.length && {
+          "category.slug": { $in: categorySlugs }
+        })
       }
     },
 

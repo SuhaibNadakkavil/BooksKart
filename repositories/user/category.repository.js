@@ -62,3 +62,13 @@ export const softDeleteCategory = async (id) => {
   );
 
 };
+
+
+export const findActiveCategories = async () => {
+  return Category.find({
+    isActive: true,
+    isDeleted: false
+  })
+  .select("name slug")
+  .sort({ createdAt: -1 });
+};

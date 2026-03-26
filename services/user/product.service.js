@@ -1,4 +1,5 @@
 import * as productRepo from '../../repositories/user/product.repository.js'
+import * as categoryRepo from '../../repositories/user/category.repository.js'
 
 // Final price calculation logic
 const calculateSalePrice = (price, offer) => {
@@ -63,6 +64,12 @@ export const getShopProductsService = async (query) => {
     isDeleted: false
   };
 
+  let categorySlugs = [];
+
+  if (query.category) {
+    categorySlugs = query.category.split(",");
+  }
+
 
   /* =================================
      SEARCH
@@ -89,16 +96,16 @@ export const getShopProductsService = async (query) => {
       filter["variants.regularPrice"] = { $lt: 200 };
     }
 
-    if (query.price === "200-250") {
-      filter["variants.regularPrice"] = { $gte: 200, $lte: 250 };
+    if (query.price === "200-400") {
+      filter["variants.regularPrice"] = { $gte: 200, $lte: 400 };
     }
 
-    if (query.price === "250-300") {
-      filter["variants.regularPrice"] = { $gte: 250, $lte: 300 };
+    if (query.price === "400-600") {
+      filter["variants.regularPrice"] = { $gte: 400, $lte: 600 };
     }
 
-    if (query.price === "300plus") {
-      filter["variants.regularPrice"] = { $gt: 300 };
+    if (query.price === "above600") {
+      filter["variants.regularPrice"] = { $gt: 600 };
     }
 
   }
@@ -125,7 +132,7 @@ export const getShopProductsService = async (query) => {
     sort,
     skip,
     limit,
-    categorySlug: query.category
+    categorySlugs
   });
 
 
@@ -151,19 +158,7 @@ export const getShopProductsService = async (query) => {
 
   }
 
-    const categoriesMap = new Map();
-
-    for (const product of products) {
-        const cat = product.category;
-        if (cat && !categoriesMap.has(cat.slug)) {
-            categoriesMap.set(cat.slug, {
-                name: cat.name,
-                slug: cat.slug
-            });
-        }
-    }
-
-    const categories = Array.from(categoriesMap.values());
+  const categories = await categoryRepo.findActiveCategories();
 
 
   /* =================================

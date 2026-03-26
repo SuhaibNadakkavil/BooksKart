@@ -1,5 +1,28 @@
 document.addEventListener("DOMContentLoaded", async () => {
 
+  document.querySelectorAll(".category-checkbox").forEach(cb => {
+  cb.addEventListener("change", () => {
+
+    const selected = [];
+
+    document.querySelectorAll(".category-checkbox:checked").forEach(el => {
+      if (el.value) selected.push(el.value);
+    });
+
+    const params = new URLSearchParams(window.location.search);
+
+    if (selected.length > 0) {
+      params.set("category", selected.join(","));
+    } else {
+      params.delete("category");
+    }
+
+    params.set("page", 1); // reset pagination
+
+    window.location.href = "/shop?" + params.toString();
+  });
+});
+
   const wishlistButtons = document.querySelectorAll(".wishlistBtn");
 
   /* =========================

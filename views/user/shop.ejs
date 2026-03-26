@@ -13,32 +13,38 @@
 <!-- CATEGORY -->
 
 <div>
-<h3 class="font-semibold tracking-wide mb-4">CATEGORY</h3>
+  <h3 class="font-semibold tracking-wide mb-4">CATEGORY</h3>
 
-<div class="space-y-2">
+  <form id="categoryFilterForm" method="GET" action="/shop">
+    
+    <!-- Preserve other filters -->
+    <input type="hidden" name="price" value="<%= query.price || '' %>">
+    <input type="hidden" name="sort" value="<%= query.sort || '' %>">
+    <input type="hidden" name="search" value="<%= query.search || '' %>">
 
-<a href="/shop"
-class="block hover:underline <%= !query.category ? 'font-semibold' : '' %>">
-All
-</a>
+    <div class="space-y-2">
 
-<% if(categories && categories.length){ %>
+      <% if (categories && categories.length) { %>
+        <% const selectedCategories = (query.category || '').split(','); %>
 
-<% categories.forEach(cat => { %>
+        <% categories.forEach(cat => { %>
 
-<a
-href="/shop?category=<%= cat.slug %>&price=<%= query.price || '' %>&sort=<%= query.sort || '' %>&search=<%= query.search || '' %>"
-class="block hover:underline <%= query.category === cat.slug ? 'font-semibold' : '' %>">
+          <label class="flex items-center gap-2 cursor-pointer hover:underline">
+            <input type="checkbox"
+                   name="category"
+                   value="<%= cat.slug %>"
+                   class="category-checkbox"
+                   <%= selectedCategories.includes(cat.slug) ? 'checked' : '' %> >
 
-<%= cat.name %>
+            <span><%= cat.name %></span>
+          </label>
 
-</a>
+        <% }) %>
+      <% } %>
 
-<% }) %>
+    </div>
 
-<% } %>
-
-</div>
+  </form>
 </div>
 
 
@@ -60,28 +66,28 @@ Under ₹200
 
 
 <a
-href="/shop?price=200-250&category=<%= query.category || '' %>&sort=<%= query.sort || '' %>&search=<%= query.search || '' %>"
-class="block hover:underline <%= query.price==='200-250' ? 'font-semibold' : '' %>">
+href="/shop?price=200-400&category=<%= query.category || '' %>&sort=<%= query.sort || '' %>&search=<%= query.search || '' %>"
+class="block hover:underline <%= query.price==='200-400' ? 'font-semibold' : '' %>">
 
-₹200 – ₹250
-
-</a>
-
-
-<a
-href="/shop?price=250-300&category=<%= query.category || '' %>&sort=<%= query.sort || '' %>&search=<%= query.search || '' %>"
-class="block hover:underline <%= query.price==='250-300' ? 'font-semibold' : '' %>">
-
-₹250 – ₹300
+₹200 – ₹400
 
 </a>
 
 
 <a
-href="/shop?price=300plus&category=<%= query.category || '' %>&sort=<%= query.sort || '' %>&search=<%= query.search || '' %>"
-class="block hover:underline <%= query.price==='300plus' ? 'font-semibold' : '' %>">
+href="/shop?price=400-600&category=<%= query.category || '' %>&sort=<%= query.sort || '' %>&search=<%= query.search || '' %>"
+class="block hover:underline <%= query.price==='400-600' ? 'font-semibold' : '' %>">
 
-₹300+
+₹400 – ₹600
+
+</a>
+
+
+<a
+href="/shop?price=above600&category=<%= query.category || '' %>&sort=<%= query.sort || '' %>&search=<%= query.search || '' %>"
+class="block hover:underline <%= query.price==='above600' ? 'font-semibold' : '' %>">
+
+Above ₹600
 
 </a>
 
