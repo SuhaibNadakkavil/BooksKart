@@ -19,7 +19,11 @@
 
     <div class="cart-item rounded-lg bg-white hover:shadow-xl p-6 flex gap-6 items-start"
         data-product="<%= item.productId %>" data-variant="<%= variant?.type %>"
-        data-price="<%= variant.salePrice || variant.regularPrice %>">
+        data-price="<%= variant.salePrice || variant.regularPrice %>"
+        data-stock="<%= variant.stock %>"
+        data-outofstock="<%= item.isOutOfStock %>"
+        data-unavailable="<%= item.isUnavailable %>"
+        >
 
         <!-- IMAGE -->
         <a href="/product/<%= item.slug %>" class="w-24">
@@ -46,11 +50,27 @@
           <!-- QUANTITY -->
           <div class="mt-4 flex items-center gap-3">
 
+            <% if (item.isOutOfStock) { %>
+
+              <button disabled class="px-4 py-1 bg-red-600 text-white rounded-lg cursor-not-allowed">
+                Out of Stock
+              </button>
+
+            <% } else if (item.isUnavailable) { %>
+
+              <button disabled class="px-4 py-1 bg-red-600 text-white rounded-lg cursor-not-allowed">
+                Unavailable
+              </button>
+
+            <% } else { %>
+
             <button
               data-product="<%= item.productId %>"
               data-variant="<%= variant?.type %>"
-              class="qty-decrease border rounded-lg px-3 py-1 hover:bg-black hover:text-white">
-                -
+              class="qty-decrease border rounded-lg px-3 py-1 hover:bg-black hover:text-white
+              <%= item.quantity <= 1 ? 'opacity-40 cursor-not-allowed' : '' %>"
+              <%= item.quantity <= 1 ? 'disabled' : '' %>>
+              -
             </button>
 
             <span class="px-3 qty-value"><%= item.quantity %></span>
@@ -58,10 +78,12 @@
             <button
               data-product="<%= item.productId %>"
               data-variant="<%= variant?.type %>"
-              class="qty-increase border px-3 py-1 rounded-lg hover:bg-black hover:text-white
-              <%= item.quantity  >= 5 ? 'opacity-40 cursor-not-allowed' : '' %>">
-                +
+              class="qty-increase border px-3 py-1 rounded-lg hover:bg-black hover:text-white <%= (item.stockReached || item.maxReached) ? 'opacity-40 cursor-not-allowed': '' %>"
+              <%= (item.stockReached || item.maxReached) ? 'disabled': '' %>>
+              +
             </button>
+
+            <% } %>
 
           </div>
 
@@ -94,7 +116,7 @@
           <button
             data-product="<%= item.productId %>"
             data-variant="<%= variant?.type %>"
-            class="removeCartBtn text-sm border text-red-500 px-2 py-1.5 rounded-md hover:bg-red-500 hover:text-white">
+            class="removeCartBtn text-sm border text-red-600 px-2 py-1.5 rounded-md hover:bg-red-600 hover:text-white">
             REMOVE
           </button>
 
@@ -136,9 +158,13 @@
       </div>
 
       <button
-        class="group w-full mt-6 py-3 bg-[#121212] text-[#FAFAF8] rounded-md">
+        id="checkoutBtn"
+        class="group w-full mt-6 py-3 bg-[#121212] text-[#FAFAF8] rounded-md
+        <%= hasInvalidItems ? 'cursor-not-allowed' : '' %>"
+        <%= hasInvalidItems ? 'disabled' : '' %>>
         <span class="inline-block transition-transform duration-300 group-hover:scale-110">
-        PROCEED TO CHECKOUT
+          PROCEED TO CHECKOUT
+        </span>
       </button>
 
     </div>

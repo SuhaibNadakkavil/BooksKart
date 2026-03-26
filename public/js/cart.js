@@ -8,17 +8,55 @@ document.addEventListener("DOMContentLoaded", () => {
      UPDATE QUANTITY
   ========================= */
 
+const updateQtyButtonsState = (item) => {
+  const qty = parseInt(item.querySelector(".qty-value").textContent);
+
+  const incBtn = item.querySelector(".qty-increase");
+  const decBtn = item.querySelector(".qty-decrease");
+
+  const stock = parseInt(item.dataset.stock); // 🔥 IMPORTANT
+
+  // RESET
+  incBtn.classList.remove("opacity-40", "cursor-not-allowed");
+  decBtn.classList.remove("opacity-40", "cursor-not-allowed");
+
+  incBtn.disabled = false;
+  decBtn.disabled = false;
+
+  /* 🔥 MAX LIMIT */
+  if (qty >= 5) {
+    incBtn.disabled = true;
+    incBtn.classList.add("opacity-40", "cursor-not-allowed");
+  }
+
+  /* 🔥 STOCK LIMIT (NEW FIX) */
+  if (qty >= stock) {
+    incBtn.disabled = true;
+    incBtn.classList.add("opacity-40", "cursor-not-allowed");
+  }
+
+  /* 🔥 MIN LIMIT */
+  if (qty <= 1) {
+    decBtn.disabled = true;
+    decBtn.classList.add("opacity-40", "cursor-not-allowed");
+  }
+};
+
   const updateQuantity = async (btn, quantity) => {
 
-  const productId = btn.dataset.product;
-  const variantType = btn.dataset.variant;
+  const item = btn.closest(".cart-item");
+  const incBtn = item.querySelector(".qty-increase");
 
   try {
 
     const res = await fetch("/cart/quantity", {
       method: "PATCH",
       headers: { "Content-Type": "application/json" },
-      body: JSON.stringify({ productId, variantType, quantity })
+      body: JSON.stringify({
+        productId: btn.dataset.product,
+        variantType: btn.dataset.variant,
+        quantity
+      })
     });
 
     const data = await res.json();
@@ -30,56 +68,69 @@ document.addEventListener("DOMContentLoaded", () => {
 
     showToast(data.message, "success");
 
-    /* 🔥 UPDATE UI */
-
-    const item = btn.closest(".cart-item");
     const qtyEl = item.querySelector(".qty-value");
 
-    qtyEl.textContent = quantity;
+    /* 🔥 IMPORTANT: take values from backend */
+    const { quantity: newQty, maxReached, stockReached } = data.data;
+
+    /* 🔥 UPDATE UI */
+    qtyEl.textContent = newQty;
+
+    /* 🔥 HANDLE + BUTTON (MAIN FIX) */
+    if (maxReached || stockReached) {
+      incBtn.disabled = true;
+      incBtn.classList.add("opacity-40", "cursor-not-allowed");
+    } else {
+      incBtn.disabled = false;
+      incBtn.classList.remove("opacity-40", "cursor-not-allowed");
+    }
+
+    /* 🔥 HANDLE - BUTTON */
+    const decBtn = item.querySelector(".qty-decrease");
+
+    if (newQty <= 1) {
+      decBtn.disabled = true;
+      decBtn.classList.add("opacity-40", "cursor-not-allowed");
+    } else {
+      decBtn.disabled = false;
+      decBtn.classList.remove("opacity-40", "cursor-not-allowed");
+    }
 
     updateSummary();
 
   } catch (err) {
     console.error(err);
   }
-
 };
 
-  increaseBtns.forEach(btn => {
-
-  if (btn.classList.contains("cursor-not-allowed")) return;
-
+increaseBtns.forEach(btn => {
   btn.addEventListener("click", () => {
+
+    if (btn.disabled) return;
 
     const item = btn.closest(".cart-item");
     const qtyEl = item.querySelector(".qty-value");
 
     const quantity = parseInt(qtyEl.textContent) + 1;
 
-    if (quantity > 5) return;
-
     updateQuantity(btn, quantity);
 
   });
-
 });
 
-
 decreaseBtns.forEach(btn => {
-
   btn.addEventListener("click", () => {
+
+    if (btn.disabled) return;
 
     const item = btn.closest(".cart-item");
     const qtyEl = item.querySelector(".qty-value");
 
     const quantity = parseInt(qtyEl.textContent) - 1;
 
-    if (quantity < 1) return;
-
     updateQuantity(btn, quantity);
 
   });
-
 });
 
   removeBtns.forEach(btn => {
@@ -112,6 +163,7 @@ decreaseBtns.forEach(btn => {
       updateSummary();
       updateCartCount();
       checkEmptyState();
+      updateCheckoutState();
 
     } catch (err) {
       console.error(err);
@@ -160,5 +212,41 @@ function checkEmptyState() {
   }
 
 }
+
+function updateCheckoutState() {
+
+  const items = document.querySelectorAll(".cart-item");
+
+  let hasInvalid = false;
+
+  items.forEach(item => {
+
+    if (
+      item.dataset.outofstock === "true" ||
+      item.dataset.unavailable === "true"
+    ) {
+      hasInvalid = true;
+    }
+
+  });
+
+  const checkoutBtn = document.getElementById("checkoutBtn");
+
+  if (!checkoutBtn) return;
+
+  if (hasInvalid) {
+    checkoutBtn.disabled = true;
+    checkoutBtn.classList.add("cursor-not-allowed");
+  } else {
+    checkoutBtn.disabled = false;
+    checkoutBtn.classList.remove("cursor-not-allowed");
+  }
+}
+
+document.querySelectorAll(".cart-item").forEach(item => {
+  updateQtyButtonsState(item);
+});
+
+updateCheckoutState();
 
 });

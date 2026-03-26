@@ -113,13 +113,6 @@ export const findCartProducts = async (userId) => {
     { $unwind: "$category" },
 
     {
-      $match: {
-        "category.isActive": true,
-        "category.isDeleted": false
-      }
-    },
-
-    {
       $lookup: {
         from: "offers",
         localField: "product.productOffer",
@@ -176,7 +169,9 @@ export const findCartProducts = async (userId) => {
           _id: "$category._id",
           name: "$category.name",
           slug: "$category.slug",
-          offer: "$category.offer"
+          offer: "$category.offer",
+          isActive: "$category.isActive",
+          isDeleted: "$category.isDeleted"
         }
 
       }

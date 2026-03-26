@@ -22,7 +22,7 @@ export const loadCartPage = async (req, res, next) => {
 
     const userId = req.user._id;
 
-    const { items, subtotal, totalItems } =
+    const { items, subtotal, totalItems, hasInvalidItems } =
       await getCartService(userId);
 
     res.status(HTTP_STATUS.OK).render("user/cart", {
@@ -33,6 +33,7 @@ export const loadCartPage = async (req, res, next) => {
       cartItems: items,
       subtotal,
       totalItems,
+      hasInvalidItems,
       pageScript: "/js/cart.js"
     });
 
@@ -108,16 +109,21 @@ export const updateCartQuantity = async (req, res, next) => {
 
     const product = await productRepo.findProductById(productId);
 
-    await updateCartQuantityService({
+    const result = await updateCartQuantityService({
       userId,
       product,
       variantType,
       quantity
     });
 
-    res.status(HTTP_STATUS.OK).json({
+    res.status(200).json({
       success: true,
-      message: "Quantity updated"
+      message: result.maxReached
+        ? "Maximum quantity reached"
+        : result.stockReached
+        ? "Stock limit reached"
+        : "Quantity updated",
+      data: result
     });
 
   } catch (err) {

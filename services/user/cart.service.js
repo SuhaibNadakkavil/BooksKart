@@ -26,6 +26,8 @@ export const getCartService = async (userId) => {
   let subtotal = 0;
   let totalItems = 0;
 
+  let hasInvalidItems = false;
+
   for (const item of items) {
 
     const variant = item.variants.find(
@@ -50,6 +52,14 @@ export const getCartService = async (userId) => {
     item.selectedVariant = variant;
 
     item.isOutOfStock = variant.stock <= 0;
+    item.isUnavailable = !item.category.isActive || !item.isActive || item.isDeleted || item.category.isDeleted;
+
+    item.stockReached = item.quantity >= variant.stock;
+    item.maxReached = item.quantity >= MAX_CART_QTY;
+
+    if (item.isOutOfStock || item.isUnavailable) {
+      hasInvalidItems = true;
+    }
 
     if (item.quantity > variant.stock) {
 
@@ -75,7 +85,8 @@ export const getCartService = async (userId) => {
   return {
     items,
     subtotal,
-    totalItems
+    totalItems,
+    hasInvalidItems
   };
 
 };
@@ -112,12 +123,12 @@ export const addToCartService = async ({
 
   /* 🔥 MAX LIMIT CHECK */
   if (newQty > MAX_CART_QTY) {
-    throw new Error(`Maximum ${MAX_CART_QTY} items allowed`);
+    throw new Error(`Maximum limit reached`);
   }
 
   /* 🔥 STOCK CHECK */
   if (newQty > variant.stock) {
-    throw new Error(`Only ${variant.stock} items available`);
+    throw new Error(`Stock limit reached`);
   }
 
   const result = await cartRepo.addToCart({
@@ -152,12 +163,12 @@ export const updateCartQuantityService = async ({
 
   /* 🔥 MAX LIMIT CHECK */
   if (quantity > MAX_CART_QTY) {
-    throw new Error(`Maximum ${MAX_CART_QTY} items allowed`);
+    throw new Error(`Maximum limit reached`);
   }
 
   /* 🔥 STOCK CHECK */
   if (quantity > variant.stock) {
-    throw new Error(`Only ${variant.stock} items available`);
+    throw new Error(`Stock limit reached`);
   }
 
   await cartRepo.updateCartItemQuantity({
@@ -166,6 +177,12 @@ export const updateCartQuantityService = async ({
     variantType,
     quantity
   });
+
+  return {
+    quantity,
+    maxReached: quantity === MAX_CART_QTY,
+    stockReached: quantity === variant.stock
+  };
 
 };
 
