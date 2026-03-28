@@ -241,6 +241,12 @@ function updateCheckoutState() {
     checkoutBtn.disabled = false;
     checkoutBtn.classList.remove("cursor-not-allowed");
   }
+
+  if (checkoutBtn && !checkoutBtn.disabled) {
+    checkoutBtn.addEventListener("click", () => {
+      window.location.href = "/checkout";
+    });
+  }
 }
 
 document.querySelectorAll(".cart-item").forEach(item => {
