@@ -18,9 +18,10 @@ export const getUserAddresses = async (userId) => {
   }).sort({ createdAt: -1 });
 };
 
-export const getAddressById = async (id) => {
+export const getAddressById = async (userId, addressId) => {
   return await Address.findOne({
-    _id: id,
+    _id: addressId,
+    userId: userId,
     isDeleted: false
   });
 };

@@ -1,0 +1,405 @@
+    <% 
+        const oldData = typeof old !== 'undefined' ? old : {};
+        const formErrors = typeof errors !== 'undefined' ? errors : {};
+        const addressData = typeof address !== 'undefined' ? address : {};
+    %>
+
+
+<!-- ================= ADD ADDRESS MODAL ================= -->
+
+<div 
+  id="addAddressModal"
+  class="fixed inset-0 z-50 hidden items-center justify-center bg-black/40 px-4"
+>
+
+  <!-- Modal Container -->
+  <div class="w-full max-w-2xl bg-[#FAFAF8] rounded-2xl shadow-lg overflow-hidden">
+
+    <!-- Header -->
+    <div class="flex items-center justify-between px-6 py-4 border-b">
+      <h2 class="text-xl font-semibold">ADD ADDRESS</h2>
+      <button 
+        id="closeAddressModal"
+        class="text-sm hover:underline"
+      >
+        CLOSE
+      </button>
+    </div>
+
+    <!-- Body -->
+    <div class="max-h-[80vh] overflow-y-auto px-6 py-6">
+
+
+      <form
+        id="addAddressForm"
+        action="/profile/address/add"
+        method="POST"
+        class="space-y-6"
+      >
+
+        <!-- NAME -->
+        <div>
+          <label class="block text-sm font-semibold mb-2">FULL NAME</label>
+
+          <input
+            id="name"
+            type="text"
+            name="name"
+            value="<%= oldData?.name || '' %>"
+            class="w-full border <%= formErrors?.name ? 'border-red-500' : 'border-[#121212]' %> rounded-lg px-4 py-3 focus:outline-none"
+          >
+
+          <p id="nameError" class="text-red-500 text-sm mt-1"></p>
+
+          <% if (formErrors?.name) { %>
+            <p class="text-red-500 text-sm mt-1"><%= formErrors.name %></p>
+          <% } %>
+        </div>
+
+
+        <!-- ADDRESS LINE -->
+        <div>
+          <label class="block text-sm font-semibold mb-2">ADDRESS LINE</label>
+
+          <input
+            id="street"
+            type="text"
+            name="street"
+            value="<%= oldData?.street || '' %>"
+            class="w-full border <%= formErrors?.street ? 'border-red-500' : 'border-[#121212]' %> rounded-lg px-4 py-3"
+          >
+
+          <p id="streetError" class="text-red-500 text-sm mt-1"></p>
+
+          <% if (formErrors?.street) { %>
+            <p class="text-red-500 text-sm mt-1"><%= formErrors.street %></p>
+          <% } %>
+        </div>
+
+
+        <!-- CITY + PINCODE -->
+        <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
+
+          <div>
+            <label class="block text-sm font-semibold mb-2">CITY</label>
+
+            <input
+              id="city"
+              type="text"
+              name="city"
+              value="<%= oldData?.city || '' %>"
+              class="w-full border <%= formErrors?.city ? 'border-red-500' : 'border-[#121212]' %> rounded-lg px-4 py-3"
+            >
+
+            <p id="cityError" class="text-red-500 text-sm mt-1"></p>
+
+            <% if (formErrors?.city) { %>
+              <p class="text-red-500 text-sm mt-1"><%= formErrors.city %></p>
+            <% } %>
+          </div>
+
+
+          <div>
+            <label class="block text-sm font-semibold mb-2">POSTAL CODE</label>
+
+            <input
+              id="pincode"
+              type="text"
+              name="pincode"
+              value="<%= oldData?.pincode || '' %>"
+              class="w-full border <%= formErrors?.pincode ? 'border-red-500' : 'border-[#121212]' %> rounded-lg px-4 py-3"
+            >
+
+            <p id="pincodeError" class="text-red-500 text-sm mt-1"></p>
+
+            <% if (formErrors?.pincode) { %>
+              <p class="text-red-500 text-sm mt-1"><%= formErrors.pincode %></p>
+            <% } %>
+          </div>
+
+        </div>
+
+
+        <!-- STATE + PHONE -->
+        <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
+
+          <div>
+            <label class="block text-sm font-semibold mb-2">STATE</label>
+
+            <input
+              id="state"
+              type="text"
+              name="state"
+              value="<%= oldData?.state || '' %>"
+              class="w-full border <%= formErrors?.state ? 'border-red-500' : 'border-[#121212]' %> rounded-lg px-4 py-3"
+            >
+
+            <p id="stateError" class="text-red-500 text-sm mt-1"></p>
+
+            <% if (formErrors?.state) { %>
+              <p class="text-red-500 text-sm mt-1"><%= formErrors.state %></p>
+            <% } %>
+          </div>
+
+
+          <div>
+            <label class="block text-sm font-semibold mb-2">PHONE NUMBER</label>
+
+            <input
+              id="phone"
+              type="tel"
+              name="phone"
+              value="<%= oldData?.phone || '' %>"
+              class="w-full border <%= formErrors?.phone ? 'border-red-500' : 'border-[#121212]' %> rounded-lg px-4 py-3"
+            >
+
+            <p id="phoneError" class="text-red-500 text-sm mt-1"></p>
+
+            <% if (formErrors?.phone) { %>
+              <p class="text-red-500 text-sm mt-1"><%= formErrors.phone %></p>
+            <% } %>
+          </div>
+
+        </div>
+
+
+        <!-- DEFAULT -->
+        <div class="flex items-center gap-2">
+
+          <input
+            type="checkbox"
+            name="isDefault"
+            value="true"
+            id="isDefault"
+            <%= oldData?.isDefault ? "checked" : "" %>
+            class="w-4 h-4 border border-[#121212]"
+          >
+
+          <label for="isDefault" class="text-sm">
+            Set as default shipping address
+          </label>
+
+        </div>
+
+
+        <!-- SUBMIT -->
+        <div class="flex justify-center pt-4">
+
+          <button
+            id="submitAddressBtn"
+            type="submit"
+            class="bg-[#121212] text-[#FAFAF8] px-12 py-3 rounded-lg group hover:opacity-80 transition"
+          >
+            <span class="inline-block transition-transform duration-300 group-hover:scale-110">
+              SAVE
+            </span>
+          </button>
+
+        </div>
+
+      </form>
+
+    </div>
+
+  </div>
+
+</div>
+
+
+
+<!-- ================= EDIT ADDRESS MODAL ================= -->
+
+<div 
+  id="editAddressModal"
+  class="fixed inset-0 z-50 hidden items-center justify-center bg-black/40 px-4"
+>
+
+  <div class="w-full max-w-2xl bg-[#FAFAF8] rounded-2xl shadow-lg overflow-hidden">
+
+    <!-- Header -->
+    <div class="flex items-center justify-between px-6 py-4 border-b">
+      <h2 class="text-xl font-semibold">EDIT ADDRESS</h2>
+      <button 
+        id="closeEditAddressModal"
+        class="text-sm underline hover:text-[#333333]"
+      >
+        CLOSE
+      </button>
+    </div>
+
+    <!-- Body -->
+    <div class="max-h-[80vh] overflow-y-auto px-6 py-6">
+
+      <form
+        id="editAddressForm"
+        method="POST"
+        class="space-y-6"
+      >
+
+        <!-- NAME -->
+        <div>
+          <label class="block text-sm font-semibold mb-2">FULL NAME</label>
+
+          <input
+            id="edit_name"
+            type="text"
+            name="name"
+            value="<%= oldData.name || addressData?.name || '' %>"
+            class="w-full border <%= formErrors.name ? 'border-red-500' : 'border-[#121212]' %> rounded-lg px-4 py-3 focus:outline-none"
+          >
+
+          <p id="edit_nameError" class="text-red-500 text-sm mt-1"></p>
+
+          <% if (formErrors.name) { %>
+            <p class="text-red-500 text-sm mt-1"><%= formErrors.name %></p>
+          <% } %>
+        </div>
+
+
+        <!-- ADDRESS LINE -->
+        <div>
+          <label class="block text-sm font-semibold mb-2">ADDRESS LINE</label>
+
+          <input
+            id="edit_street"
+            type="text"
+            name="street"
+            value="<%= oldData.street || addressData?.street || '' %>"
+            class="w-full border <%= formErrors.street ? 'border-red-500' : 'border-[#121212]' %> rounded-lg px-4 py-3"
+          >
+
+          <p id="edit_streetError" class="text-red-500 text-sm mt-1"></p>
+
+          <% if (formErrors.street) { %>
+            <p class="text-red-500 text-sm mt-1"><%= formErrors.street %></p>
+          <% } %>
+        </div>
+
+
+        <!-- CITY + PINCODE -->
+        <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
+
+          <div>
+            <label class="block text-sm font-semibold mb-2">CITY</label>
+
+            <input
+              id="edit_city"
+              type="text"
+              name="city"
+              value="<%= oldData.city || addressData?.city || '' %>"
+              class="w-full border <%= formErrors.city ? 'border-red-500' : 'border-[#121212]' %> rounded-lg px-4 py-3"
+            >
+
+            <p id="edit_cityError" class="text-red-500 text-sm mt-1"></p>
+
+            <% if (formErrors.city) { %>
+              <p class="text-red-500 text-sm mt-1"><%= formErrors.city %></p>
+            <% } %>
+          </div>
+
+
+          <div>
+            <label class="block text-sm font-semibold mb-2">POSTAL CODE</label>
+
+            <input
+              id="edit_pincode"
+              type="text"
+              name="pincode"
+              value="<%= oldData.pincode || addressData?.pincode || '' %>"
+              class="w-full border <%= formErrors.pincode ? 'border-red-500' : 'border-[#121212]' %> rounded-lg px-4 py-3"
+            >
+
+            <p id="edit_pincodeError" class="text-red-500 text-sm mt-1"></p>
+
+            <% if (formErrors.pincode) { %>
+              <p class="text-red-500 text-sm mt-1"><%= formErrors.pincode %></p>
+            <% } %>
+          </div>
+
+        </div>
+
+
+        <!-- STATE + PHONE -->
+        <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
+
+          <div>
+            <label class="block text-sm font-semibold mb-2">STATE</label>
+
+            <input
+              id="edit_state"
+              type="text"
+              name="state"
+              value="<%= oldData.state || addressData?.state || '' %>"
+              class="w-full border <%= formErrors.state ? 'border-red-500' : 'border-[#121212]' %> rounded-lg px-4 py-3"
+            >
+
+            <p id="edit_stateError" class="text-red-500 text-sm mt-1"></p>
+
+            <% if (formErrors.state) { %>
+              <p class="text-red-500 text-sm mt-1"><%= formErrors.state %></p>
+            <% } %>
+          </div>
+
+
+          <div>
+            <label class="block text-sm font-semibold mb-2">PHONE NUMBER</label>
+
+            <input
+              id="edit_phone"
+              type="tel"
+              name="phone"
+              value="<%= oldData.phone || addressData?.phone || '' %>"
+              class="w-full border <%= formErrors.phone ? 'border-red-500' : 'border-[#121212]' %> rounded-lg px-4 py-3"
+            >
+
+            <p id="edit_phoneError" class="text-red-500 text-sm mt-1"></p>
+
+            <% if (formErrors.phone) { %>
+              <p class="text-red-500 text-sm mt-1"><%= formErrors.phone %></p>
+            <% } %>
+          </div>
+
+        </div>
+
+
+        <!-- DEFAULT -->
+        <div class="flex items-center gap-2">
+
+          <input
+            type="checkbox"
+            name="isDefault"
+            value="true"
+            id="edit_isDefault"
+            <%= addressData?.isDefault ? "checked" : "" %>
+            class="w-4 h-4 border border-[#121212]"
+          >
+
+          <label for="edit_isDefault" class="text-sm">
+            Set as default shipping address
+          </label>
+
+        </div>
+
+
+        <!-- SUBMIT -->
+        <div class="flex justify-center pt-4">
+
+          <button
+            id="submitEditAddressBtn"
+            type="submit"
+            class="bg-[#121212] text-[#FAFAF8] px-12 py-3 rounded-lg group hover:opacity-80 transition"
+          >
+            <span class="inline-block transition-transform duration-300 group-hover:scale-110">
+              UPDATE
+            </span>
+          </button>
+
+        </div>
+
+      </form>
+
+    </div>
+
+  </div>
+
+</div>

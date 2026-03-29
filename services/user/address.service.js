@@ -36,10 +36,12 @@ export const addAddressService = async (userId, data) => {
     await addressRepo.unsetDefaultAddress(userId);
   }
 
-  await addressRepo.createAddress({
+  const createdAddress = await addressRepo.createAddress({
     userId,
     ...data
   });
+
+  return createdAddress;
 };
 
 export const getUserAddressesService = async (userId) => {

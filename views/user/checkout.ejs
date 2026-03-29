@@ -9,20 +9,26 @@
   <!-- Main Grid -->
   <div class="grid grid-cols-1 lg:grid-cols-3 gap-10">
 
+    <% if (checkoutError) { %>
+        <div class="border border-red-500 text-red-600 text-sm px-4 py-3 rounded">
+            <%= checkoutError %>
+        </div>
+        <% } %>
+
     <!-- LEFT SIDE -->
     <div class="lg:col-span-2 space-y-10">
 
       <!-- ================= ADDRESS SECTION ================= -->
-      <div class="space-y-4">
+      <div id="addressList" class="space-y-4">
 
         <div class="flex items-center justify-between border-b pb-2">
           <h2 class="text-lg font-semibold">DELIVERY ADDRESS</h2>
-          <a href="/profile/addresses"
+          <button id="openAddressModal"
              class="text-sm px-4 py-1.5 bg-black text-white group transition rounded-md">
              <span class="inline-block transition-transform duration-300 group-hover:scale-110">
             ADD ADDRESS
              </span>
-          </a>
+          </button>
         </div>
 
         <% if (addresses && addresses.length > 0) { %>
@@ -60,10 +66,11 @@
                         <% } %>
                       </div>
 
-                      <a href="/profile/addresses/<%= address._id %>/edit"
-                         class="text-xs border text-blue-600 hover:text-white hover:bg-blue-600 rounded-md px-2 py-1">
+                    <button type="button"
+                        class="editAddressBtn text-xs border text-blue-600 hover:text-white hover:bg-blue-600 rounded-md px-2 py-1"
+                        data-address='<%- JSON.stringify(address) %>'>
                         EDIT
-                      </a>
+                    </button>
                     </div>
 
                     <p class="text-sm leading-relaxed">
@@ -200,7 +207,7 @@
           <span>Free</span>
         </div>
 
-        <div class="flex justify-between">
+        <div class="flex justify-between text-green-600">
           <span>Discount</span>
           <span>₹0</span>
         </div>
@@ -216,8 +223,8 @@
       <!-- Place Order -->
       <button 
         id="placeOrderBtn"
-        class="w-full py-3 text-sm font-medium bg-[#121212] text-[#FAFAF8] rounded-lg transition group"
-        <%= hasInvalidItems || !addresses.length ? 'disabled' : '' %>
+        class="w-full py-3 text-sm font-medium bg-[#121212] text-[#FAFAF8] rounded-lg transition group disabled:cursor-not-allowed"
+        <%= checkoutError || !addresses.length ? 'disabled' : '' %>
       >
       <span class="inline-block transition-transform duration-300 group-hover:scale-110">
         PLACE ORDER
@@ -229,3 +236,5 @@
   </div>
 
 </section>
+
+<%- include('../partials/userPartials/checkoutModals') %>

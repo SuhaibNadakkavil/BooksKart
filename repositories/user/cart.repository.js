@@ -215,3 +215,12 @@ export const getCartCountByUser = async (userId) => {
 export const findCartByUser = async (userId) => {
   return Cart.findOne({ userId });
 };
+
+
+export const clearCart = async (userId, session = null) => {
+  return await Cart.updateOne(
+    { userId },
+    { $set: { items: [] } },
+    { session }
+  );
+};
