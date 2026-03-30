@@ -23,8 +23,11 @@ export const getUserOrders = async (userId, page = 1, limit = 10) => {
 };
 
 // Get Single Order
-export const getOrderById = async (orderId, userId) => {
-  return await Order.findOne({ orderId, userId });
+export const getOrderByOrderId = async (orderId, userId) => {
+  return await Order.findOne({
+    orderId,
+    userId
+  });
 };
 
 

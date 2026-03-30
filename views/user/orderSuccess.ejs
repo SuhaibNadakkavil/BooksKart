@@ -1,0 +1,179 @@
+<section class="space-y-12">
+
+  <!-- ================= HEADER ================= -->
+  <div class="text-center space-y-4">
+
+    <!-- Icon -->
+    <div class="w-16 h-16 mx-auto bg-green-600 rounded-full flex items-center justify-center">
+      <svg xmlns="http://www.w3.org/2000/svg" 
+           class="w-8 h-8 text-white" 
+           fill="none" viewBox="0 0 24 24" stroke="currentColor">
+        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="5"
+              d="M5 13l4 4L19 7" />
+      </svg>
+    </div>
+
+    <!-- Title -->
+    <h1 class="text-3xl md:text-4xl font-semibold">
+      Order Confirmed
+    </h1>
+
+    <h3 class="text-xl font-semibold">
+        Thank you for choosing BooksKart
+    </h3>
+
+    <p class="text-sm">
+      A confirmation email is on its way to you.
+    </p>
+
+    <!-- Order ID -->
+    <p class="text-sm">
+      ORDER #<%= order.orderId %>
+    </p>
+
+  </div>
+
+
+  <!-- ================= MAIN CONTENT ================= -->
+  <div class="grid grid-cols-1 lg:grid-cols-3 gap-10">
+
+
+    <!-- ================= ADDRESS + PAYMENT ================= -->
+  <div class="bg-white hover:shadow-lg rounded-lg p-6 space-y-4 h-fit">
+
+    <!-- Address -->
+      <h2 class="text-lg font-semibold">
+        Delivery Address
+      </h2>
+
+      <p class="font-medium">
+        <%= order.address.name %>
+      </p>
+
+      <p class="text-sm">
+        <%= order.address.street %>
+      </p>
+
+      <p class="text-sm">
+        <%= order.address.city %>, <%= order.address.state %> - <%= order.address.pincode %>
+      </p>
+
+      <p class="text-sm">
+        Phone: <%= order.address.phone %>
+      </p>
+
+    <!-- Payment -->
+      <h2 class="text-lg font-semibold border-t pt-2">
+        Payment Method
+      </h2>
+
+      <p class="text-sm uppercase">
+        <%= order.paymentMethod %>
+      </p>
+
+  </div>
+
+    <!-- ===== ORDER ITEMS ===== -->
+    <div class="bg-white hover:shadow-lg rounded-lg p-6 space-y-4 h-fit">
+
+      <h2 class="text-lg font-semibold">
+        Ordered Items
+      </h2>
+
+      <div class="space-y-6 max-h-60 overflow-y-auto">
+
+        <% order.items.forEach(item => { %>
+
+          <div class="flex gap-4">
+
+            <!-- Image -->
+            <img
+              src="<%= item.image %>"
+              class="w-16 h-24 object-cover rounded"
+              alt="<%= item.title %>"
+            />
+
+            <!-- Details -->
+            <div class="flex flex-col justify-center space-y-1">
+
+              <p class="font-medium">
+                <%= item.title %>
+              </p>
+
+              <p class="text-sm">
+                <%= item.author %>
+              </p>
+
+              <p class="text-sm">
+                Qty: <%= item.quantity %>
+                <span class="ml-2 font-medium">
+                  ₹<%= item.price %>
+                </span>
+              </p>
+
+            </div>
+
+          </div>
+
+        <% }) %>
+
+      </div>
+
+    </div>
+
+
+    <!-- ===== ORDER SUMMARY ===== -->
+    <div class="bg-white hover:shadow-lg rounded-lg p-6 space-y-4 h-fit">
+
+      <h2 class="text-lg font-semibold">
+        Order Summary
+      </h2>
+
+      <div class="flex justify-between text-sm">
+        <span>Subtotal</span>
+        <span>₹<%= order.subtotal %></span>
+      </div>
+
+      <div class="flex justify-between text-sm">
+        <span>Shipping</span>
+        <span>Free</span>
+      </div>
+
+      <div class="flex justify-between text-sm">
+        <span>Discount</span>
+        <span>₹<%= order.discount || 0 %></span>
+      </div>
+
+      <div class="border-t pt-4 flex justify-between font-semibold">
+        <span>Total</span>
+        <span>₹<%= order.totalAmount %></span>
+      </div>
+
+    </div>
+
+  </div>
+
+  <!-- ================= ACTIONS ================= -->
+  <div class="text-center space-y-4 pt-6">
+
+    <!-- View Order -->
+    <a href="/orders/<%= order.orderId %>"
+       class="inline-block bg-[#121212] text-[#FAFAF8] px-8 py-3 rounded-md group">
+
+      <span class="inline-block transition-transform duration-300 group-hover:scale-110">
+        View Order Details
+      </span>
+
+    </a>
+
+    <!-- Continue Shopping -->
+    <div>
+      <a href="/shop"
+         class="text-sm hover:underline transition">
+        Continue Shopping
+      </a>
+    </div>
+
+  </div>
+
+</section>

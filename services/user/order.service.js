@@ -87,3 +87,23 @@ export const createOrderService = async ({
 
   return order;
 };
+
+
+export const getOrderSuccessService = async (userId, orderId) => {
+
+  if (!orderId) {
+    const error = new Error("Invalid order");
+    error.type = "ORDER";
+    throw error;
+  }
+
+  const order = await orderRepo.getOrderByOrderId(orderId, userId);
+
+  if (!order) {
+    const error = new Error("Order not found");
+    error.type = "ORDER";
+    throw error;
+  }
+
+  return order;
+};
