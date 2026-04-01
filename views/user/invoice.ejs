@@ -1,0 +1,126 @@
+<!DOCTYPE html>
+<html>
+<head>
+  <meta charset="UTF-8" />
+  <title>Invoice</title>
+
+  <style>
+    body {
+      font-family: Arial, sans-serif;
+      padding: 30px;
+      color: #121212;
+    }
+
+    .header {
+      display: flex;
+      justify-content: space-between;
+      margin-bottom: 30px;
+    }
+
+    .title {
+      font-size: 24px;
+      font-weight: bold;
+    }
+
+    .section {
+      margin-bottom: 25px;
+    }
+
+    .box {
+      border: 1px solid #ddd;
+      padding: 12px;
+    }
+
+    table {
+      width: 100%;
+      border-collapse: collapse;
+      margin-top: 15px;
+    }
+
+    th, td {
+      border-bottom: 1px solid #ddd;
+      padding: 10px;
+      text-align: left;
+    }
+
+    .right {
+      text-align: right;
+    }
+
+    .total {
+      font-weight: bold;
+      font-size: 16px;
+    }
+
+  </style>
+</head>
+
+<body>
+
+  <!-- HEADER -->
+  <div class="header">
+    <div>
+      <div class="title">BooksKart</div>
+      <p>Invoice</p>
+    </div>
+
+    <div>
+      <p><strong>Order ID:</strong> <%= order.orderId %></p>
+      <p><strong>Date:</strong> <%= new Date(order.createdAt).toDateString() %></p>
+    </div>
+  </div>
+
+  <!-- ADDRESS -->
+  <div class="section">
+    <h4>Delivery Address</h4>
+    <div class="box">
+      <p><%= order.address.name %></p>
+      <p><%= order.address.street %></p>
+      <p><%= order.address.city %>, <%= order.address.state %></p>
+      <p><%= order.address.pincode %></p>
+      <p>Phone: <%= order.address.phone %></p>
+    </div>
+  </div>
+
+  <!-- ITEMS -->
+  <div class="section">
+    <h4>Order Items</h4>
+
+    <table>
+      <thead>
+        <tr>
+          <th>Product</th>
+          <th>Qty</th>
+          <th>Price</th>
+          <th class="right">Total</th>
+        </tr>
+      </thead>
+
+      <tbody>
+        <% order.items.forEach(item => { %>
+          <tr>
+            <td><%= item.title %></td>
+            <td><%= item.quantity %></td>
+            <td>₹<%= item.price %></td>
+            <td class="right">₹<%= item.itemTotal %></td>
+          </tr>
+        <% }) %>
+      </tbody>
+    </table>
+  </div>
+
+  <!-- SUMMARY -->
+  <div class="section">
+    <div class="box">
+
+      <p>Subtotal: ₹<%= order.subtotal %></p>
+      <p>Shipping: Free</p>
+      <p>Discount: ₹<%= order.discount || 0 %></p>
+
+      <p class="total">Total: ₹<%= order.totalAmount %></p>
+
+    </div>
+  </div>
+
+</body>
+</html>

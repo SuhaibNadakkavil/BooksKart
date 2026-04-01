@@ -1,3 +1,8 @@
+import puppeteer from "puppeteer-core";
+import ejs from "ejs";
+import path from "path";
+import fs from "fs";
+
 import * as cartRepo from "../../repositories/user/cart.repository.js";
 import * as orderRepo from "../../repositories/user/order.repository.js";
 import * as addressRepo from "../../repositories/user/address.repo.js";
@@ -105,5 +110,313 @@ export const getOrderSuccessService = async (userId, orderId) => {
     throw error;
   }
 
+  // ✅ UPDATE PAYMENT STATUS
+  if (order.paymentStatus === "pending") {
+    await orderRepo.updatePaymentStatus(orderId, "paid");
+    order.paymentStatus = "paid"; // reflect immediately
+  }
+
   return order;
+};
+
+
+export const getUserOrdersService = async (query, userId) => {
+
+  const page = parseInt(query.page) || 1;
+  const limit = 5;
+
+  const search = query.search?.trim() || "";
+
+  const sort = query.sort || "newest"; 
+  // newest | oldest | price_low | price_high
+
+  const status = query.status || "all"; 
+  // all | pending | shipped | delivered | cancelled
+
+  const data = await orderRepo.getUserOrders({
+    userId,
+    page,
+    limit,
+    search,
+    sort,
+    status
+  });
+
+  return {
+    orders: data.orders,
+    totalOrders: data.totalCount,
+    page: data.currentPage,
+    totalPages: data.totalPages,
+    query
+  };
+};
+
+
+export const getOrderDetailsService = async (userId, orderId) => {
+
+  if (!orderId) {
+    const error = new Error("Invalid order");
+    error.type = "ORDER";
+    throw error;
+  }
+
+  const order = await orderRepo.getOrderDetails(orderId, userId);
+
+  if (!order) {
+    const error = new Error("Order not found");
+    error.type = "ORDER";
+    throw error;
+  }
+
+  // =============================
+  // ESTIMATED DELIVERY DATE
+  // =============================
+  const createdAt = new Date(order.createdAt);
+
+  // simple logic: +5 days delivery
+  const estimatedDeliveryDate = new Date(createdAt);
+  estimatedDeliveryDate.setDate(createdAt.getDate() + 5);
+
+  // delivered date (if delivered)
+  const deliveredDate =
+    order.orderStatus === "delivered"
+      ? new Date(order.updatedAt)
+      : null;
+
+  // =============================
+  // PROGRESS STEP
+  // =============================
+  const statusSteps = [
+    "pending",
+    "shipped",
+    "out_for_delivery",
+    "delivered"
+  ];
+
+  const currentStepIndex = statusSteps.indexOf(order.orderStatus);
+
+  // =============================
+  // ITEM FLAGS
+  // =============================
+  const items = order.items.map(item => {
+
+    const canCancel =
+      item.status === "pending" ||
+      item.status === "shipped";
+
+    const canReturn =
+      item.status === "delivered";
+
+    return {
+      ...item,
+      canCancel,
+      canReturn,
+      isCancelled: item.status === "cancelled",
+      isReturned: item.status === "returned"
+    };
+  });
+
+  // =============================
+  // ORDER LEVEL FLAGS
+  // =============================
+  const allItemsCancellable = items.every(i => i.canCancel);
+  const allItemsReturnable = items.every(i => i.canReturn);
+
+  const canCancelOrder =
+    order.orderStatus !== "delivered" &&
+    allItemsCancellable;
+
+  const canReturnOrder =
+    order.orderStatus === "delivered" &&
+    allItemsReturnable;
+
+  return {
+    order: {
+      ...order,
+      items
+    },
+
+    meta: {
+      estimatedDeliveryDate,
+      deliveredDate,
+      currentStepIndex,
+      statusSteps,
+
+      canCancelOrder,
+      canReturnOrder
+    }
+  };
+};
+
+
+export const cancelOrderItemService = async (userId, orderId, itemId, reason) => {
+
+  if (!reason || !reason.trim()) {
+    const error = new Error("Cancel reason is required");
+    error.type = "VALIDATION";
+    throw error;
+  }
+
+  const order = await orderRepo.getOrderByOrderId(orderId, userId);
+
+  if (!order) {
+    const error = new Error("Order not found");
+    error.type = "ORDER";
+    throw error;
+  }
+
+  const item = order.items.id(itemId);
+
+  if (!item) {
+    const error = new Error("Item not found");
+    error.type = "ORDER";
+    throw error;
+  }
+
+  // ✅ VALIDATION
+  if (!["pending", "shipped"].includes(item.status)) {
+    const error = new Error("Item cannot be cancelled");
+    error.type = "ORDER";
+    throw error;
+  }
+
+  await orderRepo.requestCancelItem(orderId, itemId, reason);
+
+  return true;
+};
+
+
+export const returnOrderItemService = async (userId, orderId, itemId, reason) => {
+
+  if (!reason || !reason.trim()) {
+    const error = new Error("Return reason is required");
+    error.type = "VALIDATION";
+    throw error;
+  }
+
+  const order = await orderRepo.getOrderByOrderId(orderId, userId);
+
+  if (!order) {
+    const error = new Error("Order not found");
+    error.type = "ORDER";
+    throw error;
+  }
+
+  const item = order.items.id(itemId);
+
+  if (!item) {
+    const error = new Error("Item not found");
+    error.type = "ORDER";
+    throw error;
+  }
+
+  if (item.status !== "delivered") {
+    const error = new Error("Item cannot be returned");
+    error.type = "ORDER";
+    throw error;
+  }
+
+  await orderRepo.requestReturnItem(orderId, itemId, reason);
+
+  return true;
+};
+
+
+export const cancelOrderService = async (userId, orderId, reason) => {
+
+  if (!reason || !reason.trim()) {
+    const error = new Error("Cancel reason is required");
+    error.type = "VALIDATION";
+    throw error;
+  }
+
+  const order = await orderRepo.getOrderByOrderId(orderId, userId);
+
+  if (!order) {
+    const error = new Error("Order not found");
+    error.type = "ORDER";
+    throw error;
+  }
+
+  if (order.orderStatus === "delivered") {
+    const error = new Error("Delivered order cannot be cancelled");
+    error.type = "ORDER";
+    throw error;
+  }
+
+  await orderRepo.requestCancelOrder(orderId, userId, reason);
+
+  return true;
+};
+
+
+export const returnOrderService = async (userId, orderId, reason) => {
+
+  if (!reason || !reason.trim()) {
+    const error = new Error("Return reason is required");
+    error.type = "VALIDATION";
+    throw error;
+  }
+
+  const order = await orderRepo.getOrderByOrderId(orderId, userId);
+
+  if (!order) {
+    const error = new Error("Order not found");
+    error.type = "ORDER";
+    throw error;
+  }
+
+  if (order.orderStatus !== "delivered") {
+    const error = new Error("Only delivered orders can be returned");
+    error.type = "ORDER";
+    throw error;
+  }
+
+  await orderRepo.requestReturnOrder(orderId, userId, reason);
+
+  return true;
+};
+
+
+
+export const generateInvoiceService = async (userId, orderId) => {
+
+  const order = await orderRepo.getOrderDetails(orderId, userId);
+
+  if (!order) {
+    const error = new Error("Order not found");
+    error.type = "ORDER";
+    throw error;
+  }
+
+  // =============================
+  // Render HTML from EJS
+  // =============================
+  const templatePath = path.join(
+    process.cwd(),
+    "views/user/invoice.ejs"
+  );
+
+  const html = await ejs.renderFile(templatePath, { order });
+
+  // =============================
+  // Generate PDF
+  // =============================
+  const browser = await puppeteer.launch({
+    executablePath: "C:\\Program Files\\Google\\Chrome\\Application\\chrome.exe",
+    headless: "new"
+  });
+
+  const page = await browser.newPage();
+
+  await page.setContent(html, { waitUntil: "domcontentloaded" });
+
+  const pdfBuffer = await page.pdf({
+    format: "A4",
+    printBackground: true
+  });
+
+  await browser.close();
+
+  return pdfBuffer;
 };

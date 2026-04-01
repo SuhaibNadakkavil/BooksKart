@@ -1,0 +1,227 @@
+<section class="space-y-12">
+
+    <div id="orderMeta" data-order-id="<%= order.orderId %>"></div>
+    
+  <!-- ================= HEADER ================= -->
+  <div class="space-y-2 text-center">
+    <h1 class="text-[32px] font-semibold">Order Details</h1>
+    <p class="text-sm font-semibold">
+      Order ID: #<%= order.orderId %>
+    </p>
+  </div>
+
+
+<div class="space-y-6">
+
+    <!-- Progress -->
+    <div class="flex items-start">
+
+        <% meta.statusSteps.forEach((step, index)=> { %>
+
+            <div class="flex-1 flex flex-col items-center">
+
+                <!-- Row: Circle + Line -->
+                <div class="flex items-center w-full">
+
+                    <!-- Circle -->
+                    <div class="ml-30 w-8 h-8 flex items-center justify-center border border-[#121212] rounded-full
+            <%= index <= meta.currentStepIndex ? 'bg-[#121212] text-white' : '' %>">
+                        ✔
+                    </div>
+
+                    <!-- Line -->
+                    <% if(index !==meta.statusSteps.length - 1){ %>
+                        <div class="ml-30 flex-1 h-[1px]
+              <%= index < meta.currentStepIndex ? 'bg-[#121212]' : 'bg-gray-300' %>"></div>
+                        <% } %>
+
+                </div>
+
+                <!-- Label -->
+                <p class="text-xs uppercase mt-2 text-center">
+                    <%= step.replaceAll("_", " " ) %>
+                </p>
+
+            </div>
+
+            <% }) %>
+
+    </div>
+
+    <!-- Date -->
+    <p class="text-center text-sm italic">
+        <% if(meta.deliveredDate){ %>
+            Delivered on <%= meta.deliveredDate.toDateString() %>
+                <% } else { %>
+                    Estimated delivery by <%= meta.estimatedDeliveryDate.toDateString() %>
+                        <% } %>
+    </p>
+
+</div>
+
+
+  <!-- ================= INFO ================= -->
+  <div class="grid grid-cols-1 md:grid-cols-3 gap-10">
+
+    <!-- Order Info -->
+    <div class="bg-white hover:shadow-lg rounded-lg p-6 space-y-4 h-fit">
+      <h3 class="text-xs uppercase font-semibold mb-2">Order Information</h3>
+
+      <p class="text-sm">
+        <span>Date:</span><br>
+        <%= new Date(order.createdAt).toDateString() %>
+      </p>
+
+      <p class="text-sm mt-3">
+        <span>Payment Method:</span><br>
+        <%= order.paymentMethod.toUpperCase() %>
+      </p>
+
+    </div>
+
+    <!-- Address -->
+    <div class="bg-white hover:shadow-lg rounded-lg p-6 space-y-4 h-fit">
+      <h3 class="text-xs uppercase font-semibold mb-2">Delivery Address</h3>
+
+      <p class="text-sm"><%= order.address.name %></p>
+      <p class="text-sm"><%= order.address.street %></p>
+      <p class="text-sm">
+        <%= order.address.city %>, <%= order.address.state %> - <%= order.address.pincode %>
+      </p>
+      <p class="text-sm mt-1">Phone: <%= order.address.phone %></p>
+
+    </div>
+
+    <!-- Summary -->
+    <div class="bg-white hover:shadow-lg rounded-lg p-6 space-y-4 h-fit">
+      <h3 class="text-xs uppercase font-semibold mb-2">Order Summary</h3>
+
+      <div class="text-sm space-y-2">
+        <div class="flex justify-between">
+          <span>Subtotal</span>
+          <span>₹<%= order.subtotal %></span>
+        </div>
+
+        <div class="flex justify-between">
+          <span>Shipping</span>
+          <span>Free</span>
+        </div>
+
+        <div class="flex justify-between">
+          <span>Discount</span>
+          <span>₹<%= order.discount || 0 %></span>
+        </div>
+
+        <div class="flex justify-between font-semibold pt-2 border-t">
+          <span>Total</span>
+          <span>₹<%= order.totalAmount %></span>
+        </div>
+      </div>
+
+    </div>
+
+  </div>
+
+
+  <!-- ================= ITEMS ================= -->
+  <div class="space-y-6">
+
+    <h2 class="text-sm uppercase font-semibold">
+      Ordered Items (<%= order.items.length %>)
+    </h2>
+
+    <% order.items.forEach(item => { %>
+
+      <div class="flex flex-col md:flex-row md:items-center justify-between bg-white hover:shadow-lg rounded-lg p-6 space-y-4 h-fit gap-6">
+
+        <!-- Left -->
+        <div class="flex gap-4">
+
+          <img
+            src="<%= item.image || '/images/placeholder.png' %>"
+            class="w-16 h-24 object-cover rounded"
+          />
+
+          <div class="space-y-1">
+            <p class="font-medium"><%= item.title %></p>
+            <p class="text-sm opacity-70"><%= item.author %></p>
+            <p class="text-sm">₹<%= item.price %></p>
+
+            <!-- Status Label -->
+            <% if(item.isCancelled){ %>
+              <p class="text-xs border px-2 py-1 inline-block mt-1">
+                Cancelled
+              </p>
+            <% } %>
+
+            <% if(item.isReturned){ %>
+              <p class="text-xs border px-2 py-1 inline-block mt-1">
+                Returned
+              </p>
+            <% } %>
+
+          </div>
+
+        </div>
+
+        <!-- Actions -->
+        <div class="flex flex-col items-end gap-3 text-sm">
+
+          <% if(item.canCancel){ %>
+            <button class="border px-4 py-2 hover:bg-[#121212] hover:text-white transition rounded-lg cancelItemBtn"
+              data-id="<%= item._id %>">
+              CANCEL ITEM
+            </button>
+          <% } %>
+
+          <% if(item.canReturn){ %>
+            <button class="border px-4 py-2 hover:bg-[#121212] hover:text-white transition rounded-lg returnItemBtn"
+              data-id="<%= item._id %>">
+              RETURN ITEM
+            </button>
+
+            <button class="border px-4 py-2 hover:bg-[#121212] hover:text-white transition rounded-lg">
+              Add Review
+            </button>
+          <% } %>
+
+        </div>
+
+      </div>
+
+    <% }) %>
+
+  </div>
+
+
+  <!-- ================= FOOTER ACTIONS ================= -->
+  <div class="flex flex-col md:flex-row justify-between items-center gap-6">
+
+    <!-- Invoice -->
+    <a href="/orders/<%= order.orderId %>/invoice"
+      class="border px-6 py-3 hover:bg-[#121212] hover:text-white rounded-lg transition">
+      DOWNLOAD INVOICE
+    </a>
+
+    <!-- Right Actions -->
+    <div class="flex gap-6 text-sm">
+
+      <% if(meta.canCancelOrder){ %>
+        <button class="border px-6 py-3 hover:bg-[#121212] hover:text-white transition rounded-lg" id="cancelOrderBtn">
+          CANCEL ENTIRE ORDER
+        </button>
+      <% } %>
+
+      <% if(meta.canReturnOrder){ %>
+        <button class="border px-6 py-3 hover:bg-[#121212] hover:text-white transition rounded-lg" id="returnOrderBtn">
+          RETURN ENTIRE ORDER
+        </button>
+      <% } %>
+
+    </div>
+
+  </div>
+
+</section>
+
+<%- include('../partials/userPartials/orderDetailsModals') %>

@@ -6,6 +6,7 @@ const { Schema } = mongoose;
 // ORDER ITEM
 // =============================
 const orderItemSchema = new Schema({
+
   productId: {
     type: Schema.Types.ObjectId,
     ref: "Product",
@@ -16,15 +17,12 @@ const orderItemSchema = new Schema({
   author: { type: String },
 
   variantType: { type: String, required: true },
-
   quantity: { type: Number, required: true },
 
   price: { type: Number, required: true },
   itemTotal: { type: Number, required: true },
 
-  image: {
-    type: String
-  },
+  image: String,
 
   status: {
     type: String,
@@ -33,16 +31,44 @@ const orderItemSchema = new Schema({
       "shipped",
       "out_for_delivery",
       "delivered",
+
+      "cancel_requested",
+      "return_requested",
+
       "cancelled",
       "returned"
     ],
     default: "pending"
   },
 
-  cancelReason: { type: String },
-  returnReason: { type: String }
+  cancelReason: {
+    type: String,
+    trim: true
+  },
+
+  returnReason: {
+    type: String,
+    trim: true
+  }
 
 }, { _id: true });
+
+
+// =============================
+// SCHEMA VALIDATION HOOK
+// =============================
+orderItemSchema.pre("validate", function (next) {
+
+  if (this.status === "cancel_requested" && !this.cancelReason) {
+    return next(new Error("Cancel reason is required"));
+  }
+
+  if (this.status === "return_requested" && !this.returnReason) {
+    return next(new Error("Return reason is required"));
+  }
+
+  next();
+});
 
 
 // =============================
@@ -98,7 +124,12 @@ const orderSchema = new Schema({
       "shipped",
       "out_for_delivery",
       "delivered",
-      "cancelled"
+
+      "cancel_requested",
+      "return_requested",
+
+      "cancelled",
+      "returned"
     ],
     default: "pending"
   },

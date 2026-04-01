@@ -1,0 +1,111 @@
+<!-- ================= OVERLAY ================= -->
+<div id="modalOverlay"
+     class="fixed inset-0 bg-black/40 hidden z-40"></div>
+
+
+<!-- ================= CANCEL ITEM MODAL ================= -->
+<div id="cancelItemModal"
+     class="fixed inset-0 hidden items-center justify-center z-50">
+
+  <div class="bg-[#FAFAF8] p-6 rounded-lg w-full max-w-md space-y-4">
+
+    <h2 class="text-lg font-semibold">Cancel Item</h2>
+
+    <textarea id="cancelItemReason"
+      class="w-full border border-[#121212] rounded-md p-3 text-sm focus:outline-none"
+      placeholder="Reason (required)"></textarea>
+
+    <p id="cancelItemError" class="text-red-500 text-sm"></p>      
+
+    <div class="flex justify-end gap-4">
+      <button class="text-sm hover:underline closeModal">Cancel</button>
+
+      <button id="confirmCancelItem"
+        class="bg-[#121212] text-white px-4 py-2 rounded-md">
+        Confirm
+      </button>
+    </div>
+
+  </div>
+</div>
+
+
+<!-- ================= RETURN ITEM MODAL ================= -->
+<div id="returnItemModal"
+     class="fixed inset-0 hidden items-center justify-center z-50">
+
+  <div class="bg-[#FAFAF8] p-6 rounded-lg w-full max-w-md space-y-4">
+
+    <h2 class="text-lg font-semibold">Return Item</h2>
+
+    <textarea id="returnItemReason"
+      class="w-full border border-[#121212] rounded-md p-3 text-sm focus:outline-none"
+      placeholder="Reason (required)"></textarea>
+
+    <p id="returnItemError" class="text-red-500 text-sm"></p>
+
+    <div class="flex justify-end gap-4">
+      <button class="text-sm hover:underline closeModal">Cancel</button>
+
+      <button id="confirmReturnItem"
+        class="bg-[#121212] text-white px-4 py-2 rounded-md">
+        Confirm
+      </button>
+    </div>
+
+  </div>
+</div>
+
+
+<!-- ================= CANCEL ORDER MODAL ================= -->
+<div id="cancelOrderModal"
+     class="fixed inset-0 hidden items-center justify-center z-50">
+
+  <div class="bg-[#FAFAF8] p-6 rounded-lg w-full max-w-md space-y-4">
+
+    <h2 class="text-lg font-semibold">Cancel Entire Order</h2>
+
+    <textarea id="cancelOrderReason"
+      class="w-full border border-[#121212] rounded-md p-3 text-sm"
+      placeholder="Reason (required)"></textarea>
+
+      <p id="cancelOrderError" class="text-red-500 text-sm"></p>
+
+    <div class="flex justify-end gap-4">
+      <button class="text-sm hover:underline closeModal">Cancel</button>
+
+      <button id="confirmCancelOrder"
+        class="bg-[#121212] text-white px-4 py-2 rounded-md">
+        Confirm
+      </button>
+    </div>
+
+  </div>
+</div>
+
+
+<!-- ================= RETURN ORDER MODAL ================= -->
+<div id="returnOrderModal"
+     class="fixed inset-0 hidden items-center justify-center z-50">
+
+  <div class="bg-[#FAFAF8] p-6 rounded-lg w-full max-w-md space-y-4">
+
+    <h2 class="text-lg font-semibold">Return Entire Order</h2>
+
+    <textarea id="returnOrderReason"
+      class="w-full border border-[#121212] rounded-md p-3 text-sm"
+      placeholder="Reason (required)"></textarea>
+
+    <p id="returnOrderError" class="text-red-500 text-sm"></p>
+
+    <div class="flex justify-end gap-4">
+      <button class="text-sm hover:underline closeModal">Cancel</button>
+
+      <button id="confirmReturnOrder"
+        class="bg-[#121212] text-white px-4 py-2 rounded-md">
+        Confirm
+      </button>
+    </div>
+
+  </div>
+</div>
