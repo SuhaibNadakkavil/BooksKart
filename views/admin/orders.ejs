@@ -1,0 +1,277 @@
+<section class="w-full">
+
+  <!-- =============================
+        HEADER
+  ============================== -->
+  <div class="mb-8">
+    <h1 class="text-3xl font-medium">Orders</h1>
+    <p class="text-sm opacity-70 mt-3 max-w-xl">
+      Overview of all transactions, delivery statuses, and purchase history.
+    </p>
+  </div>
+
+
+  <!-- =============================
+        SEARCH + FILTER + SORT
+  ============================== -->
+  <form method="GET" action="/admin/orders"
+        class="flex flex-col md:flex-row md:items-center md:justify-between gap-4 mb-8">
+
+    <!-- SEARCH -->
+    <div class="flex items-center gap-3">
+
+      <input
+        type="text"
+        name="search"
+        value="<%= query?.search || '' %>"
+        placeholder="Search by Order ID or Customer..."
+        class="border border-[#121212] rounded-lg px-4 py-2 w-64
+               focus:outline-none focus:border-[#333333]"
+      />
+
+      <button
+        type="submit"
+        class="bg-[#121212] text-[#FAFAF8] px-4 py-2 rounded-lg text-sm group">
+        <span class="inline-block transition-transform duration-300 group-hover:scale-110">
+          Search
+        </span>
+      </button>
+
+      <% if(query?.search){ %>
+        <a href="/admin/orders" class="text-xs tracking-widest hover:underline">
+          CANCEL
+        </a>
+      <% } %>
+
+    </div>
+
+
+    <!-- FILTER + SORT -->
+    <div class="flex items-center gap-6 text-sm tracking-wide">
+
+      <!-- STATUS FILTER -->
+      <select
+        id="statusFilter"
+        name="status"
+        class="border border-[#121212] px-3 py-2 rounded-lg
+               focus:outline-none focus:border-[#333333]">
+
+        <option value="all">FILTER</option>
+
+        <% const statuses = [
+          "pending",
+          "shipped",
+          "out_for_delivery",
+          "delivered",
+          "cancelled",
+          "returned"
+        ]; %>
+
+        <% statuses.forEach(s => { %>
+          <option value="<%= s %>"
+            <%= query?.status === s ? "selected" : "" %>>
+            <%= s.replace(/_/g, ' ').toUpperCase() %>
+          </option>
+        <% }) %>
+
+      </select>
+
+
+      <!-- SORT -->
+      <select
+        id="sortSelect"
+        name="sort"
+        class="border border-[#121212] px-3 py-2 rounded-lg
+               focus:outline-none focus:border-[#333333]">
+
+        <option value="newest" <%= query?.sort === "newest" ? "selected" : "" %>>
+          Newest
+        </option>
+
+        <option value="oldest" <%= query?.sort === "oldest" ? "selected" : "" %>>
+          Oldest
+        </option>
+
+        <option value="price_low" <%= query?.sort === "price_low" ? "selected" : "" %>>
+          Price: Low → High
+        </option>
+
+        <option value="price_high" <%= query?.sort === "price_high" ? "selected" : "" %>>
+          Price: High → Low
+        </option>
+
+      </select>
+
+    </div>
+
+  </form>
+
+
+
+  <!-- =============================
+        TABLE
+  ============================== -->
+  <div class="overflow-x-auto">
+
+    <table class="w-full text-sm">
+
+      <!-- HEAD -->
+      <thead>
+        <tr class="border-b border-gray-300 text-left text-xs tracking-wider uppercase">
+          <th class="py-4">Order ID</th>
+          <th>Customer</th>
+          <th>Date</th>
+          <th>Amount</th>
+          <th>Payment</th>
+          <th>Status</th>
+          <th class="text-right">Actions</th>
+        </tr>
+      </thead>
+
+
+      <!-- BODY -->
+      <tbody>
+
+        <% if(orders && orders.length > 0){ %>
+
+          <% orders.forEach(order => { %>
+
+            <tr class="border-b border-gray-200 hover:bg-gray-50 transition">
+
+              <!-- ORDER ID -->
+              <td class="py-4 font-medium">
+                <%= order.orderId %>
+              </td>
+
+              <!-- CUSTOMER -->
+              <td class="opacity-80">
+                <%= order.customerName || "-" %>
+              </td>
+
+              <!-- DATE -->
+              <td>
+                <%= new Date(order.createdAt).toDateString() %>
+              </td>
+
+              <!-- AMOUNT -->
+              <td>
+                ₹<%= order.totalAmount %>
+              </td>
+
+              <!-- PAYMENT -->
+              <td>
+                <%
+                  const paymentColors = {
+                    cod: "text-yellow-700",
+                    razorpay: "text-green-700",
+                    wallet: "text-blue-700"
+                  };
+
+                  const paymentClass = paymentColors[order.paymentMethod] || "text-gray-700";
+                %>
+
+                <span class="text-sm font-medium <%= paymentClass %>">
+                  <%= order.paymentMethod?.toUpperCase() %>
+                </span>
+              </td>
+
+
+              <!-- STATUS -->
+              <td>
+                <%
+                  const statusColors = {
+                    pending: "text-gray-600",
+                    shipped: "text-blue-700",
+                    out_for_delivery: "text-indigo-700",
+                    delivered: "text-green-700",
+                    cancelled: "text-red-600",
+                    returned: "text-purple-700",
+                    return_requested: "text-orange-600"
+                  };
+
+                  const statusClass = statusColors[order.orderStatus] || "text-gray-700";
+                %>
+
+                <span class="text-sm font-semibold tracking-wide <%= statusClass %>">
+                  <%= order.orderStatus.replace(/_/g, ' ').toUpperCase() %>
+                </span>
+              </td>
+
+              <!-- ACTION -->
+              <td class="text-right">
+
+                <a href="/admin/orders/<%= order.orderId %>"
+                   class="text-sm tracking-widest border rounded-md px-1 py-0.5 text-black hover:bg-black hover:text-white transition">
+                  View
+                </a>
+
+              </td>
+
+            </tr>
+
+          <% }) %>
+
+        <% } else { %>
+
+          <tr>
+            <td colspan="7" class="py-10 text-center opacity-70">
+              No orders found
+            </td>
+          </tr>
+
+        <% } %>
+
+      </tbody>
+
+    </table>
+
+  </div>
+
+
+
+  <!-- =============================
+        PAGINATION
+  ============================== -->
+  <div class="flex flex-col md:flex-row md:items-center md:justify-between mt-6 text-sm">
+
+    <p class="opacity-70 mb-4 md:mb-0">
+      Showing <%= orders?.length || 0 %> of <%= totalOrders || 0 %> orders
+    </p>
+
+    <div class="flex items-center gap-4">
+
+      <% if(page > 1){ %>
+        <a
+          href="?search=<%= query.search || '' %>&status=<%= query.status || '' %>&sort=<%= query.sort || '' %>&page=<%= page - 1 %>"
+          class="hover:underline">
+          ← Previous
+        </a>
+      <% } %>
+
+
+      <div class="flex items-center gap-2">
+
+        <% for(let i = 1; i <= totalPages; i++){ %>
+          <a
+            href="?search=<%= query.search || '' %>&status=<%= query.status || '' %>&sort=<%= query.sort || '' %>&page=<%= i %>"
+            class="px-2 <%= page === i ? 'font-semibold underline' : 'hover:underline' %>">
+            <%= i %>
+          </a>
+        <% } %>
+
+      </div>
+
+
+      <% if(page < totalPages){ %>
+        <a
+          href="?search=<%= query.search || '' %>&status=<%= query.status || '' %>&sort=<%= query.sort || '' %>&page=<%= page + 1 %>"
+          class="hover:underline">
+          Next →
+        </a>
+      <% } %>
+
+    </div>
+
+  </div>
+
+</section>

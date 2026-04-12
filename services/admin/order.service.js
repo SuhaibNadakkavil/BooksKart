@@ -1,0 +1,228 @@
+import * as orderRepo from "../../repositories/user/order.repository.js";
+import Order from "../../models/user/order.schema.js";
+
+// =============================
+// GET ADMIN ORDERS
+// =============================
+export const getAdminOrdersService = async (query) => {
+
+  const page = parseInt(query.page) || 1;
+  const limit = parseInt(query.limit) || 5;
+
+  const search = query.search?.trim() || "";
+  const sort = query.sort || "newest";
+  const status = query.status || "all";
+
+  const data = await orderRepo.getAdminOrders({
+    page,
+    limit,
+    search,
+    sort,
+    status
+  });
+
+  return {
+    orders: data.orders,
+    totalOrders: data.totalCount,
+    page: data.currentPage,
+    totalPages: data.totalPages,
+    query
+  };
+};
+
+
+
+// =============================
+// GET ORDER DETAILS
+// =============================
+export const getAdminOrderDetailsService = async (orderId) => {
+
+  const order = await orderRepo.getAdminOrderByOrderId(orderId);
+
+  if (!order) {
+    throw new Error("Order not found");
+  }
+
+  const items = order.items;
+
+  const allCancelled = items.every(i => i.status === "cancelled");
+  const allReturned = items.every(i => i.status === "returned");
+  const allReturnRequested = items.every(i => i.status === "return_requested");
+
+  // =============================
+  // DERIVED ORDER STATUS
+  // =============================
+  if (allCancelled) {
+    order.orderStatus = "cancelled";
+  } 
+  else if (allReturned) {
+    order.orderStatus = "returned";
+  } 
+  else if (allReturnRequested) {
+    order.orderStatus = "return_requested";
+  } 
+  else {
+    const hasActiveFlow = items.some(i =>
+      ["pending", "shipped", "out_for_delivery"].includes(i.status)
+    );
+
+    if (hasActiveFlow) {
+      order.orderStatus = order.orderStatus; // keep actual flow
+    } else {
+      order.orderStatus = "delivered";
+    }
+  }
+
+  return order;
+};
+
+
+
+// =============================
+// STATUS TRANSITION RULES
+// =============================
+const allowedTransitions = {
+  pending: ["shipped", "cancelled"],
+  shipped: ["out_for_delivery"],
+  out_for_delivery: ["delivered"],
+  delivered: [],
+  cancelled: [],
+  returned: []
+};
+
+
+
+// =============================
+// UPDATE ORDER STATUS
+// =============================
+export const updateOrderStatusService = async (orderId, newStatus) => {
+
+  const order = await orderRepo.getAdminOrderByOrderId(orderId);
+
+  if (!order) {
+    throw new Error("Order not found");
+  }
+
+  const currentStatus = order.orderStatus;
+
+  // VALIDATION
+  if (!allowedTransitions[currentStatus]?.includes(newStatus)) {
+    throw new Error(`Invalid status transition from ${currentStatus} to ${newStatus}`);
+  }
+
+  if (newStatus === "cancelled" && order.orderStatus !== "pending") {
+    throw new Error("Only pending orders can be cancelled");
+  }
+
+  // =============================
+  // SIDE EFFECTS
+  // =============================
+
+  // CANCEL → RESTORE STOCK
+  if (newStatus === "cancelled") {
+
+    // restore stock
+    await orderRepo.restoreStock(order.items);
+
+    // update all items
+    await Order.updateOne(
+      { orderId },
+      {
+        $set: {
+          "items.$[].status": "cancelled"
+        }
+      }
+    );
+  }
+
+  // DELIVERED + COD → MARK PAID
+  if (newStatus === "delivered" && order.paymentMethod === "cod") {
+    await Order.updateOne(
+      { orderId },
+      { $set: { paymentStatus: "paid" } }
+    );
+  }
+
+  // UPDATE ORDER STATUS
+  await orderRepo.updateOrderStatus(orderId, newStatus);
+
+  // SYNC ITEMS (avoid cancelled/returned override)
+  const syncableStatuses = [
+    "pending",
+    "shipped",
+    "out_for_delivery",
+    "delivered"
+  ];
+
+  if (syncableStatuses.includes(newStatus)) {
+    await Order.updateOne(
+      { orderId },
+      {
+        $set: {
+          "items.$[elem].status": newStatus
+        }
+      },
+      {
+        arrayFilters: [
+          {
+            "elem.status": {
+              $nin: ["cancelled", "returned"]
+            }
+          }
+        ]
+      }
+    );
+  }
+
+  return {
+    message: "Order and items status updated successfully"
+  };
+};
+
+
+
+// =============================
+// UPDATE ITEM STATUS
+// =============================
+export const updateOrderItemStatusService = async ({
+  orderId,
+  itemId,
+  status,
+  reason
+}) => {
+
+  const order = await orderRepo.getAdminOrderByOrderId(orderId);
+
+  if (!order) {
+    throw new Error("Order not found");
+  }
+
+  const item = order.items.find(i => i._id.toString() === itemId);
+
+  if (!item) {
+    throw new Error("Item not found");
+  }
+
+  // VALIDATION
+  if (
+    (status === "returned" && item.status !== "return_requested")
+  ) {
+    throw new Error("Invalid request handling");
+  }
+
+  // UPDATE ITEM
+  await orderRepo.updateOrderItemStatus(orderId, itemId, {
+    status,
+    cancelReason: undefined, // remove completely
+    returnReason: status === "returned" ? reason : undefined
+  });
+
+  // RESTORE STOCK
+  if (status === "cancelled" || status === "returned") {
+    await orderRepo.restoreStock([item]);
+  }
+
+  return {
+    message: `Item ${status} successfully`
+  };
+};

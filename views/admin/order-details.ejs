@@ -1,0 +1,335 @@
+<section class="w-full space-y-10">
+
+  <a href="/admin/orders" class="hover:text-blue-600 hover:underline">← Back to Orders</a>
+
+  <!-- =============================
+        HEADER
+  ============================== -->
+  <div class="mt-5">
+    <h1 class="text-xl font-medium">
+      Order #<%= order.orderId %>
+    </h1>
+    <p class="text-sm opacity-70 mt-1">
+      Placed on <%= new Date(order.createdAt).toLocaleString("en-IN") %>
+    </p>
+  </div>
+
+
+
+  <!-- =============================
+        MAIN GRID
+  ============================== -->
+  <div class="grid grid-cols-1 lg:grid-cols-3 gap-10">
+
+    <!-- ================= LEFT ================= -->
+    <div class="lg:col-span-1 space-y-10">
+
+      <!-- ORDER SUMMARY -->
+      <div class="bg-white hover:shadow-lg rounded-lg p-6 space-y-4 h-fit">
+        <h2 class="text-xs uppercase font-semibold mb-4">Order Summary</h2>
+
+        <div class="space-y-4 text-sm">
+
+          <% const allowedTransitions={ pending: ["shipped", "cancelled" ], shipped: ["out_for_delivery"],
+            out_for_delivery: ["delivered"], delivered: [], cancelled: [], returned: [] }; const
+            currentStatus=order.orderStatus; const nextStatuses=allowedTransitions[currentStatus] || []; const
+            isFinalState=["delivered", "cancelled" , "returned" , "return_requested" ].includes(currentStatus); %>
+
+            <!-- STATUS -->
+            <div>
+              <p class="opacity-70">Status</p>
+
+              <% if(!isFinalState){ %>
+
+                <select id="orderStatus" class="border border-[#121212] px-3 py-2 rounded-lg mt-1">
+
+                  <!-- Current Status -->
+                  <option value="<%= currentStatus %>" selected>
+                    <%= currentStatus.replace(/_/g, " " ).toUpperCase() %>
+                  </option>
+
+                  <!-- Allowed Next Statuses -->
+                  <% nextStatuses.forEach(status=> { %>
+                    <option value="<%= status %>">
+                      <%= status.replace(/_/g, " " ).toUpperCase() %>
+                    </option>
+                    <% }) %>
+
+                </select>
+
+                <% } else { %>
+
+                  <!-- FINAL STATE (TEXT ONLY) -->
+                  <p class="font-medium mt-1">
+                    <%= currentStatus.replace(/_/g, " " ).toUpperCase() %>
+                  </p>
+
+                  <% } %>
+
+            </div>
+
+            <!-- PAYMENT -->
+            <div>
+              <p class="opacity-70">Payment Method</p>
+              <p class="font-medium">
+                <%= order.paymentMethod.toUpperCase() %>
+              </p>
+            </div>
+
+            <!-- TOTAL -->
+            <div>
+              <p class="opacity-70">Total Amount</p>
+              <p class="font-medium">₹<%= order.totalAmount %>
+              </p>
+            </div>
+
+        </div>
+      </div>
+
+
+
+      <!-- CUSTOMER INFO -->
+      <div class="bg-white hover:shadow-lg rounded-lg p-6 space-y-4 h-fit">
+        <h2 class="text-xs uppercase font-semibold mb-4">Customer Information</h2>
+
+        <div class="text-sm space-y-2">
+
+          <p class="font-medium">
+            <%= order.customer.name %>
+          </p>
+          <p class="opacity-70">
+            <%= order.customer.email %>
+          </p>
+
+          <div class="pt-2">
+            <p>
+              <%= order.address.name %>
+            </p>
+            <p>
+              <%= order.address.street %>
+            </p>
+            <p>
+              <%= order.address.city %>,
+                <%= order.address.state %> -
+                  <%= order.address.pincode %>
+            </p>
+            <p class="mt-1">Phone: <%= order.address.phone %>
+            </p>
+          </div>
+
+        </div>
+      </div>
+
+    </div>
+
+
+
+    <!-- ================= RIGHT ================= -->
+    <div class="lg:col-span-2 space-y-10">
+
+      <!-- ITEMS -->
+      <div class="bg-white hover:shadow-lg rounded-lg p-6 space-y-6 h-fit">
+
+        <h2 class="text-xs uppercase font-semibold">
+          Ordered Items (<%= order.items.length %>)
+        </h2>
+
+        <% order.items.forEach(item=> { %>
+
+          <div class="flex flex-col md:flex-row md:items-center justify-between border-b border-gray-200 py-4 gap-6">
+
+            <!-- ================= LEFT: ITEM DETAILS ================= -->
+            <div class="flex gap-4">
+
+              <img src="<%= item.image || '/images/placeholder.png' %>" class="w-16 h-24 object-cover rounded" />
+
+              <div>
+                <p class="font-medium">
+                  <%= item.title %>
+                </p>
+                <p class="text-sm opacity-70">
+                  <%= item.author %>
+                </p>
+                <p class="text-xs uppercase opacity-70">
+                  <%= item.variantType %>
+                </p>
+                <p class="text-sm">QTY: <%= item.quantity %>
+                </p>
+                <p class="text-sm">₹<%= item.price %>
+                </p>
+              </div>
+
+            </div>
+
+
+            <!-- ================= RIGHT: STATUS / ACTIONS ================= -->
+            <div class="flex flex-col items-end gap-3 text-sm min-w-[180px]">
+
+              <!-- PRICE -->
+              <p class="font-medium">₹<%= item.itemTotal %>
+              </p>
+
+
+              <!-- ================= STATUS HANDLING ================= -->
+
+              <!-- CANCELLED -->
+              <% if(item.status==="cancelled" ){ %>
+
+                <span class="border px-3 rounded-md py-1 text-xs tracking-wide">
+                  CANCELLED
+                </span>
+
+                <% } %>
+
+
+                  <!-- RETURNED -->
+                  <% if(item.status==="returned" ){ %>
+
+                    <span class="border rounded-md px-3 py-1 text-xs tracking-wide">
+                      RETURNED
+                    </span>
+
+                    <% } %>
+
+
+                      <!-- RETURN REQUEST -->
+                      <% if(item.status==="return_requested" ){ %>
+
+                        <div class="text-left space-y-2 border rounded-md p-3 max-w-[220px]">
+
+                          <h2 class="text-xs uppercase font-semibold">Return Request</h2>
+
+                          <!-- Reason -->
+                          <p class="text-xs opacity-70 break-words whitespace-pre-line leading-relaxed">
+                            <%= item.returnReason %>
+                          </p>
+
+                          <!-- Actions -->
+                          <div class="flex gap-2 justify-end">
+
+                            <button
+                              class="px-3 py-1 text-xs bg-[#121212] text-[#FAFAF8] rounded-md hover:opacity-80 transition approveReturnBtn"
+                              data-id="<%= item._id %>">
+                              APPROVE
+                            </button>
+
+                            <button
+                              class="px-3 py-1 text-xs border rounded-md hover:bg-[#121212] hover:text-[#FAFAF8] transition rejectReturnBtn"
+                              data-id="<%= item._id %>">
+                              REJECT
+                            </button>
+
+                          </div>
+
+                        </div>
+
+                        <% } %>
+
+            </div>
+
+          </div>
+
+          <% }) %>
+
+      </div>
+
+
+
+      <!-- ORDER TIMELINE -->
+          <!-- <div class="bg-white hover:shadow-lg rounded-lg p-6 space-y-4 h-fit">
+            <h2 class="text-xs uppercase font-semibold mb-4">Order History</h2>
+
+            <%
+              const items = order.items;
+
+              const anyCancelled = items.some(i => i.status === "cancelled");
+              const allCancelled = items.every(i => i.status === "cancelled");
+
+              const anyReturned = items.some(i => i.status === "returned");
+              const allReturned = items.every(i => i.status === "returned");
+            %>
+
+            <div class="space-y-4 text-sm"> -->
+
+              <!-- ================= RETURN STATUS ================= -->
+              <!-- <% if(anyReturned){ %>
+                <div class="flex gap-3">
+                  <div class="w-2 h-2 bg-[#121212] rounded-full mt-2"></div>
+                  <div>
+                    <p class="font-medium">
+                      <%= allReturned ? "Returned" : "Partially Returned" %>
+                    </p>
+                  </div>
+                </div>
+              <% } %> -->
+
+
+              <!-- ================= DELIVERED ================= -->
+              <!-- <% if(
+                order.orderStatus === "delivered" ||
+                order.orderStatus === "return_requested" ||
+                anyReturned
+              ){ %>
+                <div class="flex gap-3">
+                  <div class="w-2 h-2 bg-[#121212] rounded-full mt-2"></div>
+                  <div>
+                    <p class="font-medium">Delivered</p>
+                  </div>
+                </div>
+              <% } %> -->
+
+
+              <!-- ================= SHIPPED ================= -->
+              <!-- <% if(
+                ["shipped","out_for_delivery","delivered","return_requested"].includes(order.orderStatus) ||
+                anyReturned ||
+                allReturned
+              ){ %>
+                <div class="flex gap-3">
+                  <div class="w-2 h-2 border bg-[#121212] rounded-full mt-2"></div>
+                  <div>
+                    <p>Shipped</p>
+                  </div>
+                </div>
+              <% } %> -->
+
+
+              <!-- ================= CANCEL STATUS ================= -->
+              <!-- <% if(anyCancelled){ %>
+                <div class="flex gap-3">
+                  <div class="w-2 h-2 bg-[#121212] rounded-full mt-2"></div>
+                  <div>
+                    <p class="font-medium">
+                      <%= allCancelled ? "Cancelled" : "Partially Cancelled" %>
+                    </p>
+                  </div>
+                </div>
+              <% } %> -->
+
+
+              <!-- ================= PAYMENT ================= -->
+              <!-- <div class="flex gap-3">
+                <div class="w-2 h-2 border bg-[#121212] rounded-full mt-2"></div>
+                <div>
+                  <p>Payment Confirmed</p>
+                </div>
+              </div> -->
+
+
+              <!-- ================= CREATED ================= -->
+              <!-- <div class="flex gap-3">
+                <div class="w-2 h-2 border bg-[#121212] rounded-full mt-2"></div>
+                <div>
+                  <p>Order Received</p>
+                </div>
+              </div>
+
+            </div>
+
+          </div> -->
+
+    </div>
+
+  </div>
+
+</section>

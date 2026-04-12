@@ -1,5 +1,6 @@
 import Order from "../../models/user/order.schema.js";
 import mongoose from "mongoose";
+import Product from "../../models/user/product.schema.js";
 
 export const createOrder = async (data, session = null) => {
   return await Order.create([data], { session }).then(res => res[0]);
@@ -154,39 +155,6 @@ export const getOrderByOrderId = async (orderId, userId) => {
 };
 
 
-// Update Order Status (Admin)
-export const updateOrderStatus = async (orderId, status) => {
-  return await Order.findOneAndUpdate(
-    { orderId },
-    { orderStatus: status },
-    { new: true }
-  );
-};
-
-
-// Update Item Status (Cancel / Return)
-export const updateOrderItemStatus = async (
-  orderId,
-  itemId,
-  updateData
-) => {
-
-  return await Order.updateOne(
-    {
-      orderId,
-      "items._id": itemId
-    },
-    {
-      $set: {
-        "items.$.status": updateData.status,
-        "items.$.cancelReason": updateData.cancelReason,
-        "items.$.returnReason": updateData.returnReason
-      }
-    }
-  );
-};
-
-
 export const getOrderDetails = async (orderId, userId) => {
   return await Order.findOne({
     orderId,
@@ -205,7 +173,7 @@ export const requestCancelItem = async (orderId, itemId, reason) => {
     },
     {
       $set: {
-        "items.$.status": "cancel_requested",
+        "items.$.status": "cancelled",
         "items.$.cancelReason": reason
       }
     }
@@ -237,8 +205,8 @@ export const requestCancelOrder = async (orderId, userId, reason) => {
     { orderId, userId },
     {
       $set: {
-        orderStatus: "cancel_requested",
-        "items.$[].status": "cancel_requested",
+        orderStatus: "cancelled",
+        "items.$[].status": "cancelled",
         "items.$[].cancelReason": reason
       }
     }
@@ -266,4 +234,252 @@ export const updatePaymentStatus = async (orderId, status) => {
     { orderId },
     { $set: { paymentStatus: status } }
   );
+};
+
+
+export const getAdminOrders = async ({
+  page = 1,
+  limit = 5,
+  search = "",
+  sort = "newest",
+  status = "all"
+}) => {
+
+  const skip = (page - 1) * limit;
+
+  // =============================
+  // MATCH STAGE
+  // =============================
+  const matchStage = {};
+
+  // STATUS FILTER
+  if (status !== "all") {
+    matchStage.orderStatus = status;
+  }
+
+  // =============================
+  // SORTING
+  // =============================
+  let sortStage = {};
+
+  switch (sort) {
+    case "oldest":
+      sortStage = { createdAt: 1 };
+      break;
+    case "price_low":
+      sortStage = { totalAmount: 1 };
+      break;
+    case "price_high":
+      sortStage = { totalAmount: -1 };
+      break;
+    default:
+      sortStage = { createdAt: -1 }; // newest
+  }
+
+  // =============================
+  // AGGREGATION PIPELINE
+  // =============================
+  const pipeline = [
+
+    { $match: matchStage },
+
+    // =============================
+    // JOIN USER (for name + email)
+    // =============================
+    {
+      $lookup: {
+        from: "users",
+        localField: "userId",
+        foreignField: "_id",
+        as: "user"
+      }
+    },
+
+    { $unwind: "$user" },
+
+    // =============================
+    // SEARCH (AFTER LOOKUP)
+    // =============================
+    ...(search ? [{
+      $match: {
+        $or: [
+          { orderId: { $regex: search, $options: "i" } },
+          { "user.name": { $regex: search, $options: "i" } },
+          { "user.email": { $regex: search, $options: "i" } }
+        ]
+      }
+    }] : []),
+
+    // =============================
+    // PROJECT MINIMAL DATA
+    // =============================
+    {
+      $project: {
+        orderId: 1,
+        orderStatus: 1,
+        totalAmount: 1,
+        paymentMethod: 1,
+        createdAt: 1,
+
+        customerName: "$user.name",
+        customerEmail: "$user.email"
+      }
+    },
+
+    // =============================
+    // SORT
+    // =============================
+    { $sort: sortStage },
+
+    // =============================
+    // PAGINATION + COUNT
+    // =============================
+    {
+      $facet: {
+        data: [
+          { $skip: skip },
+          { $limit: limit }
+        ],
+        totalCount: [
+          { $count: "count" }
+        ]
+      }
+    }
+  ];
+
+  const result = await Order.aggregate(pipeline);
+
+  const orders = result[0]?.data || [];
+  const totalCount = result[0]?.totalCount[0]?.count || 0;
+
+  return {
+    orders,
+    totalCount,
+    currentPage: page,
+    totalPages: Math.ceil(totalCount / limit)
+  };
+};
+
+// =============================
+// GET SINGLE ORDER (ADMIN)
+// =============================
+export const getAdminOrderByOrderId = async (orderId) => {
+
+  const order = await Order.aggregate([
+
+    {
+      $match: { orderId }
+    },
+
+    // =============================
+    // JOIN USER
+    // =============================
+    {
+      $lookup: {
+        from: "users",
+        localField: "userId",
+        foreignField: "_id",
+        as: "user"
+      }
+    },
+
+    { $unwind: "$user" },
+
+    // =============================
+    // PROJECT CLEAN DATA
+    // =============================
+    {
+      $project: {
+        orderId: 1,
+        orderStatus: 1,
+        paymentMethod: 1,
+        paymentStatus: 1,
+
+        subtotal: 1,
+        discount: 1,
+        shipping: 1,
+        totalAmount: 1,
+
+        address: 1,
+        items: 1,
+
+        createdAt: 1,
+        updatedAt: 1,
+
+        customer: {
+          name: "$user.name",
+          email: "$user.email"
+        }
+      }
+    }
+
+  ]);
+
+  return order[0] || null;
+};
+
+
+
+// =============================
+// UPDATE ORDER STATUS
+// =============================
+export const updateOrderStatus = async (orderId, newStatus) => {
+
+  return await Order.findOneAndUpdate(
+    { orderId },
+    {
+      $set: {
+        orderStatus: newStatus
+      }
+    },
+    { new: true }
+  );
+};
+
+
+
+// =============================
+// UPDATE ITEM STATUS
+// =============================
+export const updateOrderItemStatus = async (
+  orderId,
+  itemId,
+  updateData
+) => {
+
+  return await Order.findOneAndUpdate(
+    {
+      orderId,
+      "items._id": itemId
+    },
+    {
+      $set: {
+        "items.$.status": updateData.status,
+        "items.$.cancelReason": updateData.cancelReason,
+        "items.$.returnReason": updateData.returnReason
+      }
+    },
+    { new: true }
+  );
+};
+
+
+
+// =============================
+// RESTORE STOCK (CRITICAL)
+// =============================
+export const restoreStock = async (items) => {
+
+  const bulkOps = items.map(item => ({
+    updateOne: {
+      filter: { _id: item.productId },
+      update: {
+        $inc: { stock: item.quantity }
+      }
+    }
+  }));
+
+  if (bulkOps.length > 0) {
+    await Product.bulkWrite(bulkOps);
+  }
 };
