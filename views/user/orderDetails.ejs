@@ -1,6 +1,8 @@
 <section class="space-y-12">
 
     <div id="orderMeta" data-order-id="<%= order.orderId %>"></div>
+
+    <a href="/orders" class="hover:text-blue-600 hover:underline">← Back to Orders</a>
     
   <!-- ================= HEADER ================= -->
   <div class="space-y-2 text-center">
@@ -11,7 +13,28 @@
   </div>
 
 
-<div class="space-y-6">
+<div class="space-y-6 bg-white hover:shadow-lg rounded-lg h-fit pt-10 pb-5">
+
+  <%
+    const status = order.orderStatus;
+    const isFinal = ["cancelled", "returned"].includes(status);
+  %>
+
+  <!-- ================= FINAL STATE ================= -->
+  <% if(isFinal){ %>
+
+    <div class="flex items-center justify-center py-10">
+
+      <p class="text-lg font-semibold tracking-wide
+        <%= status === "cancelled" ? "text-red-600" : "text-purple-700" %>">
+
+        <%= status === "cancelled" ? "ORDER CANCELLED" : "ORDER RETURNED" %>
+
+      </p>
+
+    </div>
+
+  <% } else { %>
 
     <!-- Progress -->
     <div class="flex items-start">
@@ -56,6 +79,7 @@
                     Estimated delivery by <%= meta.estimatedDeliveryDate.toDateString() %>
                         <% } %>
     </p>
+    <% } %>
 
 </div>
 
@@ -123,75 +147,123 @@
   </div>
 
 
-  <!-- ================= ITEMS ================= -->
-  <div class="space-y-6">
+<!-- ================= ITEMS ================= -->
+<div class="space-y-6">
 
-    <h2 class="text-sm uppercase font-semibold">
-      Ordered Items (<%= order.items.length %>)
-    </h2>
+  <h2 class="text-sm uppercase font-semibold">
+    Ordered Items (<%= order.items.length %>)
+  </h2>
 
-    <% order.items.forEach(item => { %>
+  <% order.items.forEach(item => { %>
 
-      <div class="flex flex-col md:flex-row md:items-center justify-between bg-white hover:shadow-lg rounded-lg p-6 space-y-4 h-fit gap-6">
+    <div class="flex flex-col md:flex-row md:items-center justify-between bg-white hover:shadow-lg rounded-lg p-6 gap-6">
 
-        <!-- Left -->
-        <div class="flex gap-4">
+      <!-- ================= LEFT ================= -->
+      <div class="flex gap-4">
 
-          <img
-            src="<%= item.image || '/images/placeholder.png' %>"
-            class="w-16 h-24 object-cover rounded"
-          />
+        <!-- IMAGE -->
+        <img
+          src="<%= item.image || '/images/placeholder.png' %>"
+          class="w-16 h-24 object-cover rounded"
+        />
 
-          <div class="space-y-1">
-            <p class="font-medium"><%= item.title %></p>
-            <p class="text-sm opacity-70"><%= item.author %></p>
-            <p class="text-sm">₹<%= item.price %></p>
+        <!-- DETAILS -->
+        <div>
 
-            <!-- Status Label -->
-            <% if(item.isCancelled){ %>
-              <p class="text-xs border px-2 py-1 inline-block mt-1">
-                Cancelled
-              </p>
-            <% } %>
+          <p class="font-medium"><%= item.title %></p>
 
-            <% if(item.isReturned){ %>
-              <p class="text-xs border px-2 py-1 inline-block mt-1">
-                Returned
-              </p>
-            <% } %>
+          <p class="text-sm opacity-70"><%= item.author %></p>
 
-          </div>
+          <p class="text-xs opacity-70 uppercase">
+            <%= item.variantType %>
+          </p>
+
+          <p class="text-xs">
+            QTY: <%= item.quantity %>
+          </p>
+
+          <p class="text-sm mt-1">
+            ₹<%= item.price %>
+          </p>
 
         </div>
 
-        <!-- Actions -->
-        <div class="flex flex-col items-end gap-3 text-sm">
+      </div>
+
+
+      <!-- ================= RIGHT ================= -->
+      <div class="flex flex-col items-end gap-3 text-sm min-w-[160px]">
+
+        <!-- ITEM TOTAL -->
+        <p class="font-medium">
+          ₹<%= item.itemTotal %>
+        </p>
+
+
+        <!-- ================= STATUS / ACTION ================= -->
+
+        <!-- CANCELLED -->
+        <% if(item.status === "cancelled"){ %>
+
+          <span class="text-xs border px-3 py-1 rounded-md tracking-wide text-red-600">
+            CANCELLED
+          </span>
+
+        <% } %>
+
+
+        <!-- RETURNED -->
+        <% if(item.status === "returned"){ %>
+
+          <span class="text-xs border px-3 py-1 rounded-md tracking-wide text-purple-700">
+            RETURNED
+          </span>
+
+        <% } %>
+
+
+        <!-- RETURN REQUESTED -->
+        <% if(item.status === "return_requested"){ %>
+
+          <span class="text-xs border px-3 py-1 rounded-md tracking-wide text-orange-600">
+            RETURN REQUESTED
+          </span>
+
+        <% } %>
+
+
+        <!-- ACTION BUTTONS -->
+        <% if(
+          item.status !== "cancelled" &&
+          item.status !== "returned" &&
+          item.status !== "return_requested"
+        ){ %>
 
           <% if(item.canCancel){ %>
-            <button class="border px-4 py-2 hover:bg-[#121212] hover:text-white transition rounded-lg cancelItemBtn"
+            <button
+              class="border px-4 py-2 rounded-lg hover:bg-[#121212] hover:text-[#FAFAF8] transition cancelItemBtn"
               data-id="<%= item._id %>">
               CANCEL ITEM
             </button>
           <% } %>
 
           <% if(item.canReturn){ %>
-            <button class="border px-4 py-2 hover:bg-[#121212] hover:text-white transition rounded-lg returnItemBtn"
+            <button
+              class="border px-4 py-2 rounded-lg hover:bg-[#121212] hover:text-[#FAFAF8] transition returnItemBtn"
               data-id="<%= item._id %>">
               RETURN ITEM
             </button>
-
-            <button class="border px-4 py-2 hover:bg-[#121212] hover:text-white transition rounded-lg">
-              Add Review
-            </button>
           <% } %>
 
-        </div>
+        <% } %>
 
       </div>
 
-    <% }) %>
+    </div>
 
-  </div>
+  <% }) %>
+
+</div>
 
 
   <!-- ================= FOOTER ACTIONS ================= -->
@@ -206,13 +278,13 @@
     <!-- Right Actions -->
     <div class="flex gap-6 text-sm">
 
-      <% if(meta.canCancelOrder){ %>
+      <% if(meta.canCancelOrder && order.items.length > 1){ %>
         <button class="border px-6 py-3 hover:bg-[#121212] hover:text-white transition rounded-lg" id="cancelOrderBtn">
           CANCEL ENTIRE ORDER
         </button>
       <% } %>
 
-      <% if(meta.canReturnOrder){ %>
+      <% if(meta.canReturnOrder && order.items.length > 1){ %>
         <button class="border px-6 py-3 hover:bg-[#121212] hover:text-white transition rounded-lg" id="returnOrderBtn">
           RETURN ENTIRE ORDER
         </button>

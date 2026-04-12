@@ -143,9 +143,23 @@
               <!-- Status -->
               <div>
                 <p class="text-xs opacity-60 uppercase">Status</p>
-                <p class="italic">
-                  <%= order.orderStatus.replaceAll("_", " " ).replace(/\b\w/g, c=> c.toUpperCase()) %>
-                </p>
+                <%
+                  const statusColors = {
+                    pending: "text-gray-600",
+                    shipped: "text-blue-700",
+                    out_for_delivery: "text-indigo-700",
+                    delivered: "text-green-700",
+                    cancelled: "text-red-600",
+                    returned: "text-purple-700",
+                    return_requested: "text-orange-600"
+                  };
+
+                  const statusClass = statusColors[order.orderStatus] || "text-gray-700";
+                %>
+
+                <span class="text-sm font-semibold tracking-wide <%= statusClass %>">
+                  <%= order.orderStatus.replace(/_/g, ' ').toUpperCase() %>
+                </span>
               </div>
 
               <!-- Total + Actions -->

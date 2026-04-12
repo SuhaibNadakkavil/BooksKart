@@ -2,15 +2,10 @@ document.addEventListener("DOMContentLoaded", () => {
 
   const overlay = document.getElementById("modalOverlay");
 
-  let currentItemId = null;
-
   const orderId = document
-  .getElementById("orderMeta")
-  ?.dataset.orderId;
+    .getElementById("orderMeta")
+    ?.dataset.orderId;
 
-  // =============================
-  // MODAL CONTROL
-  // =============================
   function openModal(modal) {
     overlay.classList.remove("hidden");
     modal.classList.remove("hidden");
@@ -31,23 +26,28 @@ document.addEventListener("DOMContentLoaded", () => {
 
   overlay.addEventListener("click", closeAllModals);
 
-  // =============================
-  // OPEN MODALS
-  // =============================
-  document.querySelectorAll(".cancelItemBtn").forEach(btn => {
-    btn.addEventListener("click", () => {
-      currentItemId = btn.dataset.id;
-      openModal(document.getElementById("cancelItemModal"));
-    });
-  });
+  // ================= OPEN MODALS =================
+  document.addEventListener("click", (e) => {
 
-  document.querySelectorAll(".returnItemBtn").forEach(btn => {
-    btn.addEventListener("click", () => {
-      currentItemId = btn.dataset.id;
-      
-      openModal(document.getElementById("returnItemModal"));
-    });
-  });
+  // CANCEL ITEM
+  if (e.target.closest(".cancelItemBtn")) {
+    const btn = e.target.closest(".cancelItemBtn");
+    const modal = document.getElementById("cancelItemModal");
+
+    modal.dataset.itemId = btn.dataset.id;
+    openModal(modal);
+  }
+
+  // RETURN ITEM
+  if (e.target.closest(".returnItemBtn")) {
+    const btn = e.target.closest(".returnItemBtn");
+    const modal = document.getElementById("returnItemModal");
+
+    modal.dataset.itemId = btn.dataset.id;
+    openModal(modal);
+  }
+
+});
 
   document.getElementById("cancelOrderBtn")?.addEventListener("click", () => {
     openModal(document.getElementById("cancelOrderModal"));
@@ -57,9 +57,7 @@ document.addEventListener("DOMContentLoaded", () => {
     openModal(document.getElementById("returnOrderModal"));
   });
 
-  // =============================
-  // API HELPER
-  // =============================
+  // ================= API =================
   async function sendRequest(url, payload) {
     const res = await fetch(url, {
       method: "POST",
@@ -77,18 +75,13 @@ document.addEventListener("DOMContentLoaded", () => {
     return true;
   }
 
-  // =============================
-  // CANCEL ITEM
-  // =============================
+  // ================= CANCEL ITEM =================
   document.getElementById("confirmCancelItem")?.addEventListener("click", async () => {
 
-    const reason = document.getElementById("cancelItemReason").value.trim();
-    const errorEl = document.getElementById("cancelItemError");
+    const modal = document.getElementById("cancelItemModal");
+    const itemId = modal.dataset.itemId;
 
-    if (!reason) {
-      errorEl.innerText = "Reason is required";
-      return;
-    }
+    const reason = document.getElementById("cancelItemReason").value;
 
     const confirm = await Swal.fire({
       title: "Cancel this item?",
@@ -100,27 +93,28 @@ document.addEventListener("DOMContentLoaded", () => {
 
     const success = await sendRequest("/orders/item/cancel", {
       orderId,
-      itemId: currentItemId,
+      itemId,
       reason
     });
 
     if (success) {
-      showToast("Item cancelled");
+      showToast("Item cancelled", "success");
       location.reload();
     }
 
   });
 
-  // =============================
-  // RETURN ITEM
-  // =============================
+  // ================= RETURN ITEM =================
   document.getElementById("confirmReturnItem")?.addEventListener("click", async () => {
 
-    const reason = document.getElementById("returnItemReason").value.trim();
+    const modal = document.getElementById("returnItemModal");
+    const itemId = modal.dataset.itemId;
+
+    const reason = document.getElementById("returnItemReason").value;
     const errorEl = document.getElementById("returnItemError");
 
     if (!reason) {
-      errorEl.innerText = "Reason is required";
+      errorEl.innerText = "Please select a reason";
       return;
     }
 
@@ -134,29 +128,21 @@ document.addEventListener("DOMContentLoaded", () => {
 
     const success = await sendRequest("/orders/item/return", {
       orderId,
-      itemId: currentItemId,
+      itemId,
       reason
     });
 
     if (success) {
-      showToast("Item returned");
+      showToast("Item return requested", "success");
       location.reload();
     }
 
   });
 
-  // =============================
-  // CANCEL ORDER
-  // =============================
+  // ================= CANCEL ORDER =================
   document.getElementById("confirmCancelOrder")?.addEventListener("click", async () => {
 
-    const reason = document.getElementById("cancelOrderReason").value.trim();
-    const errorEl = document.getElementById("cancelOrderError");
-
-    if (!reason) {
-      errorEl.innerText = "Reason is required";
-      return;
-    }
+    const reason = document.getElementById("cancelOrderReason").value;
 
     const confirm = await Swal.fire({
       title: "Cancel entire order?",
@@ -166,25 +152,26 @@ document.addEventListener("DOMContentLoaded", () => {
 
     if (!confirm.isConfirmed) return;
 
-    const success = await sendRequest("/orders/cancel", { orderId, reason });
+    const success = await sendRequest("/orders/cancel", {
+      orderId,
+      reason // optional
+    });
 
     if (success) {
-      showToast("Order cancelled");
+      showToast("Order cancelled", "success");
       location.reload();
     }
 
   });
 
-  // =============================
-  // RETURN ORDER
-  // =============================
+  // ================= RETURN ORDER =================
   document.getElementById("confirmReturnOrder")?.addEventListener("click", async () => {
 
-    const reason = document.getElementById("returnOrderReason").value.trim();
+    const reason = document.getElementById("returnOrderReason").value;
     const errorEl = document.getElementById("returnOrderError");
 
     if (!reason) {
-      errorEl.innerText = "Reason is required";
+      errorEl.innerText = "Please select a reason";
       return;
     }
 
@@ -196,10 +183,13 @@ document.addEventListener("DOMContentLoaded", () => {
 
     if (!confirm.isConfirmed) return;
 
-    const success = await sendRequest("/orders/return", { orderId, reason });
+    const success = await sendRequest("/orders/return", {
+      orderId,
+      reason
+    });
 
     if (success) {
-      showToast("Order returned");
+      showToast("Order return requested", "success");
       location.reload();
     }
 

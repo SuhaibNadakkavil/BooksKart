@@ -1,27 +1,29 @@
 <!-- ================= OVERLAY ================= -->
-<div id="modalOverlay"
-     class="fixed inset-0 bg-black/40 hidden z-40"></div>
+<div id="modalOverlay" class="fixed inset-0 bg-black/40 hidden z-40"></div>
 
 
 <!-- ================= CANCEL ITEM MODAL ================= -->
-<div id="cancelItemModal"
-     class="fixed inset-0 hidden items-center justify-center z-50">
-
+<div id="cancelItemModal" class="fixed inset-0 hidden items-center justify-center z-50">
   <div class="bg-[#FAFAF8] p-6 rounded-lg w-full max-w-md space-y-4">
 
     <h2 class="text-lg font-semibold">Cancel Item</h2>
 
-    <textarea id="cancelItemReason"
-      class="w-full border border-[#121212] rounded-md p-3 text-sm focus:outline-none"
-      placeholder="Reason (required)"></textarea>
+    <select id="cancelItemReason"
+      class="w-full border border-[#121212] rounded-md p-3 text-sm focus:outline-none">
 
-    <p id="cancelItemError" class="text-red-500 text-sm"></p>      
+      <option value="">Select reason (optional)</option>
+      <option value="Changed my mind">Changed my mind</option>
+      <option value="Ordered by mistake">Ordered by mistake</option>
+      <option value="Found cheaper elsewhere">Found cheaper elsewhere</option>
+      <option value="Delivery taking too long">Delivery taking too long</option>
+
+    </select>
+
+    <p id="cancelItemError" class="text-red-500 text-sm"></p>
 
     <div class="flex justify-end gap-4">
       <button class="text-sm hover:underline closeModal">Cancel</button>
-
-      <button id="confirmCancelItem"
-        class="bg-[#121212] text-white px-4 py-2 rounded-md">
+      <button id="confirmCancelItem" class="bg-[#121212] text-white px-4 py-2 rounded-md">
         Confirm
       </button>
     </div>
@@ -31,24 +33,27 @@
 
 
 <!-- ================= RETURN ITEM MODAL ================= -->
-<div id="returnItemModal"
-     class="fixed inset-0 hidden items-center justify-center z-50">
-
+<div id="returnItemModal" class="fixed inset-0 hidden items-center justify-center z-50">
   <div class="bg-[#FAFAF8] p-6 rounded-lg w-full max-w-md space-y-4">
 
     <h2 class="text-lg font-semibold">Return Item</h2>
 
-    <textarea id="returnItemReason"
-      class="w-full border border-[#121212] rounded-md p-3 text-sm focus:outline-none"
-      placeholder="Reason (required)"></textarea>
+    <select id="returnItemReason"
+      class="w-full border border-[#121212] rounded-md p-3 text-sm focus:outline-none">
+
+      <option value="">Select reason (required)</option>
+      <option value="Damaged product">Damaged product</option>
+      <option value="Wrong item received">Wrong item received</option>
+      <option value="Quality not as expected">Quality not as expected</option>
+      <option value="Missing parts">Missing parts</option>
+
+    </select>
 
     <p id="returnItemError" class="text-red-500 text-sm"></p>
 
     <div class="flex justify-end gap-4">
       <button class="text-sm hover:underline closeModal">Cancel</button>
-
-      <button id="confirmReturnItem"
-        class="bg-[#121212] text-white px-4 py-2 rounded-md">
+      <button id="confirmReturnItem" class="bg-[#121212] text-white px-4 py-2 rounded-md">
         Confirm
       </button>
     </div>
@@ -58,24 +63,27 @@
 
 
 <!-- ================= CANCEL ORDER MODAL ================= -->
-<div id="cancelOrderModal"
-     class="fixed inset-0 hidden items-center justify-center z-50">
-
+<div id="cancelOrderModal" class="fixed inset-0 hidden items-center justify-center z-50">
   <div class="bg-[#FAFAF8] p-6 rounded-lg w-full max-w-md space-y-4">
 
     <h2 class="text-lg font-semibold">Cancel Entire Order</h2>
 
-    <textarea id="cancelOrderReason"
-      class="w-full border border-[#121212] rounded-md p-3 text-sm"
-      placeholder="Reason (required)"></textarea>
+    <select id="cancelOrderReason"
+      class="w-full border border-[#121212] rounded-md p-3 text-sm">
 
-      <p id="cancelOrderError" class="text-red-500 text-sm"></p>
+      <option value="">Select reason (optional)</option>
+      <option value="Changed my mind">Changed my mind</option>
+      <option value="Ordered by mistake">Ordered by mistake</option>
+      <option value="Found cheaper elsewhere">Found cheaper elsewhere</option>
+      <option value="Delivery taking too long">Delivery taking too long</option>
+
+    </select>
+
+    <p id="cancelOrderError" class="text-red-500 text-sm"></p>
 
     <div class="flex justify-end gap-4">
       <button class="text-sm hover:underline closeModal">Cancel</button>
-
-      <button id="confirmCancelOrder"
-        class="bg-[#121212] text-white px-4 py-2 rounded-md">
+      <button id="confirmCancelOrder" class="bg-[#121212] text-white px-4 py-2 rounded-md">
         Confirm
       </button>
     </div>
@@ -85,24 +93,27 @@
 
 
 <!-- ================= RETURN ORDER MODAL ================= -->
-<div id="returnOrderModal"
-     class="fixed inset-0 hidden items-center justify-center z-50">
-
+<div id="returnOrderModal" class="fixed inset-0 hidden items-center justify-center z-50">
   <div class="bg-[#FAFAF8] p-6 rounded-lg w-full max-w-md space-y-4">
 
     <h2 class="text-lg font-semibold">Return Entire Order</h2>
 
-    <textarea id="returnOrderReason"
-      class="w-full border border-[#121212] rounded-md p-3 text-sm"
-      placeholder="Reason (required)"></textarea>
+    <select id="returnOrderReason"
+      class="w-full border border-[#121212] rounded-md p-3 text-sm">
+
+      <option value="">Select reason (required)</option>
+      <option value="Damaged product">Damaged product</option>
+      <option value="Wrong item received">Wrong item received</option>
+      <option value="Quality not as expected">Quality not as expected</option>
+      <option value="Missing parts">Missing parts</option>
+
+    </select>
 
     <p id="returnOrderError" class="text-red-500 text-sm"></p>
 
     <div class="flex justify-end gap-4">
       <button class="text-sm hover:underline closeModal">Cancel</button>
-
-      <button id="confirmReturnOrder"
-        class="bg-[#121212] text-white px-4 py-2 rounded-md">
+      <button id="confirmReturnOrder" class="bg-[#121212] text-white px-4 py-2 rounded-md">
         Confirm
       </button>
     </div>

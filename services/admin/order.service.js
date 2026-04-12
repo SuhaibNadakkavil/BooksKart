@@ -118,13 +118,15 @@ export const updateOrderStatusService = async (orderId, newStatus) => {
   // SIDE EFFECTS
   // =============================
 
-  // CANCEL → RESTORE STOCK
+  // CANCEL → RESTORE STOCK (ONLY ACTIVE ITEMS)
   if (newStatus === "cancelled") {
 
-    // restore stock
-    await orderRepo.restoreStock(order.items);
+    const restorableItems = order.items.filter(
+      i => !["cancelled", "returned"].includes(i.status)
+    );
 
-    // update all items
+    await orderRepo.restoreStock(restorableItems);
+
     await Order.updateOne(
       { orderId },
       {
@@ -221,6 +223,8 @@ export const updateOrderItemStatusService = async ({
   if (status === "cancelled" || status === "returned") {
     await orderRepo.restoreStock([item]);
   }
+
+  await orderRepo.syncOrderStatusWithItems(orderId);
 
   return {
     message: `Item ${status} successfully`

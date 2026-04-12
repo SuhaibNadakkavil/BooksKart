@@ -49,9 +49,13 @@ export const createOrderService = async ({
 
       const updated = await Product.updateOne(
           {
-              _id: item.productId,
-              "variants.type": normalizedType,
-              "variants.stock": { $gte: item.quantity }
+            _id: item.productId,
+            variants: {
+              $elemMatch: {
+                type: normalizedType,
+                stock: { $gte: item.quantity }
+              }
+            }
           },
           {
               $inc: { "variants.$.stock": -item.quantity }
@@ -111,7 +115,7 @@ export const getOrderSuccessService = async (userId, orderId) => {
   }
 
   // ✅ UPDATE PAYMENT STATUS
-  if (order.paymentStatus === "pending") {
+  if (order.paymentStatus === "pending" && order.paymentMethod !== 'cod') {
     await orderRepo.updatePaymentStatus(orderId, "paid");
     order.paymentStatus = "paid"; // reflect immediately
   }
@@ -251,12 +255,6 @@ export const getOrderDetailsService = async (userId, orderId) => {
 
 export const cancelOrderItemService = async (userId, orderId, itemId, reason) => {
 
-  if (!reason || !reason.trim()) {
-    const error = new Error("Cancel reason is required");
-    error.type = "VALIDATION";
-    throw error;
-  }
-
   const order = await orderRepo.getOrderByOrderId(orderId, userId);
 
   if (!order) {
@@ -273,14 +271,19 @@ export const cancelOrderItemService = async (userId, orderId, itemId, reason) =>
     throw error;
   }
 
-  // ✅ VALIDATION
   if (!["pending", "shipped"].includes(item.status)) {
     const error = new Error("Item cannot be cancelled");
     error.type = "ORDER";
     throw error;
   }
 
-  await orderRepo.requestCancelItem(orderId, itemId, reason);
+  const result = await orderRepo.requestCancelItem(orderId, itemId, reason);
+
+  console.log(result);
+
+  await orderRepo.restoreStock([item]);
+
+  await orderRepo.syncOrderStatusWithItems(orderId);
 
   return true;
 };
@@ -318,17 +321,13 @@ export const returnOrderItemService = async (userId, orderId, itemId, reason) =>
 
   await orderRepo.requestReturnItem(orderId, itemId, reason);
 
+  await orderRepo.syncOrderStatusWithItems(orderId);
+
   return true;
 };
 
 
 export const cancelOrderService = async (userId, orderId, reason) => {
-
-  if (!reason || !reason.trim()) {
-    const error = new Error("Cancel reason is required");
-    error.type = "VALIDATION";
-    throw error;
-  }
 
   const order = await orderRepo.getOrderByOrderId(orderId, userId);
 
@@ -343,6 +342,12 @@ export const cancelOrderService = async (userId, orderId, reason) => {
     error.type = "ORDER";
     throw error;
   }
+
+  const restorableItems = order.items.filter(
+    i => !["cancelled", "returned"].includes(i.status)
+  );
+
+  await orderRepo.restoreStock(restorableItems);
 
   await orderRepo.requestCancelOrder(orderId, userId, reason);
 

@@ -165,17 +165,26 @@ export const getOrderDetails = async (orderId, userId) => {
 
 export const requestCancelItem = async (orderId, itemId, reason) => {
 
+  const update = {
+    "items.$.status": "cancelled"
+  };
+
+  if (reason) {
+    update["items.$.cancelReason"] = reason;
+  }
+
   return await Order.updateOne(
     {
       orderId,
-      "items._id": itemId,
-      "items.status": { $nin: ["cancelled", "returned"] }
+      items: {
+        $elemMatch: {
+          _id: itemId,
+          status: { $nin: ["cancelled", "returned"] }
+        }
+      }
     },
     {
-      $set: {
-        "items.$.status": "cancelled",
-        "items.$.cancelReason": reason
-      }
+      $set: update
     }
   );
 };
@@ -186,8 +195,12 @@ export const requestReturnItem = async (orderId, itemId, reason) => {
   return await Order.updateOne(
     {
       orderId,
-      "items._id": itemId,
-      "items.status": "delivered"
+      items: {
+        $elemMatch: {
+          _id: itemId,
+          status: "delivered"
+        }
+      }
     },
     {
       $set: {
@@ -201,14 +214,19 @@ export const requestReturnItem = async (orderId, itemId, reason) => {
 
 export const requestCancelOrder = async (orderId, userId, reason) => {
 
+  const update = {
+    orderStatus: "cancelled",
+    "items.$[].status": "cancelled"
+  };
+
+  if (reason) {
+    update["items.$[].cancelReason"] = reason;
+  }
+
   return await Order.updateOne(
     { orderId, userId },
     {
-      $set: {
-        orderStatus: "cancelled",
-        "items.$[].status": "cancelled",
-        "items.$[].cancelReason": reason
-      }
+      $set: update
     }
   );
 };
@@ -470,16 +488,55 @@ export const updateOrderItemStatus = async (
 // =============================
 export const restoreStock = async (items) => {
 
-  const bulkOps = items.map(item => ({
-    updateOne: {
-      filter: { _id: item.productId },
-      update: {
-        $inc: { stock: item.quantity }
+  const bulkOps = items.map(item => {
+
+    const normalizedVariant = item.variantType.toLowerCase();
+
+    return {
+      updateOne: {
+        filter: {
+          _id: item.productId,
+          "variants.type": { $regex: `^${normalizedVariant}$`, $options: "i" }
+        },
+        update: {
+          $inc: {
+            "variants.$.stock": item.quantity
+          }
+        }
       }
-    }
-  }));
+    };
+  });
 
   if (bulkOps.length > 0) {
     await Product.bulkWrite(bulkOps);
+  }
+};
+
+// =============================
+// SYNC ORDER STATUS WITH ITEMS
+// =============================
+export const syncOrderStatusWithItems = async (orderId) => {
+
+  const order = await Order.findOne({ orderId });
+
+  if (!order) return;
+
+  const items = order.items;
+
+  const allCancelled = items.every(i => i.status === "cancelled");
+  const allReturned = items.every(i => i.status === "returned");
+  const allReturnRequested = items.every(i => i.status === "return_requested");
+
+  let newStatus = null;
+
+  if (allCancelled) newStatus = "cancelled";
+  else if (allReturned) newStatus = "returned";
+  else if (allReturnRequested) newStatus = "return_requested";
+
+  if (newStatus) {
+    await Order.updateOne(
+      { orderId },
+      { $set: { orderStatus: newStatus } }
+    );
   }
 };
