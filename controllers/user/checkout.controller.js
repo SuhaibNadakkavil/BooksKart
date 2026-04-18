@@ -19,13 +19,13 @@ export const loadCheckoutPage = async (req, res, next) => {
     const userId = req.user._id;
 
     let checkoutData = null;
-    let checkoutError = null;
 
     try {
       checkoutData = await validateCheckoutService(userId);
     } catch (err) {
       if (err.type === "CHECKOUT") {
-        checkoutError = err.message;
+        req.session.error = err.message;
+        return res.redirect("/cart");
       } else {
         throw err;
       }
@@ -41,7 +41,6 @@ export const loadCheckoutPage = async (req, res, next) => {
 
       // ✅ validated data
       checkoutData,
-      checkoutError,
 
       // fallback UI handling
       cartItems: checkoutData?.items || [],

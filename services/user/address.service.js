@@ -98,7 +98,7 @@ export const editAddressService = async (userId, addressId, data) => {
 
 export const deleteAddressService = async (userId, addressId) => {
 
-  const address = await addressRepo.getAddressById(addressId);
+  const address = await addressRepo.getAddressById(userId, addressId);
 
   if (!address || address.userId.toString() !== userId.toString()) {
     const error = new Error("Address not found");

@@ -443,7 +443,7 @@ export const loadEditAddress = async (req, res, next) => {
     delete req.session.success;
     delete req.session.error;
 
-    const address = await addressRepo.getAddressById(id);
+    const address = await addressRepo.getAddressById(req.user._id, id);
 
     if (!address || address.userId.toString() !== req.user._id.toString()) {
       req.session.error = "Address not found";

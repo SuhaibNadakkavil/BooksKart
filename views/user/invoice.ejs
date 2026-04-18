@@ -2,54 +2,142 @@
 <html>
 <head>
   <meta charset="UTF-8" />
-  <title>Invoice</title>
+  <title>Invoice | BooksKart</title>
 
   <style>
     body {
-      font-family: Arial, sans-serif;
-      padding: 30px;
+      font-family: "Inter", Arial, sans-serif;
+      background: #FAFAF8;
       color: #121212;
+      margin: 0;
+      padding: 40px;
     }
 
+    .container {
+      max-width: 900px;
+      margin: auto;
+      background: #ffffff;
+      padding: 40px;
+      border-radius: 12px;
+      box-shadow: 0 10px 30px rgba(0,0,0,0.04);
+    }
+
+    /* HEADER */
     .header {
       display: flex;
       justify-content: space-between;
-      margin-bottom: 30px;
+      align-items: flex-start;
+      margin-bottom: 40px;
     }
 
-    .title {
+    .brand {
       font-size: 24px;
-      font-weight: bold;
+      font-weight: 600;
+      letter-spacing: 0.5px;
     }
 
+    .subtle {
+      font-size: 13px;
+      opacity: 0.6;
+      margin-top: 4px;
+    }
+
+    .meta {
+      text-align: right;
+      font-size: 14px;
+      line-height: 1.6;
+    }
+
+    /* SECTION */
     .section {
-      margin-bottom: 25px;
+      margin-bottom: 35px;
+    }
+
+    .section-title {
+      font-size: 13px;
+      font-weight: 600;
+      letter-spacing: 1px;
+      text-transform: uppercase;
+      margin-bottom: 12px;
     }
 
     .box {
-      border: 1px solid #ddd;
-      padding: 12px;
+      border: 1px solid #E5E7EB;
+      border-radius: 8px;
+      padding: 16px;
+      font-size: 14px;
+      line-height: 1.6;
     }
 
+    /* TABLE */
     table {
       width: 100%;
       border-collapse: collapse;
-      margin-top: 15px;
+      font-size: 14px;
     }
 
-    th, td {
-      border-bottom: 1px solid #ddd;
-      padding: 10px;
+    thead {
+      border-bottom: 1px solid #E5E7EB;
+    }
+
+    th {
       text-align: left;
+      font-weight: 600;
+      padding: 12px 0;
+      font-size: 12px;
+      text-transform: uppercase;
+      letter-spacing: 0.8px;
+    }
+
+    td {
+      padding: 14px 0;
+      border-bottom: 1px solid #F1F1F1;
+      vertical-align: top;
     }
 
     .right {
       text-align: right;
     }
 
-    .total {
-      font-weight: bold;
+    /* PRODUCT INFO */
+    .product-title {
+      font-weight: 500;
+    }
+
+    .product-meta {
+      font-size: 12px;
+      opacity: 0.6;
+      margin-top: 4px;
+    }
+
+    /* SUMMARY */
+    .summary {
+      width: 300px;
+      margin-left: auto;
+      margin-top: 20px;
+      font-size: 14px;
+    }
+
+    .summary-row {
+      display: flex;
+      justify-content: space-between;
+      margin-bottom: 10px;
+    }
+
+    .summary-total {
+      border-top: 1px solid #E5E7EB;
+      padding-top: 12px;
+      margin-top: 10px;
+      font-weight: 600;
       font-size: 16px;
+    }
+
+    /* FOOTER */
+    .footer {
+      margin-top: 50px;
+      font-size: 12px;
+      opacity: 0.6;
+      text-align: center;
     }
 
   </style>
@@ -57,69 +145,112 @@
 
 <body>
 
-  <!-- HEADER -->
-  <div class="header">
-    <div>
-      <div class="title">BooksKart</div>
-      <p>Invoice</p>
+  <div class="container">
+
+    <!-- HEADER -->
+    <div class="header">
+
+      <div>
+        <div class="brand">BooksKart</div>
+        <div class="subtle">Premium Book Store</div>
+      </div>
+
+      <div class="meta">
+        <div><strong>Invoice</strong></div>
+        <div>Order ID: <%= order.orderId %></div>
+        <div><%= new Date(order.createdAt).toDateString() %></div>
+      </div>
+
     </div>
 
-    <div>
-      <p><strong>Order ID:</strong> <%= order.orderId %></p>
-      <p><strong>Date:</strong> <%= new Date(order.createdAt).toDateString() %></p>
+    <!-- ADDRESS -->
+    <div class="section">
+      <div class="section-title">Delivery Address</div>
+
+      <div class="box">
+        <div><strong><%= order.address.name %></strong></div>
+        <div><%= order.address.street %></div>
+        <div>
+          <%= order.address.city %>, <%= order.address.state %> - <%= order.address.pincode %>
+        </div>
+        <div style="margin-top: 6px;">
+          Phone: <%= order.address.phone %>
+        </div>
+      </div>
     </div>
-  </div>
 
-  <!-- ADDRESS -->
-  <div class="section">
-    <h4>Delivery Address</h4>
-    <div class="box">
-      <p><%= order.address.name %></p>
-      <p><%= order.address.street %></p>
-      <p><%= order.address.city %>, <%= order.address.state %></p>
-      <p><%= order.address.pincode %></p>
-      <p>Phone: <%= order.address.phone %></p>
-    </div>
-  </div>
+    <!-- ITEMS -->
+    <div class="section">
+      <div class="section-title">Order Items</div>
 
-  <!-- ITEMS -->
-  <div class="section">
-    <h4>Order Items</h4>
-
-    <table>
-      <thead>
-        <tr>
-          <th>Product</th>
-          <th>Qty</th>
-          <th>Price</th>
-          <th class="right">Total</th>
-        </tr>
-      </thead>
-
-      <tbody>
-        <% order.items.forEach(item => { %>
+      <table>
+        <thead>
           <tr>
-            <td><%= item.title %></td>
-            <td><%= item.quantity %></td>
-            <td>₹<%= item.price %></td>
-            <td class="right">₹<%= item.itemTotal %></td>
+            <th>Product</th>
+            <th>Qty</th>
+            <th>Status</th>
+            <th>Price</th>
+            <th class="right">Total</th>
           </tr>
-        <% }) %>
-      </tbody>
-    </table>
-  </div>
+        </thead>
 
-  <!-- SUMMARY -->
-  <div class="section">
-    <div class="box">
+        <tbody>
+          <% order.items.forEach(item => { %>
+            <tr>
 
-      <p>Subtotal: ₹<%= order.subtotal %></p>
-      <p>Shipping: Free</p>
-      <p>Discount: ₹<%= order.discount || 0 %></p>
+              <td>
+                <div class="product-title"><%= item.title %></div>
+                <div class="product-meta">
+                  <%= item.author %> • <%= item.variantType %>
+                </div>
+              </td>
 
-      <p class="total">Total: ₹<%= order.totalAmount %></p>
+              <td><%= item.quantity %></td>
+
+              <td><%= item.status %></td>
+
+              <td>₹<%= item.price %></td>
+
+              <td class="right">₹<%= item.itemTotal %></td>
+
+            </tr>
+          <% }) %>
+        </tbody>
+      </table>
+
+      <!-- SUMMARY -->
+      <div class="summary">
+
+        <div class="summary-row">
+          <span>Subtotal</span>
+          <span>₹<%= order.subtotal %></span>
+        </div>
+
+        <div class="summary-row">
+          <span>Shipping</span>
+          <span>Free</span>
+        </div>
+
+        <div class="summary-row">
+          <span>Discount</span>
+          <span>₹<%= order.discount || 0 %></span>
+        </div>
+
+        <div class="summary-row summary-total">
+          <span>Total</span>
+          <span>₹<%= order.totalAmount %></span>
+        </div>
+
+      </div>
 
     </div>
+
+    <!-- FOOTER -->
+    <div class="footer">
+      Thank you for shopping with BooksKart.  
+      This is a system-generated invoice.
+    </div>
+
   </div>
 
 </body>

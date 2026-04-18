@@ -9,12 +9,6 @@
   <!-- Main Grid -->
   <div class="grid grid-cols-1 lg:grid-cols-3 gap-10">
 
-    <% if (checkoutError) { %>
-        <div class="border border-red-500 text-red-600 text-sm px-4 py-3 rounded">
-            <%= checkoutError %>
-        </div>
-        <% } %>
-
     <!-- LEFT SIDE -->
     <div class="lg:col-span-2 space-y-10">
 
@@ -224,7 +218,7 @@
       <button 
         id="placeOrderBtn"
         class="w-full py-3 text-sm font-medium bg-[#121212] text-[#FAFAF8] rounded-lg transition group disabled:cursor-not-allowed"
-        <%= checkoutError || !addresses.length ? 'disabled' : '' %>
+        <%= !addresses.length ? 'disabled' : '' %>
       >
       <span class="inline-block transition-transform duration-300 group-hover:scale-110">
         PLACE ORDER
