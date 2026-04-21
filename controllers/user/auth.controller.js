@@ -571,7 +571,12 @@ export const setNewPassword = async (req, res) => {
 //Logout controller
 export const logout = async (req, res, next) => {
   try {
-    req.session.destroy((err) => {
+    delete req.session.userId;
+    delete req.session.isAuthenticated;
+
+    req.session.success = "Logged out successfully.";
+
+    req.session.save((err) => {
       if (err) return next(err);
 
       res.clearCookie("user.sid");

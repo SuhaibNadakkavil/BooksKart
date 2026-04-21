@@ -72,7 +72,13 @@ export const signupService = async ({
 
 export const googleAuthService = async (profile) => {
 
-  const email = profile.emails[0].value.toLowerCase();
+  const email = profile.emails?.[0]?.value?.toLowerCase();
+
+  if (!email) {
+    const error = new Error("Google email not found");
+    error.statusCode = HTTP_STATUS.BAD_REQUEST;
+    throw error;
+  }
 
   let user = await userRepo.findByEmail(email);
 

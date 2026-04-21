@@ -30,9 +30,9 @@ passport.use(
     async (accessToken, refreshToken, profile, done) => {
       try {
         const user = await authService.googleAuthService(profile);
-        done(null, user);
+        return done(null, user);
       } catch (error) {
-        done(error);
+        return done(error, false);
       }
     }
   )
