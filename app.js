@@ -31,43 +31,6 @@ app.use("/uploads", express.static("public/uploads"));
 app.use(express.urlencoded({ extended: true }));
 app.use(express.json());
 
-app.use(
-  helmet({
-    contentSecurityPolicy: {
-      directives: {
-        defaultSrc: ["'self'"],
-
-        scriptSrc: [
-          "'self'",
-          "'unsafe-inline'",
-          "https://unpkg.com",
-          "https://cdnjs.cloudflare.com"
-        ],
-
-        styleSrc: [
-          "'self'",
-          "'unsafe-inline'",
-          "https://fonts.googleapis.com",
-          "https://unpkg.com",
-          "https://cdnjs.cloudflare.com"
-        ],
-
-        fontSrc: [
-          "'self'",
-          "https://fonts.gstatic.com"
-        ],
-
-        imgSrc: [
-          "'self'",
-          "data:",
-          "https://res.cloudinary.com"
-        ]
-      }
-    }
-  })
-);
-app.use(compression());
-
 // No Cache 
 app.use((req, res, next) => {
   res.set("Cache-Control", "no-store, no-cache, must-revalidate, private");

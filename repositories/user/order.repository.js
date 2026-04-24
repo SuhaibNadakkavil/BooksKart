@@ -6,6 +6,13 @@ export const createOrder = async (data, session = null) => {
   return await Order.create([data], { session }).then(res => res[0]);
 };
 
+export const updatePaymentStatus = async (orderId, status) => {
+  return await Order.updateOne(
+    { orderId },
+    { $set: { paymentStatus: status } }
+  );
+};
+
 export const generateOrderId = () => {
   const timestamp = Date.now().toString().slice(-6);
   const random = Math.floor(1000 + Math.random() * 9000);
@@ -243,14 +250,6 @@ export const requestReturnOrder = async (orderId, userId, reason) => {
         "items.$[].returnReason": reason
       }
     }
-  );
-};
-
-
-export const updatePaymentStatus = async (orderId, status) => {
-  return await Order.updateOne(
-    { orderId },
-    { $set: { paymentStatus: status } }
   );
 };
 
@@ -539,4 +538,36 @@ export const syncOrderStatusWithItems = async (orderId) => {
       { $set: { orderStatus: newStatus } }
     );
   }
+};
+
+
+export const updateRazorpayDetails = async ({
+  orderId,
+  razorpayOrderId
+}) => {
+  return await Order.updateOne(
+    { orderId },
+    {
+      $set: {
+        razorpayOrderId
+      }
+    }
+  );
+};
+
+export const markOrderPaid = async ({
+  orderId,
+  razorpayPaymentId,
+  razorpaySignature
+}) => {
+  return await Order.updateOne(
+    { orderId },
+    {
+      $set: {
+        paymentStatus: "paid",
+        razorpayPaymentId,
+        razorpaySignature
+      }
+    }
+  );
 };

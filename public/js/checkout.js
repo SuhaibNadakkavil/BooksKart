@@ -35,8 +35,14 @@ document.addEventListener("DOMContentLoaded", () => {
       return;
     }
 
-    // ✅ redirect to success page
-    window.location.href = `/order/success?orderId=${data.orderId}`;
+    if (data.paymentMethod === "cod") {
+      window.location.href = `/order/success?orderId=${data.orderId}`;
+      return;
+    }
+
+    if (data.paymentMethod === "razorpay") {
+      openRazorpayCheckout(data);
+    }
 
   } catch (err) {
     console.error(err);
@@ -44,6 +50,53 @@ document.addEventListener("DOMContentLoaded", () => {
   }
 
   });
+
+  function openRazorpayCheckout(data) {
+    const options = {
+      key: data.key,
+      amount: data.amount,
+      currency: data.currency,
+      name: "BooksKart",
+      description: "Book Purchase",
+      order_id: data.razorpayOrderId,
+
+      handler: async function (response) {
+        try {
+          const verifyRes = await fetch("/orders/verify-payment", {
+            method: "POST",
+            headers: {
+              "Content-Type": "application/json"
+            },
+            body: JSON.stringify({
+              orderId: data.orderId,
+              razorpay_order_id: response.razorpay_order_id,
+              razorpay_payment_id: response.razorpay_payment_id,
+              razorpay_signature: response.razorpay_signature
+            })
+          });
+
+          const verifyData = await verifyRes.json();
+
+          if (!verifyRes.ok) {
+            showToast(verifyData.message);
+            return;
+          }
+
+          window.location.href = `/order/success?orderId=${data.orderId}`;
+
+        } catch (error) {
+          showToast("Payment verification failed");
+        }
+      },
+
+      theme: {
+        color: "#121212"
+      }
+    };
+
+    const rzp = new Razorpay(options);
+    rzp.open();
+  }
 
     // =============================
   // MODAL HANDLING

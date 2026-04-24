@@ -2,12 +2,14 @@ import puppeteer from "puppeteer-core";
 import ejs from "ejs";
 import path from "path";
 import fs from "fs";
+import crypto from "crypto";
 
 import * as cartRepo from "../../repositories/user/cart.repository.js";
 import * as orderRepo from "../../repositories/user/order.repository.js";
 import * as addressRepo from "../../repositories/user/address.repo.js";
 import { validateCheckoutService } from "./checkout.service.js";
 import Product from "../../models/user/product.schema.js";
+import razorpayInstance from '../../config/razorpay.js'
 
 const normalizeVariantType = (type) => {
   return type.charAt(0).toUpperCase() + type.slice(1).toLowerCase();
@@ -97,6 +99,56 @@ export const createOrderService = async ({
   return order;
 };
 
+export const createRazorpayOrderService = async ({
+  orderId,
+  amount
+}) => {
+  const options = {
+    amount: amount * 100,
+    currency: "INR",
+    receipt: orderId
+  };
+
+  const razorpayOrder = await razorpayInstance.orders.create(options);
+
+  await orderRepo.updateRazorpayDetails({
+    orderId,
+    razorpayOrderId: razorpayOrder.id
+  });
+
+  return razorpayOrder;
+};
+
+
+export const verifyPaymentService = async ({
+  userId,
+  orderId,
+  razorpay_order_id,
+  razorpay_payment_id,
+  razorpay_signature
+}) => {
+
+  const body = razorpay_order_id + "|" + razorpay_payment_id;
+
+  const expectedSignature = crypto
+    .createHmac("sha256", process.env.RAZORPAY_KEY_SECRET)
+    .update(body.toString())
+    .digest("hex");
+
+  if (expectedSignature !== razorpay_signature) {
+    throw new Error("Invalid payment signature");
+  }
+
+  await orderRepo.markOrderPaid({
+    orderId,
+    razorpayPaymentId: razorpay_payment_id,
+    razorpaySignature: razorpay_signature
+  });
+
+  await cartRepo.clearCart(userId);
+
+  return true;
+};
 
 export const getOrderSuccessService = async (userId, orderId) => {
 
@@ -112,12 +164,6 @@ export const getOrderSuccessService = async (userId, orderId) => {
     const error = new Error("Order not found");
     error.type = "ORDER";
     throw error;
-  }
-
-  // ✅ UPDATE PAYMENT STATUS
-  if (order.paymentStatus === "pending" && order.paymentMethod !== 'cod') {
-    await orderRepo.updatePaymentStatus(orderId, "paid");
-    order.paymentStatus = "paid"; // reflect immediately
   }
 
   return order;

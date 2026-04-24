@@ -8,13 +8,13 @@ import {
   returnOrderItemService,
   cancelOrderService,
   returnOrderService,
-  generateInvoiceService
+  generateInvoiceService,
+  createRazorpayOrderService,
+  verifyPaymentService
 } from "../../services/user/order.service.js";
 
 export const createOrder = async (req, res, next) => {
-
   try {
-
     const userId = req.user._id;
     const { addressId, paymentMethod } = req.body;
 
@@ -24,11 +24,30 @@ export const createOrder = async (req, res, next) => {
       paymentMethod
     });
 
-    return res.status(HTTP_STATUS.OK).json({
-      success: true,
-      message: "Order placed successfully",
-      orderId: order.orderId
-    });
+    if (paymentMethod === "cod") {
+      return res.status(200).json({
+        success: true,
+        paymentMethod: "cod",
+        orderId: order.orderId
+      });
+    }
+
+    if (paymentMethod === "razorpay") {
+      const razorpayOrder = await createRazorpayOrderService({
+        orderId: order.orderId,
+        amount: order.totalAmount
+      });
+
+      return res.status(200).json({
+        success: true,
+        paymentMethod: "razorpay",
+        orderId: order.orderId,
+        razorpayOrderId: razorpayOrder.id,
+        amount: razorpayOrder.amount,
+        currency: razorpayOrder.currency,
+        key: process.env.RAZORPAY_KEY_ID
+      });
+    }
 
   } catch (err) {
 
@@ -40,6 +59,38 @@ export const createOrder = async (req, res, next) => {
     }
 
     next(err);
+  }
+};
+
+export const verifyPayment = async (req, res, next) => {
+  try {
+    const userId = req.user._id;
+
+    const {
+      orderId,
+      razorpay_order_id,
+      razorpay_payment_id,
+      razorpay_signature
+    } = req.body;
+
+    await verifyPaymentService({
+      userId,
+      orderId,
+      razorpay_order_id,
+      razorpay_payment_id,
+      razorpay_signature
+    });
+
+    return res.status(200).json({
+      success: true,
+      message: "Payment verified"
+    });
+
+  } catch (err) {
+    return res.status(400).json({
+      success: false,
+      message: err.message || "Payment verification failed"
+    });
   }
 };
 

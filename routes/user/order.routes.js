@@ -9,12 +9,14 @@ import {
     returnOrderItem,
     cancelOrder,
     returnOrder,
-    downloadInvoice
+    downloadInvoice,
+    verifyPayment
 } from "../../controllers/user/order.controller.js";
 
 const router = express.Router();
 
 router.post("/orders", isAuthenticated, createOrder);
+router.post("/orders/verify-payment", isAuthenticated, verifyPayment);
 router.get("/order/success", isAuthenticated, loadOrderSuccessPage);
 router.get("/orders", isAuthenticated, loadOrdersPage);
 router.get("/orders/:orderId", isAuthenticated, loadOrderDetailsPage);
