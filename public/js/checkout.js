@@ -60,6 +60,23 @@ document.addEventListener("DOMContentLoaded", () => {
       description: "Book Purchase",
       order_id: data.razorpayOrderId,
 
+      modal: {
+        ondismiss: async function () {
+
+          await fetch("/orders/payment-failed", {
+            method: "POST",
+            headers: {
+              "Content-Type": "application/json"
+            },
+            body: JSON.stringify({
+              orderId: data.orderId
+            })
+          });
+
+          window.location.href = `/order/failed?orderId=${data.orderId}`;
+        }
+      },
+
       handler: async function (response) {
         try {
           const verifyRes = await fetch("/orders/verify-payment", {
@@ -79,6 +96,8 @@ document.addEventListener("DOMContentLoaded", () => {
 
           if (!verifyRes.ok) {
             showToast(verifyData.message);
+
+            window.location.href = `/order/failed?orderId=${data.orderId}`;
             return;
           }
 

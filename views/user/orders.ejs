@@ -62,6 +62,10 @@
             Pending
           </option>
 
+          <option value="placed" <%= query?.status === "placed" ? "selected" : "" %>>
+            Placed
+          </option>
+
           <option value="shipped" <%= query?.status === "shipped" ? "selected" : "" %>>
             Shipped
           </option>
@@ -145,7 +149,8 @@
                 <p class="text-xs opacity-60 uppercase">Status</p>
                 <%
                   const statusColors = {
-                    pending: "text-gray-600",
+                    pending: "text-[#FDDA0D]",
+                    placed: "text-gray-600",
                     shipped: "text-blue-700",
                     out_for_delivery: "text-indigo-700",
                     delivered: "text-green-700",
@@ -171,12 +176,7 @@
 
                   <a href="/orders/<%= order.orderId %>"
                      class="border rounded-md px-1 py-0.5 text-black hover:bg-black hover:text-white transition">
-                    View Details
-                  </a>
-
-                  <a href="/orders/<%= order.orderId %>/invoice"
-                     class="border rounded-md px-1 py-0.5 text-black hover:bg-black hover:text-white transition">
-                    Invoice
+                    View
                   </a>
 
                 </div>

@@ -9,6 +9,7 @@ import * as orderRepo from "../../repositories/user/order.repository.js";
 import * as addressRepo from "../../repositories/user/address.repo.js";
 import { validateCheckoutService } from "./checkout.service.js";
 import Product from "../../models/user/product.schema.js";
+import Order from "../../models/user/order.schema.js";
 import razorpayInstance from '../../config/razorpay.js'
 
 const normalizeVariantType = (type) => {
@@ -46,25 +47,19 @@ export const createOrderService = async ({
 
   for (const item of checkoutData.items) {
 
+    const normalizedType = normalizeVariantType(item.variantType);
 
-      const normalizedType = normalizeVariantType(item.variantType);
+    const product = await Product.findOne({
+      _id: item.productId,
+      variants: {
+        $elemMatch: {
+          type: normalizedType,
+          stock: { $gte: item.quantity }
+        }
+      }
+    });
 
-      const updated = await Product.updateOne(
-          {
-            _id: item.productId,
-            variants: {
-              $elemMatch: {
-                type: normalizedType,
-                stock: { $gte: item.quantity }
-              }
-            }
-          },
-          {
-              $inc: { "variants.$.stock": -item.quantity }
-          }
-      );
-
-    if (updated.modifiedCount === 0) {
+    if (!product) {
       const error = new Error(`${item.title} stock changed, try again`);
       error.type = "CHECKOUT";
       throw error;
@@ -84,19 +79,56 @@ export const createOrderService = async ({
 
   const orderId = orderRepo.generateOrderId();
 
+  const isCod = paymentMethod === "cod";
+
   const order = await orderRepo.createOrder({
     orderId,
     userId,
     items: orderItems,
     address: addressSnapshot,
     paymentMethod,
+
+    paymentStatus: isCod ? "pending" : "pending",
+
+    orderStatus: isCod ? "placed" : "pending",
+
     subtotal: checkoutData.subtotal,
     totalAmount: checkoutData.subtotal
   });
 
+  if (isCod) {
+    await reduceStockService(orderItems);
+    await orderRepo.markCodPlaced(orderId);
+  }
+
   await cartRepo.clearCart(userId);
 
   return order;
+};
+
+
+export const reduceStockService = async (items) => {
+  for (const item of items) {
+
+    const normalizedType = normalizeVariantType(item.variantType);
+
+    await Product.updateOne(
+      {
+        _id: item.productId,
+        variants: {
+          $elemMatch: {
+            type: normalizedType,
+            stock: { $gte: item.quantity }
+          }
+        }
+      },
+      {
+        $inc: {
+          "variants.$.stock": -item.quantity
+        }
+      }
+    );
+  }
 };
 
 export const createRazorpayOrderService = async ({
@@ -139,13 +171,15 @@ export const verifyPaymentService = async ({
     throw new Error("Invalid payment signature");
   }
 
+  const order = await orderRepo.getOrderByOrderId(orderId, userId);
+
+  await reduceStockService(order.items);
+
   await orderRepo.markOrderPaid({
     orderId,
     razorpayPaymentId: razorpay_payment_id,
     razorpaySignature: razorpay_signature
   });
-
-  await cartRepo.clearCart(userId);
 
   return true;
 };
@@ -169,6 +203,134 @@ export const getOrderSuccessService = async (userId, orderId) => {
   return order;
 };
 
+export const getOrderFailedService = async (userId, orderId) => {
+
+  if (!orderId) {
+    const error = new Error("Invalid order");
+    error.type = "ORDER";
+    throw error;
+  }
+
+  const order = await orderRepo.getOrderByOrderId(orderId, userId);
+
+  if (!order) {
+    const error = new Error("Order not found");
+    error.type = "ORDER";
+    throw error;
+  }
+
+  if (order.paymentMethod !== "razorpay") {
+    const error = new Error("Invalid payment order");
+    error.type = "ORDER";
+    throw error;
+  }
+
+  return order;
+};
+
+
+export const markPaymentFailedService = async (orderId) => {
+
+  if (!orderId) {
+    const error = new Error("Invalid order");
+    error.type = "ORDER";
+    throw error;
+  }
+
+  await orderRepo.markPaymentFailed(orderId);
+
+  return true;
+};
+
+export const retryPaymentService = async ({
+  userId,
+  orderId
+}) => {
+
+  const order = await orderRepo.getRetryEligibleOrder(orderId, userId);
+
+  if (!order) {
+    const error = new Error("Order not eligible for retry");
+    error.type = "ORDER";
+    throw error;
+  }
+
+  let recalculatedTotal = 0;
+
+  for (const item of order.items) {
+
+    const product = await orderRepo.getProductForRetry(item.productId);
+
+    if (!product) {
+      throw new Error(`${item.title} no longer available`);
+    }
+
+    const unavailable =
+      !product.isActive ||
+      product.isDeleted ||
+      !product.category?.isActive ||
+      product.category?.isDeleted;
+
+    if (unavailable) {
+      throw new Error(`${item.title} is unavailable`);
+    }
+
+    const variant = product.variants.find(
+      v => v.type.toLowerCase() === item.variantType.toLowerCase()
+    );
+
+    if (!variant) {
+      throw new Error(`${item.title} variant unavailable`);
+    }
+
+    if (variant.stock < item.quantity) {
+      throw new Error(
+        `${item.title} only ${variant.stock} stock available`
+      );
+    }
+
+    // Use current price
+    const latestPrice = variant.salePrice || variant.regularPrice;
+
+    recalculatedTotal += latestPrice * item.quantity;
+  }
+
+  // Optional: update order total if changed
+  if (recalculatedTotal !== order.totalAmount) {
+    await Order.updateOne(
+      { orderId },
+      {
+        $set: {
+          subtotal: recalculatedTotal,
+          totalAmount: recalculatedTotal
+        }
+      }
+    );
+  }
+
+  const options = {
+    amount: recalculatedTotal * 100,
+    currency: "INR",
+    receipt: order.orderId
+  };
+
+  const razorpayOrder = await razorpayInstance.orders.create(options);
+
+  await orderRepo.updateRazorpayDetails({
+    orderId,
+    razorpayOrderId: razorpayOrder.id
+  });
+
+  await orderRepo.updatePaymentStatus(orderId, "pending");
+
+  return {
+    orderId: order.orderId,
+    razorpayOrderId: razorpayOrder.id,
+    amount: razorpayOrder.amount,
+    currency: razorpayOrder.currency,
+    key: process.env.RAZORPAY_KEY_ID
+  };
+};
 
 export const getUserOrdersService = async (query, userId) => {
 
@@ -181,7 +343,6 @@ export const getUserOrdersService = async (query, userId) => {
   // newest | oldest | price_low | price_high
 
   const status = query.status || "all"; 
-  // all | pending | shipped | delivered | cancelled
 
   const data = await orderRepo.getUserOrders({
     userId,
@@ -238,6 +399,7 @@ export const getOrderDetailsService = async (userId, orderId) => {
   // =============================
   const statusSteps = [
     "pending",
+    "placed",
     "shipped",
     "out_for_delivery",
     "delivered"
@@ -252,7 +414,7 @@ export const getOrderDetailsService = async (userId, orderId) => {
 
     const canCancel =
       item.status === "pending" ||
-      item.status === "shipped";
+      item.status === "placed" ;
 
     const canReturn =
       item.status === "delivered";
@@ -317,7 +479,7 @@ export const cancelOrderItemService = async (userId, orderId, itemId, reason) =>
     throw error;
   }
 
-  if (!["pending", "shipped"].includes(item.status)) {
+  if (!['pending','placed'].includes(item.status)) {
     const error = new Error("Item cannot be cancelled");
     error.type = "ORDER";
     throw error;
@@ -325,9 +487,9 @@ export const cancelOrderItemService = async (userId, orderId, itemId, reason) =>
 
   const result = await orderRepo.requestCancelItem(orderId, itemId, reason);
 
-  console.log(result);
-
-  await orderRepo.restoreStock([item]);
+  if(!order.orderStatus === 'pending' && !order.paymentStatus === 'failed'){
+    await orderRepo.restoreStock([item]);
+  }
 
   await orderRepo.syncOrderStatusWithItems(orderId);
 
@@ -393,8 +555,10 @@ export const cancelOrderService = async (userId, orderId, reason) => {
     i => !["cancelled", "returned"].includes(i.status)
   );
 
-  await orderRepo.restoreStock(restorableItems);
-
+  if(!order.orderStatus === 'pending' && !order.paymentStatus === 'failed'){
+    await orderRepo.restoreStock(restorableItems);
+  }
+  
   await orderRepo.requestCancelOrder(orderId, userId, reason);
 
   return true;

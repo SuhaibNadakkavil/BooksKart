@@ -565,9 +565,50 @@ export const markOrderPaid = async ({
     {
       $set: {
         paymentStatus: "paid",
+        orderStatus: "placed",
+        "items.$[].status": "placed",
         razorpayPaymentId,
         razorpaySignature
       }
     }
   );
+};
+
+export const markPaymentFailed = async (orderId) => {
+  return await Order.updateOne(
+    { orderId },
+    {
+      $set: {
+        paymentStatus: "failed"
+      }
+    }
+  );
+};
+
+export const markCodPlaced = async (orderId) => {
+  return await Order.updateOne(
+    { orderId },
+    {
+      $set: {
+        orderStatus: "placed",
+        "items.$[].status": "placed"
+      }
+    }
+  );
+};
+
+export const getRetryEligibleOrder = async (orderId, userId) => {
+  return await Order.findOne({
+    orderId,
+    userId,
+    paymentMethod: "razorpay",
+    paymentStatus: { $in: ["failed", "pending"] },
+    orderStatus: "pending"
+  });
+};
+
+export const getProductForRetry = async (productId) => {
+  return await Product.findById(productId)
+    .populate("category")
+    .lean();
 };

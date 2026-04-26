@@ -28,6 +28,7 @@ const orderItemSchema = new Schema({
     type: String,
     enum: [
       "pending",
+      "placed",
       "shipped",
       "out_for_delivery",
       "delivered",
@@ -134,6 +135,7 @@ const orderSchema = new Schema({
     type: String,
     enum: [
       "pending",
+      "placed",
       "shipped",
       "out_for_delivery",
       "delivered",

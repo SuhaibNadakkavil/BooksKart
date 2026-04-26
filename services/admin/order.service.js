@@ -45,6 +45,7 @@ export const getAdminOrderDetailsService = async (orderId) => {
 
   const items = order.items;
 
+  const allPending = items.every(i => i.status === "pending");
   const allCancelled = items.every(i => i.status === "cancelled");
   const allReturned = items.every(i => i.status === "returned");
   const allReturnRequested = items.every(i => i.status === "return_requested");
@@ -52,7 +53,10 @@ export const getAdminOrderDetailsService = async (orderId) => {
   // =============================
   // DERIVED ORDER STATUS
   // =============================
-  if (allCancelled) {
+  if (allPending) {
+    order.orderStatus = "pending";
+  } 
+  else if (allCancelled) {
     order.orderStatus = "cancelled";
   } 
   else if (allReturned) {
@@ -63,7 +67,7 @@ export const getAdminOrderDetailsService = async (orderId) => {
   } 
   else {
     const hasActiveFlow = items.some(i =>
-      ["pending", "shipped", "out_for_delivery"].includes(i.status)
+      ["placed", "shipped", "out_for_delivery"].includes(i.status)
     );
 
     if (hasActiveFlow) {
@@ -82,7 +86,8 @@ export const getAdminOrderDetailsService = async (orderId) => {
 // STATUS TRANSITION RULES
 // =============================
 const allowedTransitions = {
-  pending: ["shipped", "cancelled"],
+  pending: [],
+  placed: ["shipped", "cancelled"],
   shipped: ["out_for_delivery"],
   out_for_delivery: ["delivered"],
   delivered: [],
@@ -110,7 +115,7 @@ export const updateOrderStatusService = async (orderId, newStatus) => {
     throw new Error(`Invalid status transition from ${currentStatus} to ${newStatus}`);
   }
 
-  if (newStatus === "cancelled" && order.orderStatus !== "pending") {
+  if (newStatus === "cancelled" && order.orderStatus !== "placed") {
     throw new Error("Only pending orders can be cancelled");
   }
 
@@ -150,7 +155,7 @@ export const updateOrderStatusService = async (orderId, newStatus) => {
 
   // SYNC ITEMS (avoid cancelled/returned override)
   const syncableStatuses = [
-    "pending",
+    "placed",
     "shipped",
     "out_for_delivery",
     "delivered"

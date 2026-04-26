@@ -60,11 +60,13 @@
 
         <% const statuses = [
           "pending",
+          "placed",
           "shipped",
           "out_for_delivery",
           "delivered",
           "cancelled",
-          "returned"
+          "returned",
+          "return_requested"
         ]; %>
 
         <% statuses.forEach(s => { %>
@@ -180,7 +182,8 @@
               <td>
                 <%
                   const statusColors = {
-                    pending: "text-gray-600",
+                    pending: "text-[#FDDA0D]",
+                    placed: "text-gray-600",
                     shipped: "text-blue-700",
                     out_for_delivery: "text-indigo-700",
                     delivered: "text-green-700",

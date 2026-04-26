@@ -10,7 +10,10 @@ import {
   returnOrderService,
   generateInvoiceService,
   createRazorpayOrderService,
-  verifyPaymentService
+  verifyPaymentService,
+  getOrderFailedService,
+  markPaymentFailedService,
+  retryPaymentService
 } from "../../services/user/order.service.js";
 
 export const createOrder = async (req, res, next) => {
@@ -81,13 +84,18 @@ export const verifyPayment = async (req, res, next) => {
       razorpay_signature
     });
 
-    return res.status(200).json({
+    return res.status(HTTP_STATUS.OK).json({
       success: true,
       message: "Payment verified"
     });
 
   } catch (err) {
-    return res.status(400).json({
+
+    if (req.body.orderId) {
+      await markPaymentFailedService(req.body.orderId);
+    }
+
+    return res.status(HTTP_STATUS.BAD_REQUEST).json({
       success: false,
       message: err.message || "Payment verification failed"
     });
@@ -124,6 +132,75 @@ export const loadOrderSuccessPage = async (req, res, next) => {
   }
 };
 
+export const loadOrderFailedPage = async (req, res, next) => {
+  try {
+    const userId = req.user._id;
+    const { orderId } = req.query;
+
+    const order = await getOrderFailedService(userId, orderId);
+
+    return res.status(HTTP_STATUS.OK).render("user/orderFailed", {
+      title: "Payment Failed | BooksKart",
+      headerType: "main",
+      order,
+      success: null,
+      error: null,
+      pageScript: "/js/orderFailed.js"
+    });
+
+  } catch (err) {
+
+    if (err.type === "ORDER") {
+      req.session.error = err.message;
+      return res.redirect("/orders");
+    }
+
+    next(err);
+  }
+};
+
+
+export const markPaymentFailed = async (req, res, next) => {
+  try {
+    const { orderId } = req.body;
+
+    await markPaymentFailedService(orderId);
+
+    return res.status(HTTP_STATUS.OK).json({
+      success: true
+    });
+
+  } catch (err) {
+    next(err);
+  }
+};
+
+
+export const retryPayment = async (req, res, next) => {
+  try {
+
+    const userId = req.user._id;
+    const { orderId } = req.body;
+
+    const data = await retryPaymentService({
+      userId,
+      orderId
+    });
+
+    return res.status(HTTP_STATUS.OK).json({
+      success: true,
+      paymentMethod: "razorpay",
+      ...data
+    });
+
+  } catch (err) {
+
+    return res.status(HTTP_STATUS.BAD_REQUEST).json({
+      success: false,
+      message: err.message
+    });
+  }
+};
 
 export const loadOrdersPage = async (req, res, next) => {
 

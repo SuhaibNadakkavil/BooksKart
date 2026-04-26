@@ -30,10 +30,10 @@
 
         <div class="space-y-4 text-sm">
 
-          <% const allowedTransitions={ pending: ["shipped", "cancelled" ], shipped: ["out_for_delivery"],
+          <% const allowedTransitions={ pending: [], placed: ["shipped", "cancelled" ], shipped: ["out_for_delivery"],
             out_for_delivery: ["delivered"], delivered: [], cancelled: [], returned: [] }; const
             currentStatus=order.orderStatus; const nextStatuses=allowedTransitions[currentStatus] || []; const
-            isFinalState=["delivered", "cancelled" , "returned" , "return_requested" ].includes(currentStatus); %>
+            isFinalState=["pending", "delivered", "cancelled" , "returned" , "return_requested" ].includes(currentStatus); %>
 
             <!-- STATUS -->
             <div>
@@ -73,6 +73,13 @@
               <p class="opacity-70">Payment Method</p>
               <p class="font-medium">
                 <%= order.paymentMethod.toUpperCase() %>
+              </p>
+            </div>
+
+            <div>
+              <p class="opacity-70">Payment Status</p>
+              <p class="font-medium">
+                <%= order.paymentStatus.toUpperCase() %>
               </p>
             </div>
 
