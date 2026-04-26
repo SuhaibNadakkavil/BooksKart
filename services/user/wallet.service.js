@@ -119,7 +119,7 @@ export const verifyWalletTopupService = async ({
 
 
 // =====================================
-// PAY USING WALLET (FOR CHECKOUT LATER)
+// PAY USING WALLET (FOR CHECKOUT)
 // =====================================
 export const walletDebitPaymentService = async ({
   userId,

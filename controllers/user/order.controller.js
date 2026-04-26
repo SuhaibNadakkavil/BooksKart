@@ -18,6 +18,7 @@ import {
 
 export const createOrder = async (req, res, next) => {
   try {
+
     const userId = req.user._id;
     const { addressId, paymentMethod } = req.body;
 
@@ -27,6 +28,9 @@ export const createOrder = async (req, res, next) => {
       paymentMethod
     });
 
+    // ==============================
+    // COD
+    // ==============================
     if (paymentMethod === "cod") {
       return res.status(200).json({
         success: true,
@@ -35,7 +39,11 @@ export const createOrder = async (req, res, next) => {
       });
     }
 
+    // ==============================
+    // RAZORPAY
+    // ==============================
     if (paymentMethod === "razorpay") {
+
       const razorpayOrder = await createRazorpayOrderService({
         orderId: order.orderId,
         amount: order.totalAmount
@@ -52,10 +60,24 @@ export const createOrder = async (req, res, next) => {
       });
     }
 
+    // ==============================
+    // WALLET
+    // ==============================
+    if (paymentMethod === "wallet") {
+      return res.status(200).json({
+        success: true,
+        paymentMethod: "wallet",
+        orderId: order.orderId
+      });
+    }
+
   } catch (err) {
 
-    if (err.type === "CHECKOUT") {
-      return res.status(HTTP_STATUS.BAD_REQUEST).json({
+    if (
+      err.type === "CHECKOUT" ||
+      err.type === "WALLET"
+    ) {
+      return res.status(400).json({
         success: false,
         message: err.message
       });

@@ -585,7 +585,7 @@ export const markPaymentFailed = async (orderId) => {
   );
 };
 
-export const markCodPlaced = async (orderId) => {
+export const markPlaced = async (orderId) => {
   return await Order.updateOne(
     { orderId },
     {

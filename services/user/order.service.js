@@ -8,6 +8,7 @@ import * as cartRepo from "../../repositories/user/cart.repository.js";
 import * as orderRepo from "../../repositories/user/order.repository.js";
 import * as addressRepo from "../../repositories/user/address.repo.js";
 import { validateCheckoutService } from "./checkout.service.js";
+import { walletDebitPaymentService } from "./wallet.service.js";
 import Product from "../../models/user/product.schema.js";
 import Order from "../../models/user/order.schema.js";
 import razorpayInstance from '../../config/razorpay.js'
@@ -22,11 +23,18 @@ export const createOrderService = async ({
   paymentMethod
 }) => {
 
-  // 1. VALIDATE
+  // =============================
+  // VALIDATE CHECKOUT
+  // =============================
   const checkoutData = await validateCheckoutService(userId);
 
-  // 2. ADDRESS
-  const address = await addressRepo.getAddressById(userId, addressId);
+  // =============================
+  // ADDRESS
+  // =============================
+  const address = await addressRepo.getAddressById(
+    userId,
+    addressId
+  );
 
   if (!address) {
     const error = new Error("Invalid address");
@@ -43,11 +51,15 @@ export const createOrderService = async ({
     phone: address.phone
   };
 
+  // =============================
+  // STOCK VALIDATION
+  // =============================
   const orderItems = [];
 
   for (const item of checkoutData.items) {
 
-    const normalizedType = normalizeVariantType(item.variantType);
+    const normalizedType =
+      normalizeVariantType(item.variantType);
 
     const product = await Product.findOne({
       _id: item.productId,
@@ -60,7 +72,9 @@ export const createOrderService = async ({
     });
 
     if (!product) {
-      const error = new Error(`${item.title} stock changed, try again`);
+      const error = new Error(
+        `${item.title} stock changed, try again`
+      );
       error.type = "CHECKOUT";
       throw error;
     }
@@ -80,7 +94,11 @@ export const createOrderService = async ({
   const orderId = orderRepo.generateOrderId();
 
   const isCod = paymentMethod === "cod";
+  const isWallet = paymentMethod === "wallet";
 
+  // =============================
+  // CREATE ORDER FIRST
+  // =============================
   const order = await orderRepo.createOrder({
     orderId,
     userId,
@@ -88,19 +106,44 @@ export const createOrderService = async ({
     address: addressSnapshot,
     paymentMethod,
 
-    paymentStatus: isCod ? "pending" : "pending",
+    paymentStatus:
+      isWallet ? "paid" : "pending",
 
-    orderStatus: isCod ? "placed" : "pending",
+    orderStatus:
+      (isCod || isWallet)
+        ? "placed"
+        : "pending",
 
     subtotal: checkoutData.subtotal,
     totalAmount: checkoutData.subtotal
   });
 
+  // =============================
+  // COD FLOW
+  // =============================
   if (isCod) {
     await reduceStockService(orderItems);
-    await orderRepo.markCodPlaced(orderId);
+    await orderRepo.markPlaced(orderId);
   }
 
+  // =============================
+  // WALLET FLOW
+  // =============================
+  if (isWallet) {
+
+    await walletDebitPaymentService({
+      userId,
+      amount: order.totalAmount,
+      referenceId: order.orderId
+    });
+
+    await reduceStockService(orderItems);
+    await orderRepo.markPlaced(orderId);
+  }
+
+  // =============================
+  // CLEAR CART
+  // =============================
   await cartRepo.clearCart(userId);
 
   return order;

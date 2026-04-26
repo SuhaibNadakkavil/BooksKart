@@ -99,34 +99,112 @@
       <div class="space-y-4">
 
         <div class="border-b pb-2">
-          <h2 class="text-lg font-semibold">PAYMENT METHOD</h2>
+          <h2 class="text-lg font-semibold">
+            PAYMENT METHOD
+          </h2>
         </div>
 
         <div class="space-y-3">
 
-          <% const paymentMethods = [
-            { value: "razorpay", label: "RAZORPAY" },
-            { value: "cod", label: "CASH ON DELIVERY" },
-            { value: "wallet", label: "WALLET" }
-          ]; %>
+          <!-- ================= RAZORPAY ================= -->
+          <label class="flex items-center gap-3 rounded-lg p-4 cursor-pointer hover:shadow-lg transition bg-white">
 
-          <% paymentMethods.forEach((method, index) => { %>
-            <label class="flex items-center gap-3 rounded-lg p-4 cursor-pointer hover:shadow-lg transition bg-white">
+            <input
+              type="radio"
+              name="paymentMethod"
+              value="razorpay"
+              class="w-4 h-4 accent-black"
+              checked
+            />
 
-              <input 
+            <div>
+              <p class="text-sm font-medium tracking-wide">
+                RAZORPAY
+              </p>
+
+              <p class="text-xs opacity-60 mt-1">
+                Pay securely using UPI / Card / Netbanking
+              </p>
+            </div>
+
+          </label>
+
+
+          <!-- ================= COD ================= -->
+          <label class="flex items-center gap-3 rounded-lg p-4 cursor-pointer hover:shadow-lg transition bg-white">
+
+            <input
+              type="radio"
+              name="paymentMethod"
+              value="cod"
+              class="w-4 h-4 accent-black"
+            />
+
+            <div>
+              <p class="text-sm font-medium tracking-wide">
+                CASH ON DELIVERY
+              </p>
+
+              <p class="text-xs opacity-60 mt-1">
+                Pay when your order arrives
+              </p>
+            </div>
+
+          </label>
+
+
+          <!-- ================= WALLET ================= -->
+          <% const walletBalance = Number(wallet?.balance || 0); %>
+          <% const totalAmount = Number(checkoutData?.subtotal || 0); %>
+          <% const hasWalletBalance = walletBalance >= totalAmount; %>
+
+          <label class="flex items-center gap-3 rounded-lg p-4 transition bg-white hover:shadow-lg
+            <%= hasWalletBalance
+              ? 'cursor-pointer'
+              : 'cursor-not-allowed' %>">
+
+              <input
                 type="radio"
                 name="paymentMethod"
-                value="<%= method.value %>"
+                value="wallet"
                 class="w-4 h-4 accent-black"
-                <%= index === 0 ? 'checked' : '' %>
+                <%= hasWalletBalance ? '' : 'disabled' %>
               />
 
-              <span class="text-sm font-medium tracking-wide">
-                <%= method.label %>
-              </span>
+              <div>
 
-            </label>
-          <% }) %>
+                <p class="text-sm font-medium tracking-wide">
+                  WALLET
+                </p>
+
+                <p class="text-xs mt-1 opacity-70">
+                  Available Balance:
+                  ₹<%= walletBalance.toLocaleString('en-IN', {
+                    minimumFractionDigits: 2,
+                    maximumFractionDigits: 2
+                  }) %>
+                </p>
+
+                <% if (!hasWalletBalance) { %>
+                  <p class="text-xs mt-2 text-red-600">
+                    Insufficient wallet balance for this order
+                  </p>
+
+                  <a
+                    href="/wallet"
+                    class="inline-block text-xs underline mt-2 hover:opacity-70"
+                  >
+                    Add Money to Wallet
+                  </a>
+                <% } else { %>
+                  <p class="text-xs mt-2 text-green-700">
+                    Sufficient balance available
+                  </p>
+                <% } %>
+
+              </div>
+
+          </label>
 
         </div>
 

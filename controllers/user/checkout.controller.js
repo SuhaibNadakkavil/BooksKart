@@ -6,6 +6,7 @@ import {
     addAddressService,
     editAddressService
  } from "../../services/user/address.service.js";
+import * as walletRepo from "../../repositories/user/wallet.repository.js";
 
 export const loadCheckoutPage = async (req, res, next) => {
   try {
@@ -33,6 +34,8 @@ export const loadCheckoutPage = async (req, res, next) => {
 
     const addresses = await getUserAddressesService(userId);
 
+    const wallet = await walletRepo.getOrCreateWallet(userId)
+
     res.status(HTTP_STATUS.OK).render("user/checkout", {
       title: "Checkout | BooksKart",
       headerType: "main",
@@ -48,6 +51,7 @@ export const loadCheckoutPage = async (req, res, next) => {
       totalItems: checkoutData?.totalItems || 0,
 
       addresses,
+      wallet,
 
       pageScript: "/js/checkout.js"
     });
