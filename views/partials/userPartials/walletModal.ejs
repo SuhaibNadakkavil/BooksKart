@@ -1,0 +1,93 @@
+<div
+  id="walletModal"
+  class="fixed inset-0 bg-black/40 z-50 hidden flex items-center justify-center px-4"
+>
+
+  <div class="w-full max-w-md bg-[#FAFAF8] rounded-xl p-6 sm:p-8">
+
+    <!-- Header -->
+    <div class="flex items-center justify-between mb-6">
+
+      <h2 class="text-[24px] font-semibold">
+        Add Money
+      </h2>
+
+      <button
+        id="closeWalletModal"
+        class="text-[26px] leading-none hover:opacity-70 transition"
+      >
+        ×
+      </button>
+
+    </div>
+
+
+    <!-- Amount Label -->
+    <label class="block text-[14px] font-medium mb-3 uppercase tracking-[0.18em] opacity-60">
+      Enter Amount
+    </label>
+
+    <!-- Input -->
+    <input
+      type="number"
+      id="walletAmount"
+      min="1"
+      placeholder="Enter amount"
+      class="w-full border border-gray-300 rounded-md px-4 py-3 bg-white outline-none focus:border-[#121212]"
+    />
+
+
+    <!-- Quick Select -->
+    <div class="grid grid-cols-3 gap-3 mt-5">
+
+      <button
+        type="button"
+        class="quickWalletAmount border rounded-md py-2 hover:bg-[#121212] hover:text-white transition"
+        data-amount="100"
+      >
+        ₹100
+      </button>
+
+      <button
+        type="button"
+        class="quickWalletAmount border rounded-md py-2 hover:bg-[#121212] hover:text-white transition"
+        data-amount="500"
+      >
+        ₹500
+      </button>
+
+      <button
+        type="button"
+        class="quickWalletAmount border rounded-md py-2 hover:bg-[#121212] hover:text-white transition"
+        data-amount="1000"
+      >
+        ₹1000
+      </button>
+
+    </div>
+
+
+    <!-- Actions -->
+    <div class="grid grid-cols-2 gap-3 mt-8">
+
+      <button
+        type="button"
+        id="cancelWalletBtn"
+        class="border border-[#121212] py-3 rounded-md font-medium hover:bg-gray-100 transition"
+      >
+        Cancel
+      </button>
+
+      <button
+        type="button"
+        id="proceedWalletPaymentBtn"
+        class="bg-[#121212] text-[#FAFAF8] py-3 rounded-md font-medium hover:opacity-90 transition"
+      >
+        Proceed to Pay
+      </button>
+
+    </div>
+
+  </div>
+
+</div>
