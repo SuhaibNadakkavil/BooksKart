@@ -1,0 +1,238 @@
+<div class="flex gap-10">
+
+  <!-- Sidebar -->
+  <%- include('../partials/userPartials/sidebar', { activePage }) %>
+
+  <!-- Right Content -->
+  <section class="flex-1 min-w-0">
+
+    <!-- Mobile Header -->
+    <div class="flex items-center gap-4 mb-8 lg:hidden">
+      <button
+        id="sidebarToggle"
+        class="text-[20px] font-semibold leading-none"
+      >
+        ☰
+      </button>
+
+      <h1 class="font-playfair text-[36px] font-semibold">
+        Wallet
+      </h1>
+    </div>
+
+    <!-- Desktop Header -->
+    <div class="hidden lg:block mb-12">
+      <h1 class="font-playfair text-[36px] leading-none font-semibold">
+        Wallet
+      </h1>
+    </div>
+
+
+    <!-- Main Grid -->
+    <div class="grid grid-cols-1 xl:grid-cols-2 gap-14">
+
+      <!-- ================================= -->
+      <!-- LEFT SIDE -->
+      <!-- ================================= -->
+      <section class="space-y-10">
+
+        <!-- Balance -->
+        <div class="space-y-5 rounded-lg bg-white hover:shadow-xl p-6">
+
+          <p class="text-[14px] tracking-[0.28em] uppercase opacity-50 font-semibold">
+            Available Balance
+          </p>
+
+          <h2 class="text-[42px] sm:text-[64px] leading-none font-semibold">
+            ₹<%= Number(wallet?.balance || 0).toLocaleString('en-IN', {
+              minimumFractionDigits: 2,
+              maximumFractionDigits: 2
+            }) %>
+          </h2>
+
+        
+
+
+        <!-- Add Money -->
+
+          <button
+            id="addMoneyBtn"
+            class="w-full max-w-md border bg-[#121212] text-white px-6 py-4 text-[16px] font-semibold tracking-[0.14em] uppercase group rounded-md">
+            <span class="inline-block transition-transform duration-300 group-hover:scale-110">
+            Add Money
+            </span>
+          </button>
+
+        </div>
+
+          <!-- Stats -->
+          <div class="grid grid-cols-1 sm:grid-cols-2 gap-6 max-w-md">
+
+            <div class="rounded-lg bg-white hover:shadow-xl p-6">
+              <p class="text-[13px] uppercase tracking-[0.20em] opacity-50 font-medium">
+                Total Added
+              </p>
+
+              <p class="mt-3 text-[28px] font-semibold">
+                ₹<%= Number(wallet?.totalCredited || 0).toLocaleString('en-IN', {
+                  minimumFractionDigits: 2,
+                  maximumFractionDigits: 2
+                }) %>
+              </p>
+            </div>
+
+
+            <div class="rounded-lg bg-white hover:shadow-xl p-6">
+              <p class="text-[13px] uppercase tracking-[0.20em] opacity-50 font-medium">
+                Total Spent
+              </p>
+
+              <p class="mt-3 text-[28px] font-semibold">
+                ₹<%= Number(wallet?.totalDebited || 0).toLocaleString('en-IN', {
+                  minimumFractionDigits: 2,
+                  maximumFractionDigits: 2
+                }) %>
+              </p>
+            </div>
+
+          </div>
+
+
+      </section>
+
+
+
+      <!-- ================================= -->
+      <!-- RIGHT SIDE -->
+      <!-- ================================= -->
+      <section>
+
+        <div class="rounded-lg bg-white hover:shadow-xl p-6">
+        <!-- Header -->
+        <div class="mb-6">
+          <p class="text-[14px] tracking-[0.28em] uppercase opacity-50 font-semibold">
+            Transaction History
+          </p>
+        </div>
+
+        <div class="border-t border-[#121212]"></div>
+
+
+        <!-- Transactions -->
+        <div>
+
+          <% if (transactions?.length) { %>
+
+            <% transactions.forEach(txn => { %>
+
+              <div class="py-7 border-b border-gray-200 flex items-start justify-between gap-6">
+
+                <!-- Left -->
+                <div class="min-w-0">
+
+                  <h3 class="text-[22px] leading-snug font-medium">
+
+                    <% if (txn.source === "purchase") { %>
+                      Purchase
+                    <% } else if (txn.source === "topup") { %>
+                      Top-up
+                    <% } else if (txn.source === "refund") { %>
+                      Refund
+                    <% } else { %>
+                      Wallet Transaction
+                    <% } %>
+
+                  </h3>
+
+                  <p class="text-[14px] mt-2 opacity-45 tracking-[0.18em] uppercase">
+
+                    <%= new Date(txn.createdAt).toLocaleDateString('en-US', {
+                      month: 'short',
+                      day: '2-digit',
+                      year: 'numeric'
+                    }) %>
+
+                    •
+
+                    <%= new Date(txn.createdAt).toLocaleTimeString('en-US', {
+                      hour: '2-digit',
+                      minute: '2-digit',
+                      hour12: false
+                    }) %>
+
+                  </p>
+
+                </div>
+
+
+                <!-- Right -->
+                <div class="shrink-0 text-right">
+
+                  <p class="text-[20px] sm:text-[24px] font-semibold">
+
+                    <% if (txn.type === "credit") { %>
+                      + ₹<%= Number(txn.amount).toLocaleString('en-IN', {
+                        minimumFractionDigits: 2,
+                        maximumFractionDigits: 2
+                      }) %>
+                    <% } else { %>
+                      - ₹<%= Number(txn.amount).toLocaleString('en-IN', {
+                        minimumFractionDigits: 2,
+                        maximumFractionDigits: 2
+                      }) %>
+                    <% } %>
+
+                  </p>
+
+                </div>
+
+              </div>
+
+            <% }) %>
+
+          <% } else { %>
+
+            <div class="py-12 text-center border-b border-gray-200">
+              <p class="text-[16px] opacity-60">
+                No wallet transactions yet.
+              </p>
+            </div>
+
+          <% } %>
+
+        </div>
+        </div>
+
+
+        <!-- Pagination -->
+        <% if (totalPages > 1) { %>
+
+          <div class="flex items-center justify-center gap-3 mt-8">
+
+            <% for(let i = 1; i <= totalPages; i++) { %>
+
+              <a
+                href="/wallet?page=<%= i %>"
+                class="w-10 h-10 flex items-center justify-center rounded-md border transition
+                <%= currentPage === i
+                  ? 'bg-[#121212] text-[#FAFAF8] border-[#121212]'
+                  : 'border-gray-300 hover:border-[#121212]' %>"
+              >
+                <%= i %>
+              </a>
+
+            <% } %>
+
+          </div>
+
+        <% } %>
+
+      </section>
+
+    </div>
+
+  </section>
+
+</div>
+
+<%- include('../partials/userPartials/walletModal') %>

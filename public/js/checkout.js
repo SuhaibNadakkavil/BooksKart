@@ -40,6 +40,11 @@ document.addEventListener("DOMContentLoaded", () => {
       return;
     }
 
+    if (data.paymentMethod === "wallet") {
+      window.location.href =`/order/success?orderId=${data.orderId}`;
+      return;
+    }
+
     if (data.paymentMethod === "razorpay") {
       openRazorpayCheckout(data);
     }
