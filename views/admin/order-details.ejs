@@ -173,8 +173,17 @@
             <div class="flex flex-col items-end gap-3 text-sm min-w-[180px]">
 
               <!-- PRICE -->
-              <p class="font-medium">₹<%= item.itemTotal %>
-              </p>
+              <% if(order.paymentMethod !== 'cod' && order.paymentStatus !== 'failed'){ %>
+                <% if(item.status === "cancelled" || item.status === "returned"){ %>
+                  <p class="font-medium text-green-600">
+                    REFUNDED ₹<%= item.itemTotal %>
+                  </p>
+                <% } %>
+              <% }else{ %>
+                <p class="font-medium">
+                  ₹<%= item.itemTotal %>
+                </p>
+              <% } %>
 
 
               <!-- ================= STATUS HANDLING ================= -->
@@ -182,7 +191,7 @@
               <!-- CANCELLED -->
               <% if(item.status==="cancelled" ){ %>
 
-                <span class="border px-3 rounded-md py-1 text-xs tracking-wide">
+                <span class="border px-3 rounded-md py-1 text-xs tracking-wide text-red-600">
                   CANCELLED
                 </span>
 
@@ -192,7 +201,7 @@
                   <!-- RETURNED -->
                   <% if(item.status==="returned" ){ %>
 
-                    <span class="border rounded-md px-3 py-1 text-xs tracking-wide">
+                    <span class="border rounded-md px-3 py-1 text-xs tracking-wide text-purple-700">
                       RETURNED
                     </span>
 

@@ -200,10 +200,17 @@
       <div class="flex flex-col items-end gap-3 text-sm min-w-[160px]">
 
         <!-- ITEM TOTAL -->
-        <p class="font-medium">
-          ₹<%= item.itemTotal %>
-        </p>
-
+         <% if(order.paymentMethod !== 'cod' && order.paymentStatus !== 'failed'){ %>
+                <% if(item.status === "cancelled" || item.status === "returned"){ %>
+                  <p class="font-medium text-green-600">
+                    REFUNDED ₹<%= item.itemTotal %>
+                  </p>
+                <% } %>
+              <% }else{ %>
+                <p class="font-medium">
+                  ₹<%= item.itemTotal %>
+                </p>
+              <% } %>
 
         <!-- ================= STATUS / ACTION ================= -->
 

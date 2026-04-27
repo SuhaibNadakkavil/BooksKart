@@ -1,5 +1,6 @@
 import * as orderRepo from "../../repositories/user/order.repository.js";
 import Order from "../../models/user/order.schema.js";
+import { walletRefundService } from "../user/wallet.service.js";
 
 // =============================
 // GET ADMIN ORDERS
@@ -116,31 +117,55 @@ export const updateOrderStatusService = async (orderId, newStatus) => {
   }
 
   if (newStatus === "cancelled" && order.orderStatus !== "placed") {
-    throw new Error("Only pending orders can be cancelled");
+    throw new Error("Only placed orders can be cancelled");
   }
 
   // =============================
   // SIDE EFFECTS
   // =============================
 
-  // CANCEL → RESTORE STOCK (ONLY ACTIVE ITEMS)
   if (newStatus === "cancelled") {
 
-    const restorableItems = order.items.filter(
-      i => !["cancelled", "returned"].includes(i.status)
-    );
+  const restorableItems = order.items.filter(
+    i => !["cancelled", "returned"].includes(i.status)
+  );
 
-    await orderRepo.restoreStock(restorableItems);
+  await orderRepo.restoreStock(restorableItems);
 
-    await Order.updateOne(
-      { orderId },
-      {
-        $set: {
-          "items.$[].status": "cancelled"
-        }
+  await Order.updateOne(
+    { orderId },
+    {
+      $set: {
+        "items.$[].status": "cancelled"
       }
+    }
+  );
+
+  const refundable =
+    ["paid", "partially_refunded"].includes(
+      order.paymentStatus
     );
+
+  const noCodRefund =
+    order.paymentMethod === "cod";
+
+  if (refundable && !noCodRefund) {
+
+    const refundAmount =
+      restorableItems.reduce(
+        (sum, item) => sum + item.itemTotal,
+        0
+      );
+
+    if (refundAmount > 0) {
+      await walletRefundService({
+        userId: order.userId,
+        amount: refundAmount,
+        referenceId: orderId
+      });
+    }
   }
+}
 
   // DELIVERED + COD → MARK PAID
   if (newStatus === "delivered" && order.paymentMethod === "cod") {
@@ -152,6 +177,8 @@ export const updateOrderStatusService = async (orderId, newStatus) => {
 
   // UPDATE ORDER STATUS
   await orderRepo.updateOrderStatus(orderId, newStatus);
+
+  await orderRepo.syncPaymentRefundStatus(orderId);
 
   // SYNC ITEMS (avoid cancelled/returned override)
   const syncableStatuses = [
@@ -229,9 +256,35 @@ export const updateOrderItemStatusService = async ({
     await orderRepo.restoreStock([item]);
   }
 
+  // ========================
+  // REFUND LOGIC
+  // ========================
+  const refundablePayment =
+    ["paid", "partially_refunded"]
+      .includes(order.paymentStatus);
+
+  const noCodRefund =
+    order.paymentMethod === "cod";
+
+  if (
+    refundablePayment &&
+    !noCodRefund
+  ) {
+    await walletRefundService({
+      userId: order.userId,
+      amount: item.itemTotal,
+      referenceId: orderId
+    });
+  }
+
   await orderRepo.syncOrderStatusWithItems(orderId);
+  await orderRepo.syncPaymentRefundStatus(orderId);
 
   return {
     message: `Item ${status} successfully`
   };
+};
+
+const calculateRefundAmount = (item) => {
+  return item.itemTotal;
 };

@@ -8,7 +8,7 @@ import * as cartRepo from "../../repositories/user/cart.repository.js";
 import * as orderRepo from "../../repositories/user/order.repository.js";
 import * as addressRepo from "../../repositories/user/address.repo.js";
 import { validateCheckoutService } from "./checkout.service.js";
-import { walletDebitPaymentService } from "./wallet.service.js";
+import { walletDebitPaymentService, walletRefundService } from "./wallet.service.js";
 import Product from "../../models/user/product.schema.js";
 import Order from "../../models/user/order.schema.js";
 import razorpayInstance from '../../config/razorpay.js'
@@ -530,9 +530,26 @@ export const cancelOrderItemService = async (userId, orderId, itemId, reason) =>
 
   const result = await orderRepo.requestCancelItem(orderId, itemId, reason);
 
-  if(!order.orderStatus === 'pending' && !order.paymentStatus === 'failed'){
+  if(order.orderStatus !== 'pending' && order.paymentStatus !== 'failed'){
     await orderRepo.restoreStock([item]);
   }
+
+  const refundable =
+  ["paid", "partially_refunded"]
+    .includes(order.paymentStatus);
+
+const noCodRefund =
+  order.paymentMethod === "cod";
+
+if (refundable && !noCodRefund) {
+  await walletRefundService({
+    userId,
+    amount: item.itemTotal,
+    referenceId: orderId
+  });
+}
+
+await orderRepo.syncPaymentRefundStatus(orderId);
 
   await orderRepo.syncOrderStatusWithItems(orderId);
 
@@ -578,9 +595,16 @@ export const returnOrderItemService = async (userId, orderId, itemId, reason) =>
 };
 
 
-export const cancelOrderService = async (userId, orderId, reason) => {
+export const cancelOrderService = async (
+  userId,
+  orderId,
+  reason
+) => {
 
-  const order = await orderRepo.getOrderByOrderId(orderId, userId);
+  const order = await orderRepo.getOrderByOrderId(
+    orderId,
+    userId
+  );
 
   if (!order) {
     const error = new Error("Order not found");
@@ -589,20 +613,88 @@ export const cancelOrderService = async (userId, orderId, reason) => {
   }
 
   if (order.orderStatus === "delivered") {
-    const error = new Error("Delivered order cannot be cancelled");
+    const error = new Error(
+      "Delivered order cannot be cancelled"
+    );
     error.type = "ORDER";
     throw error;
   }
 
+  // =====================================
+  // ITEMS ELIGIBLE FOR CANCEL
+  // =====================================
   const restorableItems = order.items.filter(
-    i => !["cancelled", "returned"].includes(i.status)
+    item =>
+      !["cancelled", "returned"].includes(
+        item.status
+      )
   );
 
-  if(!order.orderStatus === 'pending' && !order.paymentStatus === 'failed'){
-    await orderRepo.restoreStock(restorableItems);
+  if (!restorableItems.length) {
+    const error = new Error(
+      "No cancellable items found"
+    );
+    error.type = "ORDER";
+    throw error;
   }
-  
-  await orderRepo.requestCancelOrder(orderId, userId, reason);
+
+  // =====================================
+  // RESTORE STOCK
+  // only if stock was reduced earlier
+  // =====================================
+  if (
+    order.orderStatus !== "pending" &&
+    order.paymentStatus !== "failed"
+  ) {
+    await orderRepo.restoreStock(
+      restorableItems
+    );
+  }
+
+  // =====================================
+  // CANCEL ORDER + ITEMS
+  // =====================================
+  await orderRepo.requestCancelOrder(
+    orderId,
+    userId,
+    reason
+  );
+
+  // =====================================
+  // REFUND TO WALLET
+  // only if payment already received
+  // =====================================
+  const refundable =
+    ["paid", "partially_refunded"].includes(
+      order.paymentStatus
+    );
+
+  const noCodRefund =
+    order.paymentMethod === "cod";
+
+  if (refundable && !noCodRefund) {
+
+    let refundAmount = 0;
+
+    for (const item of restorableItems) {
+      refundAmount += item.itemTotal;
+    }
+
+    if (refundAmount > 0) {
+      await walletRefundService({
+        userId,
+        amount: refundAmount,
+        referenceId: orderId
+      });
+    }
+  }
+
+  // =====================================
+  // UPDATE PAYMENT STATUS
+  // =====================================
+  await orderRepo.syncPaymentRefundStatus(
+    orderId
+  );
 
   return true;
 };

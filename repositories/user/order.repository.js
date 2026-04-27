@@ -407,6 +407,7 @@ export const getAdminOrderByOrderId = async (orderId) => {
     // =============================
     {
       $project: {
+        userId: 1,
         orderId: 1,
         orderStatus: 1,
         paymentMethod: 1,
@@ -611,4 +612,39 @@ export const getProductForRetry = async (productId) => {
   return await Product.findById(productId)
     .populate("category")
     .lean();
+};
+
+
+export const syncPaymentRefundStatus = async (orderId) => {
+
+  const order = await Order.findOne({ orderId });
+
+  if (!order) return;
+
+  if (order.paymentStatus !== "paid" &&
+      order.paymentStatus !== "partially_refunded") {
+    return;
+  }
+
+  const refundableStatuses = ["cancelled", "returned"];
+
+  const refundedItems = order.items.filter(
+    item => refundableStatuses.includes(item.status)
+  );
+
+  if (!refundedItems.length) return;
+
+  const allRefunded =
+    refundedItems.length === order.items.length;
+
+  await Order.updateOne(
+    { orderId },
+    {
+      $set: {
+        paymentStatus: allRefunded
+          ? "refunded"
+          : "partially_refunded"
+      }
+    }
+  );
 };
