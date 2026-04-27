@@ -1,0 +1,357 @@
+<section class="space-y-8">
+
+  <!-- ===================================== -->
+  <!-- HEADER -->
+  <!-- ===================================== -->
+  <div class="flex flex-col md:flex-row md:items-center md:justify-between gap-5">
+
+    <div>
+      <h1 class="text-[30px] md:text-[38px] font-semibold leading-tight">
+        Coupon Management
+      </h1>
+
+      <p class="text-[15px] mt-2 opacity-70">
+        Create, manage and control promotional coupon codes.
+      </p>
+    </div>
+
+    <button
+      id="openCouponModalBtn"
+      class="bg-[#121212] text-[#FAFAF8] px-6 py-3 rounded-lg text-[15px] font-medium uppercase group"
+    >
+      <span class="inline-block transition-transform duration-300 group-hover:scale-110">Add Coupon</span>
+    </button>
+
+  </div>
+
+
+
+  <!-- ===================================== -->
+  <!-- SEARCH -->
+  <!-- ===================================== -->
+  <form
+    method="GET"
+    action="/admin/coupons"
+    class="flex flex-col sm:flex-row gap-3"
+  >
+
+    <input
+      type="text"
+      name="search"
+      value="<%= query?.search || '' %>"
+      placeholder="Search by coupon name or code"
+      class="border px-4 py-3 rounded-lg outline-none focus:border-[#121212]"
+    />
+
+    <button
+      type="submit"
+      class="border bg-[#121212] text-white px-6 py-3 rounded-lg text-[15px] font-medium hover:opacity-90 transition"
+    >
+      Search
+    </button>
+
+    <% if (query?.search) { %>
+      <a
+        href="/admin/coupons"
+        class="border border-gray-300 px-6 py-3 rounded-lg text-center hover:border-[#121212] transition"
+      >
+        Clear
+      </a>
+    <% } %>
+
+  </form>
+
+
+
+  <!-- ===================================== -->
+  <!-- TABLE -->
+  <!-- ===================================== -->
+  <div class="overflow-hidden">
+
+    <!-- Desktop -->
+    <div class="hidden lg:block overflow-x-auto">
+
+      <table class="w-full text-left">
+
+        <thead class="border-b border-gray-200 bg-[#FAFAF8]">
+
+          <tr class="text-[14px] font-semibold">
+
+            <th class="px-6 py-4">Coupon</th>
+            <th class="px-6 py-4">Discount</th>
+            <th class="px-6 py-4">Min Spend</th>
+            <th class="px-6 py-4">Usage</th>
+            <th class="px-6 py-4">Expiry</th>
+            <th class="px-6 py-4">Status</th>
+            <th class="px-6 py-4 text-right">Actions</th>
+
+          </tr>
+
+        </thead>
+
+
+        <tbody>
+
+          <% if (coupons?.length) { %>
+
+            <% coupons.forEach(coupon => { %>
+
+              <tr class="border-b last:border-b-0 border-gray-100">
+
+                <!-- Coupon -->
+                <td class="px-6 py-5">
+
+                  <p class="font-semibold text-[15px]">
+                    <%= coupon.name %>
+                  </p>
+
+                  <p class="text-[13px] mt-1 px-3 py-1 rounded-lg bg-gray-100 font-bold tracking-wide">
+                    <%= coupon.code %>
+                  </p>
+
+                </td>
+
+
+                <!-- Discount -->
+                <td class="px-6 py-5 text-[14px]">
+
+                  <p class="font-bold text-red-600">
+                    <%= coupon.discountPercent %>% OFF
+                  </p>
+
+                  <p class="text-green-600 font-bold mt-1">
+
+                    Max:
+                    <%= coupon.maxDiscountAmount !== 0
+                      ? "₹" + coupon.maxDiscountAmount
+                      : "Unlimited" %>
+
+                  </p>
+
+                </td>
+
+
+                <!-- Min Spend -->
+                <td class="px-6 py-5 text-[14px] font-bold">
+
+                  ₹<%= coupon.minCartValue %>
+
+                </td>
+
+
+                <!-- Usage -->
+                <td class="px-6 py-5 text-[14px] font-bold">
+
+                  <%= coupon.usedCount %>
+                  /
+
+                  <%= coupon.maxUsageCount !== 0
+                    ? coupon.maxUsageCount
+                    : "∞" %>
+
+                </td>
+
+
+                <!-- Expiry -->
+                <td class="px-6 py-5 text-[14px] font-bold">
+
+                  <%= new Date(coupon.expiryDate)
+                    .toLocaleDateString("en-IN") %>
+
+                </td>
+
+
+                <!-- Status -->
+                <td class="px-6 py-5">
+
+                  <% const isExpired =
+                    new Date(coupon.expiryDate) < new Date(); %>
+
+                  <% if (!coupon.isActive) { %>
+
+                    <span class="text-[13px] font-bold text-red-600">
+                      Disabled
+                    </span>
+
+                  <% } else if (isExpired) { %>
+
+                    <span class="text-[13px] font-bold text-orange-600">
+                      Expired
+                    </span>
+
+                  <% } else { %>
+
+                    <span class="text-[13px] font-bold text-green-600">
+                      Active
+                    </span>
+
+                  <% } %>
+
+                </td>
+
+
+                <!-- Actions -->
+                <td class="px-6 py-5">
+
+                  <div class="flex items-center justify-end gap-3">
+
+                    <button
+                      class="toggleCouponBtn text-[13px] px-1 py-1 border rounded-md transition hover:bg-black hover:text-white"
+                      data-id="<%= coupon._id %>"
+                    >
+                      <%= coupon.isActive ? "Disable" : "Enable" %>
+                    </button>
+
+                    <button
+                      class="editCouponBtn text-[13px] px-1 py-1 border text-blue-600 rounded-md transition hover:bg-blue-600 hover:text-white"
+                      data-id="<%= coupon._id %>"
+                      data-name="<%= coupon.name %>"
+                      data-code="<%= coupon.code %>"
+                      data-discount="<%= coupon.discountPercent %>"
+                      data-min="<%= coupon.minCartValue %>"
+                      data-maxdiscount="<%= coupon.maxDiscountAmount %>"
+                      data-maxusage="<%= coupon.maxUsageCount %>"
+                      data-expiry="<%= new Date(coupon.expiryDate).toISOString().split('T')[0] %>"
+                    >
+                      Edit
+                    </button>
+
+                    <button
+                      class="deleteCouponBtn text-[13px] px-1 py-1 border rounded-md transition text-red-600 hover:bg-red-600 hover:text-white"
+                      data-id="<%= coupon._id %>"
+                    >
+                      Delete
+                    </button>
+
+                  </div>
+
+                </td>
+
+              </tr>
+
+            <% }) %>
+
+          <% } else { %>
+
+            <tr>
+              <td
+                colspan="7"
+                class="px-6 py-12 text-center opacity-60"
+              >
+                No coupons found.
+              </td>
+            </tr>
+
+          <% } %>
+
+        </tbody>
+
+      </table>
+
+    </div>
+
+
+
+    <!-- Mobile Cards -->
+    <div class="lg:hidden divide-y divide-gray-100">
+
+      <% if (coupons?.length) { %>
+
+        <% coupons.forEach(coupon => { %>
+
+          <div class="p-5 space-y-4">
+
+            <div>
+
+              <h3 class="font-semibold">
+                <%= coupon.name %>
+              </h3>
+
+              <p class="text-sm opacity-60 mt-1">
+                <%= coupon.code %>
+              </p>
+
+            </div>
+
+            <div class="grid grid-cols-2 gap-4 text-sm">
+
+              <p>
+                <span class="opacity-60">Discount:</span>
+                <%= coupon.discountPercent %>%
+              </p>
+
+              <p>
+                <span class="opacity-60">Min:</span>
+                ₹<%= coupon.minCartValue %>
+              </p>
+
+              <p>
+                <span class="opacity-60">Used:</span>
+                <%= coupon.usedCount %>
+              </p>
+
+              <p>
+                <span class="opacity-60">Expiry:</span>
+                <%= new Date(coupon.expiryDate).toLocaleDateString("en-IN") %>
+              </p>
+
+            </div>
+
+            <div class="flex gap-4 text-sm">
+
+              <button
+                class="toggleCouponBtn underline"
+                data-id="<%= coupon._id %>"
+              >
+                <%= coupon.isActive ? "Disable" : "Enable" %>
+              </button>
+
+              <button
+                class="deleteCouponBtn underline"
+                data-id="<%= coupon._id %>"
+              >
+                Delete
+              </button>
+
+            </div>
+
+          </div>
+
+        <% }) %>
+
+      <% } %>
+
+    </div>
+
+  </div>
+
+
+
+  <!-- ===================================== -->
+  <!-- PAGINATION -->
+  <!-- ===================================== -->
+  <% if (totalPages > 1) { %>
+
+    <div class="flex items-center justify-center gap-2 flex-wrap">
+
+      <% for(let i = 1; i <= totalPages; i++) { %>
+
+        <a
+          href="/admin/coupons?page=<%= i %><%= query?.search ? '&search=' + query.search : '' %>"
+          class="w-10 h-10 rounded-lg border flex items-center justify-center transition
+          <%= page === i
+            ? 'bg-[#121212] text-[#FAFAF8] border-[#121212]'
+            : 'border-gray-300 hover:border-[#121212]' %>"
+        >
+          <%= i %>
+        </a>
+
+      <% } %>
+
+    </div>
+
+  <% } %>
+
+</section>
+
+<%- include('../partials/adminPartials/couponModal') %>

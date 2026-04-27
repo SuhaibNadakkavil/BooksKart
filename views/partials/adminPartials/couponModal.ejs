@@ -1,0 +1,147 @@
+<!-- ===================================== -->
+  <!-- ADD / EDIT MODAL -->
+  <!-- ===================================== -->
+  <div
+    id="couponModal"
+    class="fixed inset-0 bg-black/40 hidden z-50 flex items-center justify-center px-4"
+  >
+
+    <div class="w-full max-w-xl bg-[#FAFAF8] rounded-xl p-6 md:p-8">
+
+      <div class="flex items-center justify-between mb-6">
+
+        <h2
+          id="couponModalTitle"
+          class="text-[24px] font-semibold"
+        >
+          Add Coupon
+        </h2>
+
+        <button
+          id="closeCouponModalBtn"
+          class="text-[28px] leading-none"
+        >
+          ×
+        </button>
+
+      </div>
+
+
+      <form
+        id="couponForm"
+        class="space-y-5"
+      >
+
+        <input type="hidden" id="couponId" />
+
+        <div class="grid grid-cols-1 md:grid-cols-2 gap-5">
+
+          <div>
+            <label class="text-sm block mb-2">
+              Coupon Name
+            </label>
+
+            <input
+              id="name"
+              class="w-full border border-gray-300 bg-white px-4 py-3 rounded-lg"
+            />
+          </div>
+
+          <div>
+            <label class="text-sm block mb-2">
+              Coupon Code
+            </label>
+
+            <input
+              id="code"
+              class="w-full border border-gray-300 bg-white px-4 py-3 rounded-lg uppercase"
+            />
+          </div>
+
+          <div>
+            <label class="text-sm block mb-2">
+              Discount %
+            </label>
+
+            <input
+              type="number"
+              id="discountPercent"
+              class="w-full border border-gray-300 bg-white px-4 py-3 rounded-lg"
+            />
+          </div>
+
+          <div>
+            <label class="text-sm block mb-2">
+              Min Cart Value
+            </label>
+
+            <input
+              type="number"
+              id="minCartValue"
+              class="w-full border border-gray-300 bg-white px-4 py-3 rounded-lg"
+            />
+          </div>
+
+          <div>
+            <label class="text-sm block mb-2">
+              Max Discount (Optional)
+            </label>
+
+            <input
+              type="number"
+              id="maxDiscountAmount"
+              class="w-full border border-gray-300 bg-white px-4 py-3 rounded-lg"
+            />
+          </div>
+
+          <div>
+            <label class="text-sm block mb-2">
+              Max Usage (Optional)
+            </label>
+
+            <input
+              type="number"
+              id="maxUsageCount"
+              class="w-full border border-gray-300 bg-white px-4 py-3 rounded-lg"
+            />
+          </div>
+
+          <div class="md:col-span-2">
+            <label class="text-sm block mb-2">
+              Expiry Date
+            </label>
+
+            <input
+              type="date"
+              id="expiryDate"
+              class="w-full border border-gray-300 bg-white px-4 py-3 rounded-lg"
+            />
+          </div>
+
+        </div>
+
+
+        <div class="grid grid-cols-2 gap-3 pt-3">
+
+          <button
+            type="button"
+            id="cancelCouponBtn"
+            class="border border-[#121212] py-3 rounded-lg"
+          >
+            Cancel
+          </button>
+
+          <button
+            type="submit"
+            class="bg-[#121212] text-[#FAFAF8] py-3 rounded-lg"
+          >
+            Save Coupon
+          </button>
+
+        </div>
+
+      </form>
+
+    </div>
+
+  </div>

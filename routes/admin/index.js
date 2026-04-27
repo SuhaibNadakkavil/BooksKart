@@ -5,6 +5,7 @@ import categoryManagement from './categoryManagement.routes.js'
 import offerRoutes from './offer.routes.js'
 import productManagement from './productManagement.routes.js'
 import orderRoutes from "./order.routes.js";
+import couponRoutes from "./coupon.routes.js"
 
 const router = express.Router()
 
@@ -19,5 +20,6 @@ router.use('/', categoryManagement)
 router.use('/', offerRoutes)
 router.use('/', productManagement)
 router.use("/", orderRoutes);
+router.use("/", couponRoutes)
 
 export default router
