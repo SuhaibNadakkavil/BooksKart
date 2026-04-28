@@ -403,3 +403,122 @@
   </div>
 
 </div>
+
+
+<!-- ===================================== -->
+<!-- COUPON MODAL -->
+<!-- ===================================== -->
+
+<div
+  id="couponModal"
+  class="hidden fixed inset-0 z-50 bg-black/50 px-4 py-10"
+>
+
+  <div class="max-w-lg mx-auto bg-[#FAFAF8] text-black rounded-lg">
+
+    <div class="flex items-center justify-between px-8 py-6">
+
+      <h2 class="text-xl font-semibold tracking-wide">
+        AVAILABLE COUPONS
+      </h2>
+
+      <button
+        id="closeCouponModalBtn"
+        class="text-3xl opacity-70 hover:opacity-100"
+      >
+        ×
+      </button>
+
+    </div>
+
+
+    <div class="p-8 space-y-6 max-h-96 overflow-y-auto">
+
+      <% if (availableCoupons?.length) { %>
+
+      <% availableCoupons?.forEach(coupon => { %>
+
+        <div class="rounded-2xl p-8 cursor-pointer hover:shadow-xl transition bg-white">
+
+          <div class="flex justify-between gap-6">
+
+            <div>
+              <p class="text-2xl font-semibold">
+                <%= coupon.code %>
+              </p>
+
+              <p class="text-xl mt-3 font-medium">
+                <%= coupon.name %>
+              </p>
+            </div>
+
+            <div class="text-red-600 font-semibold">
+              <%= coupon.discountPercent %>% OFF
+            </div>
+
+          </div>
+
+          <div class="grid grid-cols-2 gap-10 mt-4 pt-3">
+
+            <div>
+              <p class="text-sm uppercase">
+                Min Spend
+              </p>
+
+              <p class="text-xl font-semibold mt-1">
+                ₹<%= coupon.minCartValue %>
+              </p>
+            </div>
+
+            <div>
+              <p class="text-sm uppercase">
+                Max Discount
+              </p>
+
+              <p class="text-xl font-semibold mt-1 text-green-600">
+                <%= coupon.maxDiscountAmount === 0
+                  ? 'Unlimited'
+                  : '₹' + coupon.maxDiscountAmount %>
+              </p>
+            </div>
+
+          </div>
+
+          <div class="flex items-center justify-between mt-4">
+
+            <p class="italic">
+              Usage Limit:
+              <%= coupon.maxUsageCount === 0
+                ? 'Unlimited'
+                : coupon.maxUsageCount %>
+            </p>
+
+            <button
+              type="button"
+              class="couponApplyQuickBtn bg-black text-white transition hover:opacity-90 tracking-wide px-4 py-2 rounded-lg"
+              data-code="<%= coupon.code %>"
+            >
+              APPLY
+            </button>
+
+          </div>
+
+        </div>
+
+      <% }) %>
+
+      <% } else { %>
+
+        <div class="py-12 text-center">
+              <p class="text-[16px] opacity-60">
+                No Coupons yet.
+              </p>
+            </div>
+
+      <% } %>
+
+    </div>
+
+  </div>
+
+</div>

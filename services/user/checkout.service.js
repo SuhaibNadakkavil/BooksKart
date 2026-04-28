@@ -1,4 +1,5 @@
 import * as cartRepo from "../../repositories/user/cart.repository.js";
+import { applyCouponService } from "../admin/coupon.service.js";
 
 const MAX_CART_QTY = 5;
 
@@ -136,4 +137,53 @@ export const validateCheckoutService = async (userId) => {
     totalItems
   };
 
+};
+
+// =====================================
+// APPLY COUPON IN CHECKOUT
+// =====================================
+export const applyCouponCheckoutService =
+async ({
+  userId,
+  code
+}) => {
+
+  const checkoutData =
+    await validateCheckoutService(userId);
+
+  const result =
+    await applyCouponService({
+      code,
+      subtotal:
+        checkoutData.subtotal
+    });
+
+  return {
+    couponId: result.couponId,
+    code: result.code,
+    subtotal:
+      checkoutData.subtotal,
+    discount:
+      result.discount,
+    total:
+      result.finalTotal
+  };
+};
+
+// =====================================
+// REMOVE COUPON
+// =====================================
+export const removeCouponCheckoutService =
+async (userId) => {
+
+  const checkoutData =
+    await validateCheckoutService(userId);
+
+  return {
+    subtotal:
+      checkoutData.subtotal,
+    discount: 0,
+    total:
+      checkoutData.subtotal
+  };
 };

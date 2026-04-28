@@ -22,11 +22,17 @@ export const createOrder = async (req, res, next) => {
     const userId = req.user._id;
     const { addressId, paymentMethod } = req.body;
 
+    const couponData = req.session.checkoutCoupon || null;
+
     const order = await createOrderService({
       userId,
       addressId,
-      paymentMethod
+      paymentMethod,
+      couponData
     });
+
+    // clear used session coupon
+    delete req.session.checkoutCoupon;
 
     // ==============================
     // COD

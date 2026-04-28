@@ -246,32 +246,75 @@
 
       <!-- Coupon -->
       <div class="space-y-2">
-        <p class="text-sm font-medium">COUPON CODE</p>
 
-        <div class="flex gap-2">
-          <input 
+        <p class="text-sm font-medium">
+          COUPON CODE
+        </p>
+
+        <!-- Input / Apply Row -->
+        <div
+          id="couponInputRow"
+          class="<%= appliedCoupon ? 'hidden' : '' %> flex gap-2"
+        >
+          <input
+            id="couponCodeInput"
             type="text"
             placeholder="Enter coupon"
             class="flex-1 border rounded px-3 py-2 text-sm outline-none"
           />
-          <button class="px-4 py-2 text-sm bg-[#121212] text-white transition rounded-md group">
-            <span class="inline-block transition-transform duration-300 group-hover:scale-110">
+
+          <button
+            id="applyCouponBtn"
+            type="button"
+            class="px-4 py-2 text-sm bg-[#121212] text-white rounded-md hover:opacity-80"
+          >
             APPLY
-            </span>
           </button>
         </div>
 
-        <a href="#" class="text-xs font-semibold hover:underline">
+        <!-- Applied Coupon Row -->
+        <div
+          id="appliedCouponBox"
+          class="<%= appliedCoupon ? '' : 'hidden' %> flex gap-2"
+        >
+
+          <span
+            id="appliedCouponCode"
+            class="flex-1 border rounded px-3 py-2 text-sm outline-none"
+          >
+            <%= appliedCoupon?.code || '' %>
+          </span>
+
+          <button
+            id="removeCouponBtn"
+            type="button"
+            class="px-4 py-2 text-sm bg-[#121212] text-white rounded-md hover:opacity-80"
+          >
+            REMOVE
+          </button>
+
+        </div>
+
+        <button
+          id="openCouponModalBtn"
+          type="button"
+          class="text-xs font-semibold hover:underline"
+        >
           View Coupon Codes
-        </a>
+        </button>
+
       </div>
 
-      <!-- Price -->
+
+      <!-- PRICE -->
       <div class="text-sm space-y-2 border-t pt-4">
 
         <div class="flex justify-between">
           <span>Subtotal</span>
-          <span>₹<%= subtotal %></span>
+
+          <span id="subtotalText">
+            ₹<%= subtotal %>
+          </span>
         </div>
 
         <div class="flex justify-between">
@@ -281,15 +324,24 @@
 
         <div class="flex justify-between text-green-600">
           <span>Discount</span>
-          <span>₹0</span>
+
+          <span id="discountText">
+            ₹<%= couponDiscount || 0 %>
+          </span>
         </div>
 
       </div>
 
-      <!-- Total -->
+
+      <!-- TOTAL -->
       <div class="border-t pt-4 flex justify-between font-semibold text-base">
+
         <span>TOTAL</span>
-        <span>₹<%= subtotal %></span>
+
+        <span id="totalText">
+          ₹<%= finalTotal %>
+        </span>
+
       </div>
 
       <!-- Place Order -->

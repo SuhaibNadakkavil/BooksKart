@@ -151,7 +151,13 @@ const orderSchema = new Schema({
   subtotal: { type: Number, required: true },
   discount: { type: Number, default: 0 },
   shipping: { type: Number, default: 0 },
-  totalAmount: { type: Number, required: true }
+  totalAmount: { type: Number, required: true },
+
+  couponId: {
+    type: Schema.Types.ObjectId,
+    ref: "Coupon",
+    default: null
+  },
 
 }, {
   timestamps: true

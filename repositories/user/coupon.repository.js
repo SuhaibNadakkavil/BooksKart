@@ -9,6 +9,17 @@ export const createCoupon = async (data) => {
 };
 
 
+export const getValidCouponById =
+async (couponId) => {
+  return await Coupon.findOne({
+    _id: couponId,
+    isDeleted: false,
+    isActive: true,
+    expiryDate: { $gte: new Date() }
+  });
+};
+
+
 // ==============================
 // FIND BY CODE
 // ==============================
@@ -156,4 +167,15 @@ export const incrementCouponUsage = async (
       $inc: { usedCount: 1 }
     }
   );
+};
+
+export const getAvailableCoupons =
+async () => {
+  return await Coupon.find({
+    isDeleted: false,
+    isActive: true,
+    expiryDate: { $gte: new Date() }
+  })
+  .sort({ createdAt: -1 })
+  .lean();
 };

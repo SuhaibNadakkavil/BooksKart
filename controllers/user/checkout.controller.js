@@ -1,12 +1,21 @@
 import HTTP_STATUS from "../../utils/httpStatus.js";
-import { validateCheckoutService } from "../../services/user/checkout.service.js";
+
+import { 
+  validateCheckoutService,
+  applyCouponCheckoutService,
+  removeCouponCheckoutService
+ } from "../../services/user/checkout.service.js";
+
 import { addressSchema } from "../../validators/user/address.validator.js";
+
 import { 
     getUserAddressesService,
     addAddressService,
     editAddressService
  } from "../../services/user/address.service.js";
+
 import * as walletRepo from "../../repositories/user/wallet.repository.js";
+import * as couponRepo from "../../repositories/user/coupon.repository.js"
 
 export const loadCheckoutPage = async (req, res, next) => {
   try {
@@ -36,6 +45,8 @@ export const loadCheckoutPage = async (req, res, next) => {
 
     const wallet = await walletRepo.getOrCreateWallet(userId)
 
+    const availableCoupons = await couponRepo.getAvailableCoupons();
+
     res.status(HTTP_STATUS.OK).render("user/checkout", {
       title: "Checkout | BooksKart",
       headerType: "main",
@@ -52,12 +63,96 @@ export const loadCheckoutPage = async (req, res, next) => {
 
       addresses,
       wallet,
+      appliedCoupon: null,
+      couponDiscount: 0,
+      finalTotal:
+        checkoutData?.subtotal || 0,
+
+      availableCoupons,
 
       pageScript: "/js/checkout.js"
     });
 
   } catch (err) {
     next(err);
+  }
+};
+
+
+// =====================================
+// APPLY COUPON
+// =====================================
+export const applyCoupon = async (
+  req,
+  res,
+  next
+) => {
+  try {
+
+    const userId = req.user._id;
+    const { code } = req.body;
+
+    const data =
+      await applyCouponCheckoutService({
+        userId,
+        code
+      });
+
+    req.session.checkoutCoupon = {
+      couponId: data.couponId,
+      code: data.code,
+      discount: data.discount
+    };
+
+    return res.status(200).json({
+      success: true,
+      message: "Coupon applied",
+      data
+    });
+
+  } catch (err) {
+
+    return res.status(400).json({
+      success: false,
+      message: err.message
+    });
+
+  }
+};
+
+
+// =====================================
+// REMOVE COUPON
+// =====================================
+export const removeCoupon = async (
+  req,
+  res,
+  next
+) => {
+  try {
+
+    const userId = req.user._id;
+
+    delete req.session.checkoutCoupon;
+
+    const data =
+      await removeCouponCheckoutService(
+        userId
+      );
+
+    return res.status(200).json({
+      success: true,
+      message: "Coupon removed",
+      data
+    });
+
+  } catch (err) {
+
+    return res.status(400).json({
+      success: false,
+      message: err.message
+    });
+
   }
 };
 

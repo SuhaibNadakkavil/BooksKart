@@ -7,8 +7,10 @@ import crypto from "crypto";
 import * as cartRepo from "../../repositories/user/cart.repository.js";
 import * as orderRepo from "../../repositories/user/order.repository.js";
 import * as addressRepo from "../../repositories/user/address.repo.js";
+import * as couponRepo from "../../repositories/user/coupon.repository.js"
 import { validateCheckoutService } from "./checkout.service.js";
 import { walletDebitPaymentService, walletRefundService } from "./wallet.service.js";
+import { applyCouponService, markCouponUsedService } from "../admin/coupon.service.js";
 import Product from "../../models/user/product.schema.js";
 import Order from "../../models/user/order.schema.js";
 import razorpayInstance from '../../config/razorpay.js'
@@ -20,13 +22,40 @@ const normalizeVariantType = (type) => {
 export const createOrderService = async ({
   userId,
   addressId,
-  paymentMethod
+  paymentMethod,
+  couponData
 }) => {
 
   // =============================
   // VALIDATE CHECKOUT
   // =============================
   const checkoutData = await validateCheckoutService(userId);
+
+  let finalDiscount = 0;
+  let appliedCouponId = null;
+
+  if (couponData?.couponId) {
+
+    const latestCoupon =
+      await couponRepo.getValidCouponById(
+        couponData.couponId
+      );
+
+    if (latestCoupon) {
+
+      const couponResult =
+        await applyCouponService({
+          code: latestCoupon.code,
+          subtotal: checkoutData.subtotal
+        });
+
+      finalDiscount =
+        couponResult.discount;
+
+      appliedCouponId =
+        latestCoupon._id;
+    }
+  }
 
   // =============================
   // ADDRESS
@@ -115,7 +144,12 @@ export const createOrderService = async ({
         : "pending",
 
     subtotal: checkoutData.subtotal,
-    totalAmount: checkoutData.subtotal
+    discount: finalDiscount,
+    totalAmount:
+      checkoutData.subtotal -
+      finalDiscount,
+
+    couponId: appliedCouponId || null
   });
 
   // =============================
@@ -124,6 +158,12 @@ export const createOrderService = async ({
   if (isCod) {
     await reduceStockService(orderItems);
     await orderRepo.markPlaced(orderId);
+
+    if (appliedCouponId) {
+      await markCouponUsedService(
+        appliedCouponId
+      );
+    }
   }
 
   // =============================
@@ -139,6 +179,12 @@ export const createOrderService = async ({
 
     await reduceStockService(orderItems);
     await orderRepo.markPlaced(orderId);
+
+    if (appliedCouponId) {
+      await markCouponUsedService(
+        appliedCouponId
+      );
+    }
   }
 
   // =============================
@@ -223,6 +269,12 @@ export const verifyPaymentService = async ({
     razorpayPaymentId: razorpay_payment_id,
     razorpaySignature: razorpay_signature
   });
+
+  if (order.couponId) {
+    await markCouponUsedService(
+      order.couponId
+    );
+  }
 
   return true;
 };

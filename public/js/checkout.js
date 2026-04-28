@@ -492,3 +492,279 @@ document.addEventListener("DOMContentLoaded", () => {
   });
 
 });
+
+
+document.addEventListener(
+  "DOMContentLoaded",
+  () => {
+
+    // =====================================
+// COUPON
+// =====================================
+const couponInput =
+  document.getElementById(
+    "couponCodeInput"
+  );
+
+const applyBtn =
+  document.getElementById(
+    "applyCouponBtn"
+  );
+
+const removeBtn =
+  document.getElementById(
+    "removeCouponBtn"
+  );
+
+const inputRow =
+  document.getElementById(
+    "couponInputRow"
+  );
+
+const appliedBox =
+  document.getElementById(
+    "appliedCouponBox"
+  );
+
+const appliedCode =
+  document.getElementById(
+    "appliedCouponCode"
+  );
+
+const discountText =
+  document.getElementById(
+    "discountText"
+  );
+
+const totalText =
+  document.getElementById(
+    "totalText"
+  );
+
+const modal =
+  document.getElementById(
+    "couponModal"
+  );
+
+const openModalBtn =
+  document.getElementById(
+    "openCouponModalBtn"
+  );
+
+const closeModalBtn =
+  document.getElementById(
+    "closeCouponModalBtn"
+  );
+
+function renderCoupon(data = {}) {
+
+  const code =
+    data.code || "";
+
+  const discount =
+    data.discount || 0;
+
+  const total =
+    data.total || 0;
+
+  discountText.innerText =
+    `₹${discount}`;
+
+  totalText.innerText =
+    `₹${total}`;
+
+  if (code) {
+
+    inputRow.classList.add(
+      "hidden"
+    );
+
+    appliedBox.classList.remove(
+      "hidden"
+    );
+
+    appliedCode.innerText =
+      code;
+
+  } else {
+
+    inputRow.classList.remove(
+      "hidden"
+    );
+
+    appliedBox.classList.add(
+      "hidden"
+    );
+
+    couponInput.value = "";
+  }
+}
+
+
+// =====================================
+// APPLY
+// =====================================
+async function applyCoupon(code) {
+
+  try {
+
+    const res = await fetch(
+      "/checkout/apply-coupon",
+      {
+        method: "POST",
+        headers: {
+          "Content-Type":
+            "application/json"
+        },
+        body: JSON.stringify({
+          code
+        })
+      }
+    );
+
+    const data =
+      await res.json();
+
+    if (!res.ok) {
+      showToast(
+        data.message
+      );
+      return;
+    }
+
+    renderCoupon(
+      data.data
+    );
+
+    modal?.classList.add(
+      "hidden"
+    );
+
+    showToast(
+      "Coupon applied", "success"
+    );
+
+  } catch {
+    showToast(
+      "Unable to apply coupon"
+    );
+  }
+}
+
+
+// =====================================
+// REMOVE
+// =====================================
+async function removeCoupon() {
+
+  try {
+
+    const res = await fetch(
+      "/checkout/remove-coupon",
+      {
+        method: "DELETE"
+      }
+    );
+
+    const data =
+      await res.json();
+
+    if (!res.ok) {
+      showToast(
+        data.message
+      );
+      return;
+    }
+
+    renderCoupon({
+      code: "",
+      discount: 0,
+      total: data.data.total
+    });
+
+    showToast(
+      "Coupon removed", "success"
+    );
+
+  } catch {
+    showToast(
+      "Unable to remove coupon"
+    );
+  }
+}
+
+
+// =====================================
+// EVENTS
+// =====================================
+applyBtn?.addEventListener(
+  "click",
+  () => {
+
+    const code =
+      couponInput.value.trim();
+
+    if (!code) {
+      showToast(
+        "Enter coupon code"
+      );
+      return;
+    }
+
+    applyCoupon(code);
+  }
+);
+
+couponInput?.addEventListener(
+  "keydown",
+  (e) => {
+    if (e.key === "Enter") {
+      e.preventDefault();
+      applyBtn.click();
+    }
+  }
+);
+
+removeBtn?.addEventListener(
+  "click",
+  removeCoupon
+);
+
+openModalBtn?.addEventListener(
+  "click",
+  () => {
+    modal?.classList.remove(
+      "hidden"
+    );
+  }
+);
+
+closeModalBtn?.addEventListener(
+  "click",
+  () => {
+    modal?.classList.add(
+      "hidden"
+    );
+  }
+);
+
+// Quick Apply Buttons
+document
+  .querySelectorAll(
+    ".couponApplyQuickBtn"
+  )
+  .forEach(btn => {
+
+    btn.addEventListener(
+      "click",
+      () => {
+        applyCoupon(
+          btn.dataset.code
+        );
+      }
+    );
+
+  });
+
+  }
+);
