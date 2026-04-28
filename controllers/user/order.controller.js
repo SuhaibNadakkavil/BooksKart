@@ -31,13 +31,12 @@ export const createOrder = async (req, res, next) => {
       couponData
     });
 
-    // clear used session coupon
-    delete req.session.checkoutCoupon;
-
     // ==============================
     // COD
     // ==============================
     if (paymentMethod === "cod") {
+      // clear used session coupon
+      delete req.session.checkoutCoupon;
       return res.status(200).json({
         success: true,
         paymentMethod: "cod",
@@ -70,6 +69,8 @@ export const createOrder = async (req, res, next) => {
     // WALLET
     // ==============================
     if (paymentMethod === "wallet") {
+      // clear used session coupon
+      delete req.session.checkoutCoupon;
       return res.status(200).json({
         success: true,
         paymentMethod: "wallet",
@@ -111,6 +112,9 @@ export const verifyPayment = async (req, res, next) => {
       razorpay_payment_id,
       razorpay_signature
     });
+
+    // clear used session coupon
+    delete req.session.checkoutCoupon;
 
     return res.status(HTTP_STATUS.OK).json({
       success: true,

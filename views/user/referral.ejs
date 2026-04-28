@@ -1,0 +1,207 @@
+<div class="flex gap-10">
+
+  <!-- Sidebar -->
+  <%- include('../partials/userPartials/sidebar', { activePage }) %>
+
+  <!-- Right Content -->
+  <section class="flex-1 min-w-0">
+
+    <!-- Mobile Header -->
+    <div class="flex items-center gap-4 mb-8 lg:hidden">
+      <button
+        id="sidebarToggle"
+        class="text-[20px] font-semibold leading-none"
+      >
+        ☰
+      </button>
+
+      <h1 class="font-playfair text-[34px] font-semibold">
+        Refer & Earn
+      </h1>
+    </div>
+
+    <!-- Desktop Header -->
+    <div class="hidden lg:block mb-10">
+      <h1 class="font-playfair text-[36px] font-semibold leading-tight">
+        Refer & Earn
+      </h1>
+
+      <p class="text-[16px] mt-2 opacity-70 max-w-2xl">
+        Invite friends to BooksKart. When they join and complete
+        their first successful order, both of you receive wallet rewards.
+      </p>
+    </div>
+
+
+    <!-- HERO CARD -->
+    <div class="rounded-2xl border border-gray-200 bg-white p-6 sm:p-8 hover:shadow-lg">
+
+      <div class="grid md:grid-cols-2 gap-8 items-center">
+
+        <!-- Left -->
+        <div class="space-y-5">
+
+          <p class="text-[14px] tracking-wide font-semibold opacity-70">
+            YOUR REFERRAL CODE
+          </p>
+
+          <div class="flex flex-col sm:flex-row gap-3">
+
+            <div class="flex-1 border border-[#121212] rounded-xl px-5 py-4 bg-[#FAFAF8]">
+              <p
+                id="referralCodeText"
+                class="text-[22px] sm:text-[26px] tracking-[0.18em] font-semibold break-all"
+              >
+                <%= referralCode %>
+              </p>
+            </div>
+
+            <button
+              id="copyReferralBtn"
+              type="button"
+              class="px-6 py-4 bg-[#121212] text-[#FAFAF8] rounded-xl text-[15px] font-medium hover:opacity-90 transition"
+            >
+              Copy
+            </button>
+
+          </div>
+
+          <div>
+            <button
+              id="shareReferralBtn"
+              type="button"
+              class="text-[14px] font-semibold underline underline-offset-4 hover:opacity-70 transition"
+            >
+              Share Invite Link
+            </button>
+          </div>
+
+          <div class="pt-2">
+            <p class="text-[15px] opacity-80">
+              Reward per successful referral:
+              <span class="font-semibold">
+                ₹<%= referralBonus %>
+              </span>
+            </p>
+          </div>
+
+        </div>
+
+        <!-- Right -->
+        <div class="grid grid-cols-2 gap-4">
+
+          <div class="border border-gray-200 rounded-2xl p-5 bg-[#FAFAF8]">
+            <p class="text-[13px] font-bold opacity-70">
+              Network Size
+            </p>
+
+            <h3 class="mt-3 text-[30px] font-semibold">
+              <%= networkSize %>
+            </h3>
+
+            <p class="mt-2 text-[13px] opacity-70">
+              Friends joined
+            </p>
+          </div>
+
+          <div class="border border-gray-200 rounded-2xl p-5 bg-[#FAFAF8]">
+            <p class="text-[13px] font-bold opacity-70">
+              Total Rewards
+            </p>
+
+            <h3 class="mt-3 text-[30px] font-semibold">
+              ₹<%= totalRewards %>
+            </h3>
+
+            <p class="mt-2 text-[13px] opacity-70">
+              Earned so far
+            </p>
+          </div>
+
+        </div>
+
+      </div>
+
+    </div>
+
+
+
+    <!-- HOW IT WORKS -->
+    <div class="mt-12">
+
+      <h2 class="text-[24px] font-semibold mb-6">
+        How It Works
+      </h2>
+
+      <div class="grid md:grid-cols-3 gap-5">
+
+        <div class="border border-gray-200 rounded-2xl bg-white p-6">
+          <div class="w-10 h-10 rounded-full border border-[#121212] flex items-center justify-center text-[16px] font-semibold">
+            1
+          </div>
+
+          <h3 class="mt-4 text-[18px] font-semibold">
+            Share Code
+          </h3>
+
+          <p class="mt-2 text-[15px] opacity-70 leading-7">
+            Send your referral code to friends through WhatsApp,
+            Instagram, Telegram or any platform.
+          </p>
+        </div>
+
+        <div class="border border-gray-200 rounded-2xl bg-white p-6">
+          <div class="w-10 h-10 rounded-full border border-[#121212] flex items-center justify-center text-[16px] font-semibold">
+            2
+          </div>
+
+          <h3 class="mt-4 text-[18px] font-semibold">
+            Friend Signs Up
+          </h3>
+
+          <p class="mt-2 text-[15px] opacity-70 leading-7">
+            Your friend creates an account using your referral code
+            during signup.
+          </p>
+        </div>
+
+        <div class="border border-gray-200 rounded-2xl bg-white p-6">
+          <div class="w-10 h-10 rounded-full border border-[#121212] flex items-center justify-center text-[16px] font-semibold">
+            3
+          </div>
+
+          <h3 class="mt-4 text-[18px] font-semibold">
+            Both Get Rewarded
+          </h3>
+
+          <p class="mt-2 text-[15px] opacity-70 leading-7">
+            Once their first successful order is completed, wallet
+            bonus is credited to both accounts.
+          </p>
+        </div>
+
+      </div>
+
+    </div>
+
+
+
+    <!-- TERMS -->
+    <div class="mt-12 border-t border-gray-200 pt-8">
+
+      <h3 class="text-[20px] font-semibold mb-4">
+        Referral Notes
+      </h3>
+
+      <ul class="space-y-3 text-[15px] opacity-75 leading-7">
+        <li>• Referral reward applies one time per new user.</li>
+        <li>• Bonus is credited after first successful order.</li>
+        <li>• Fake/self referrals may be rejected.</li>
+        <li>• Wallet rewards can be used during checkout.</li>
+      </ul>
+
+    </div>
+
+  </section>
+
+</div>

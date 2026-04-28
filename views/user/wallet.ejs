@@ -138,6 +138,10 @@
                       Top-up
                     <% } else if (txn.source === "refund") { %>
                       Refund
+                    <% } else if (txn.description === "Welcome bonus via referral") { %>
+                      Welcome Bonus
+                    <% } else if (txn.description === "Referral reward credited") { %>
+                      Referral Reward
                     <% } else { %>
                       Wallet Transaction
                     <% } %>

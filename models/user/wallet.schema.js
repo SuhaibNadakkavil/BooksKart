@@ -22,6 +22,7 @@ const transactionSchema = new Schema(
         "topup",        // user added money
         "refund",       // order refund
         "purchase",     // paid using wallet
+        "referral",    
         "adjustment"    // admin/manual future use
       ],
       required: true

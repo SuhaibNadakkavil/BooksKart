@@ -47,8 +47,22 @@ const userSchema = new mongoose.Schema(
 
     referralCode: {
       type: String,
+      unique: true,
+      sparse: true,
+      uppercase: true,
       trim: true,
-      default: null,
+      default: null
+    },
+
+    referredBy: {
+      type: mongoose.Schema.Types.ObjectId,
+      ref: "User",
+      default: null
+    },
+
+    isReferralRewarded: {
+      type: Boolean,
+      default: false
     },
 
     role: {

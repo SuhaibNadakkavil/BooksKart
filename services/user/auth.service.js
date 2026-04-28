@@ -10,6 +10,11 @@ import {
   deleteResetOTP 
 } from './otp.service.js'
 
+import {
+  generateReferralCode,
+  validateReferralCodeService
+} from "./referral.service.js";
+
 //signup service
 export const signupService = async ({
   name,
@@ -40,8 +45,34 @@ export const signupService = async ({
     throw error;
   }
 
+  let referrer = null;
+
+  // =====================================
+  // VALIDATE REFERRAL CODE
+  // =====================================
+  if (referralCode?.trim()) {
+    try {
+      referrer =
+        await validateReferralCodeService(
+          referralCode.trim()
+        );
+    } catch (err) {
+      const error = new Error(
+        err.message
+      );
+
+      error.type = "FIELD";
+      error.field = "referralCode";
+
+      throw error;
+    }
+  }
+
   try {
     const hashedPassword = await bcrypt.hash(password, 10);
+
+    const ownReferralCode =
+    await generateReferralCode(name);
 
     const otp = generateOTP(6)
 
@@ -50,7 +81,13 @@ export const signupService = async ({
       email,
       phone,
       password: hashedPassword,
-      referralCode: referralCode?.trim() || null,
+      // user own code
+      referralCode:
+        ownReferralCode,
+
+      // who referred him
+      referredBy:
+        referrer?._id || null,
     });
 
     await storeSignupOTP(email, {

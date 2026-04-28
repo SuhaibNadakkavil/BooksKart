@@ -11,6 +11,7 @@ import * as couponRepo from "../../repositories/user/coupon.repository.js"
 import { validateCheckoutService } from "./checkout.service.js";
 import { walletDebitPaymentService, walletRefundService } from "./wallet.service.js";
 import { applyCouponService, markCouponUsedService } from "../admin/coupon.service.js";
+import { processReferralRewardService } from "./referral.service.js";
 import Product from "../../models/user/product.schema.js";
 import Order from "../../models/user/order.schema.js";
 import razorpayInstance from '../../config/razorpay.js'
@@ -164,6 +165,11 @@ export const createOrderService = async ({
         appliedCouponId
       );
     }
+
+    // reward only after successful placed order
+    await processReferralRewardService(
+      userId
+    );
   }
 
   // =============================
@@ -185,6 +191,11 @@ export const createOrderService = async ({
         appliedCouponId
       );
     }
+
+    // reward only after successful placed order
+    await processReferralRewardService(
+      userId
+    );
   }
 
   // =============================
@@ -275,6 +286,11 @@ export const verifyPaymentService = async ({
       order.couponId
     );
   }
+
+  // reward only after successful online payment
+  await processReferralRewardService(
+    userId
+  );
 
   return true;
 };
