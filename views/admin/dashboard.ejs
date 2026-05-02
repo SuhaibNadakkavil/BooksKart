@@ -1,0 +1,163 @@
+<div class="space-y-10">
+
+  <!-- HEADER -->
+  <div class="flex justify-between items-center">
+    <div>
+      <h1 class="text-[24px] font-semibold">Dashboard</h1>
+      <p class="text-[16px] opacity-70 mt-1">
+        Overview of sales and performance
+      </p>
+    </div>
+
+    <!-- FILTER -->
+    <form method="GET" action="/admin/dashboard">
+      <select name="filter"
+              onchange="this.form.submit()"
+              class="border px-3 py-2 text-sm rounded outline-none">
+
+        <option value="monthly" <%= filter === "monthly" ? "selected" : "" %>>
+          Monthly
+        </option>
+
+        <option value="weekly" <%= filter === "weekly" ? "selected" : "" %>>
+          Weekly
+        </option>
+
+        <option value="yearly" <%= filter === "yearly" ? "selected" : "" %>>
+          Yearly
+        </option>
+
+      </select>
+    </form>
+  </div>
+
+
+  <!-- METRICS -->
+  <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-6">
+
+    <div class="p-6 bg-white rounded-lg hover:shadow-lg transition space-y-2">
+      <p class="text-sm opacity-70 font-bold">Revenue</p>
+      <h2 class="text-[24px] font-semibold">
+        ₹<%= metrics.totalRevenue %>
+      </h2>
+    </div>
+
+    <div class="p-6 bg-white rounded-lg hover:shadow-lg transition space-y-2">
+      <p class="text-sm opacity-70 font-bold">Orders</p>
+      <h2 class="text-[24px] font-semibold">
+        <%= metrics.totalOrders %>
+      </h2>
+    </div>
+
+    <div class="p-6 bg-white rounded-lg hover:shadow-lg transition space-y-2">
+      <p class="text-sm opacity-70 font-bold">Users</p>
+      <h2 class="text-[24px] font-semibold">
+        <%= metrics.totalUsers %>
+      </h2>
+    </div>
+
+    <div class="p-6 bg-white rounded-lg hover:shadow-lg transition space-y-2">
+      <p class="text-sm opacity-70 font-bold">Products</p>
+      <h2 class="text-[24px] font-semibold">
+        <%= metrics.totalProducts %>
+      </h2>
+    </div>
+
+  </div>
+
+
+  <!-- CHART -->
+  <div class="bg-white rounded-lg hover:shadow-lg transition p-6">
+
+    <h2 class="text-[20px] font-semibold mb-4">
+      Revenue Trend
+    </h2>
+
+    <canvas id="revenueChart" height="100"></canvas>
+    
+
+  </div>
+
+
+  <!-- BOTTOM SECTION -->
+  <div class="grid grid-cols-1 lg:grid-cols-2 gap-6">
+
+    <!-- TOP PRODUCTS -->
+    <div class="bg-white rounded-lg hover:shadow-lg transition p-6">
+
+      <h2 class="text-[20px] font-semibold mb-4">
+        Top Products
+      </h2>
+
+      <% if (!topProducts.length) { %>
+        <p class="text-sm opacity-70">No data</p>
+      <% } else { %>
+
+        <table class="w-full text-sm">
+          <thead class="border-b">
+            <tr>
+              <th class="py-2 text-left">Product</th>
+              <th class="py-2 text-right">Sold</th>
+              <th class="py-2 text-right">Revenue</th>
+            </tr>
+          </thead>
+
+          <tbody>
+            <% topProducts.forEach(p => { %>
+              <tr class="border-b border-gray-300">
+                <td class="py-2"><%= p.name %></td>
+                <td class="py-2 text-right"><%= p.totalSold %></td>
+                <td class="py-2 text-right">₹<%= p.revenue %></td>
+              </tr>
+            <% }) %>
+          </tbody>
+        </table>
+
+      <% } %>
+
+    </div>
+
+
+    <!-- TOP CATEGORIES -->
+    <div class="bg-white rounded-lg hover:shadow-lg transition p-6">
+
+      <h2 class="text-[20px] font-semibold mb-4">
+        Top Categories
+      </h2>
+
+      <% if (!topCategories.length) { %>
+        <p class="text-sm opacity-70">No data</p>
+      <% } else { %>
+
+        <table class="w-full text-sm">
+          <thead class="border-b">
+            <tr>
+              <th class="py-2 text-left">Category</th>
+              <th class="py-2 text-right">Sold</th>
+              <th class="py-2 text-right">Revenue</th>
+            </tr>
+          </thead>
+
+          <tbody>
+            <% topCategories.forEach(c => { %>
+              <tr class="border-b border-gray-300">
+                <td class="py-2"><%= c.name %></td>
+                <td class="py-2 text-right"><%= c.totalSold %></td>
+                <td class="py-2 text-right">₹<%= c.revenue %></td>
+              </tr>
+            <% }) %>
+          </tbody>
+        </table>
+
+      <% } %>
+
+    </div>
+
+  </div>
+
+</div>
+
+<div id="dashboardData"
+     data-labels='<%= JSON.stringify(chartData.labels) %>'
+     data-values='<%= JSON.stringify(chartData.values) %>'>
+</div>

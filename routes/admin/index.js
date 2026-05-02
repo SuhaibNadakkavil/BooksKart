@@ -7,6 +7,7 @@ import productManagement from './productManagement.routes.js'
 import orderRoutes from "./order.routes.js";
 import couponRoutes from "./coupon.routes.js"
 import salesRoutes from "./sales.routes.js";
+import dashboardRoutes from "./dashboard.routes.js";
 
 const router = express.Router()
 
@@ -23,5 +24,6 @@ router.use('/', productManagement)
 router.use("/", orderRoutes);
 router.use("/", couponRoutes)
 router.use("/", salesRoutes);
+router.use("/", dashboardRoutes);
 
 export default router

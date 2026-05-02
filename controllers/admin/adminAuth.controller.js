@@ -5,7 +5,7 @@ import { adminLoginService } from "../../services/admin/adminAuth.service.js";
 export const loadLoginPage = (req, res) => {
 
     if (req.session?.adminId) {
-        return res.redirect("/admin/users");
+        return res.redirect("/admin/dashboard");
     }
 
     res.render("admin/login", {
@@ -48,7 +48,7 @@ export const login = async (req, res, next) => {
       req.session.adminId = admin._id;
       req.session.isAdminAuthenticated = true;
 
-      return res.redirect("/admin/users");
+      return res.redirect("/admin/dashboard");
     });
 
   } catch (err) {
