@@ -140,6 +140,49 @@
       text-align: center;
     }
 
+    /* STATUS COLORS */
+    .status {
+      padding: 4px 10px;
+      border-radius: 6px;
+      font-size: 12px;
+      font-weight: 500;
+      text-transform: capitalize;
+      display: inline-block;
+    }
+
+    /* Positive states */
+    .status-placed,
+    .status-delivered {
+      background: #ECFDF5;
+      color: #065F46;
+    }
+
+    /* In-progress */
+    .status-shipped,
+    .status-out_for_delivery {
+      background: #EFF6FF;
+      color: #1E40AF;
+    }
+
+    /* Warning */
+    .status-return_requested {
+      background: #FFFBEB;
+      color: #92400E;
+    }
+
+    /* Negative states */
+    .status-cancelled,
+    .status-returned {
+      background: #FEF2F2;
+      color: #991B1B;
+    }
+
+    /* Pending */
+    .status-pending {
+      background: #F3F4F6;
+      color: #374151;
+    }
+
   </style>
 </head>
 
@@ -207,7 +250,11 @@
 
               <td><%= item.quantity %></td>
 
-              <td><%= item.status %></td>
+              <td>
+                <span class="status status-<%= item.status %>">
+                  <%= item.status.replace(/_/g, ' ') %>
+                </span>
+              </td>
 
               <td>₹<%= item.price %></td>
 

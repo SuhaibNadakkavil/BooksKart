@@ -47,31 +47,31 @@ mainImage.style.transform = "scale(1)";
 
 // Tabs
 
-const descTab = document.getElementById("descTab")
-const reviewTab = document.getElementById("reviewTab")
+// const descTab = document.getElementById("descTab")
+// const reviewTab = document.getElementById("reviewTab")
 
-const descContent = document.getElementById("descContent")
-const reviewContent = document.getElementById("reviewContent")
+// const descContent = document.getElementById("descContent")
+// const reviewContent = document.getElementById("reviewContent")
 
-descTab.addEventListener("click",()=>{
+// descTab.addEventListener("click",()=>{
 
-descContent.classList.remove("hidden")
-reviewContent.classList.add("hidden")
+// descContent.classList.remove("hidden")
+// reviewContent.classList.add("hidden")
 
-descTab.classList.add("font-medium")
-reviewTab.classList.remove("font-medium")
+// descTab.classList.add("font-medium")
+// reviewTab.classList.remove("font-medium")
 
-})
+// })
 
-reviewTab.addEventListener("click",()=>{
+// reviewTab.addEventListener("click",()=>{
 
-reviewContent.classList.remove("hidden")
-descContent.classList.add("hidden")
+// reviewContent.classList.remove("hidden")
+// descContent.classList.add("hidden")
 
-reviewTab.classList.add("font-medium")
-descTab.classList.remove("font-medium")
+// reviewTab.classList.add("font-medium")
+// descTab.classList.remove("font-medium")
 
-})
+// })
 
 
   /* =========================
