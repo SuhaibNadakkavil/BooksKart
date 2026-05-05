@@ -6,8 +6,11 @@ export const getBrowser = async () => {
     executablePath: process.env.NODE_ENV === "production"
       ? "/usr/bin/chromium-browser"
       : undefined,
-    args: process.env.NODE_ENV === "production"
-      ? ["--no-sandbox", "--disable-setuid-sandbox"]
-      : []
+    args: [
+      "--no-sandbox",
+      "--disable-setuid-sandbox",
+      "--disable-dev-shm-usage",
+      "--disable-gpu"
+    ]
   });
 };
