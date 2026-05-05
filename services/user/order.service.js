@@ -1,4 +1,3 @@
-import puppeteer from "puppeteer-core";
 import ejs from "ejs";
 import path from "path";
 import fs from "fs";
@@ -12,6 +11,7 @@ import { validateCheckoutService } from "./checkout.service.js";
 import { walletDebitPaymentService, walletRefundService } from "./wallet.service.js";
 import { applyCouponService, markCouponUsedService } from "../admin/coupon.service.js";
 import { processReferralRewardService } from "./referral.service.js";
+import { getBrowser } from "../../utils/puppeteer.js";
 import Product from "../../models/user/product.schema.js";
 import Order from "../../models/user/order.schema.js";
 import razorpayInstance from '../../config/razorpay.js'
@@ -820,10 +820,7 @@ export const generateInvoiceService = async (userId, orderId) => {
   // =============================
   // Generate PDF
   // =============================
-  const browser = await puppeteer.launch({
-    executablePath: "C:\\Program Files\\Google\\Chrome\\Application\\chrome.exe",
-    headless: "new"
-  });
+  const browser = await getBrowser()
 
   const page = await browser.newPage();
 

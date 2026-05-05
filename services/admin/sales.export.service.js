@@ -1,6 +1,6 @@
-import puppeteer from "puppeteer";
 import XLSX from "xlsx";
 import { getSalesReportService } from "./sales.service.js";
+import { getBrowser } from "../../utils/puppeteer.js";
 
 // =====================================
 // EXPORT PDF
@@ -16,9 +16,7 @@ export const exportSalesPDFService = async ({ from, to }) => {
 
   const html = generatePDFHtml(data);
 
-  const browser = await puppeteer.launch({
-    headless: "new"
-  });
+  const browser = await getBrowser()
 
   const page = await browser.newPage();
   await page.setContent(html, { waitUntil: "networkidle0" });
