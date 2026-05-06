@@ -41,7 +41,7 @@ export const loginLimiter = rateLimit({
 // OTP Verification Limiter
 export const otpVerifyLimiter = rateLimit({
   windowMs: 5 * 60 * 1000,
-  max: 3,
+  max: 10,
   standardHeaders: true,
   legacyHeaders: false,
   handler: (req, res) => {
