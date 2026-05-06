@@ -3,7 +3,7 @@ import HTTP_STATUS from "../utils/httpStatus.js";
 
 // Global Rate Limiter
 export const globalLimiter = rateLimit({
-  windowMs: 15 * 60 * 1000, // 15 minutes
+  windowMs: 1 * 60 * 1000, // 15 minutes
   max: 200, // 200 requests per IP
   standardHeaders: true,
   legacyHeaders: false,
