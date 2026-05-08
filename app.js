@@ -12,7 +12,6 @@ import userRoutes from "./routes/user/index.js";
 import adminRoutes from './routes/admin/index.js'
 
 import sessionConfig from "./middlewares/session.middleware.js";
-import { globalLimiter } from "./middlewares/rateLimit.middleware.js";
 
 const app = express();
 
@@ -45,9 +44,6 @@ sessionConfig(app);
 // Passport.js(Google Oauth)
 app.use(passport.initialize());
 app.use(passport.session());
-
-// Global Rate Limiting
-app.use(globalLimiter);
 
 // Routes
 app.use("/", userRoutes);
