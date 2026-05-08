@@ -299,9 +299,9 @@ export const changeEmail = async (req, res, next) => {
 
     req.session.success = "OTP sent to your new email";
 
-    return res.redirect(
-      `/verify-otp?mode=change-email&email=${value.newEmail}`
-    );
+    req.session.pendingChangeEmail = value.newEmail;
+
+    return res.redirect(`/verify-otp?mode=change-email`);
 
   } catch (err) {
 

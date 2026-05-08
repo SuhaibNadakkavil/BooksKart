@@ -57,7 +57,10 @@ export const signup = async (req, res, next) => {
     const result = await signupService(value);
 
     req.session.success = "OTP Send successfully";
-    return res.redirect(`/verify-otp?email=${result.email}`);
+
+    req.session.pendingSignupEmail = result.email;
+
+    return res.redirect("/verify-otp");
 
   } catch (err) {
 
@@ -109,8 +112,15 @@ export const loadSignup = ((req, res) =>{
 
 export const loadVerifyOtp = (req, res) => {
 
-  const email = req.query.email || "";
+  let email = null;
+
   const mode = req.query.mode || "signup";
+
+  if (mode === "change-email") {
+    email = req.session.pendingChangeEmail;
+  } else {
+    email = req.session.pendingSignupEmail;
+  }
 
   const success = req.session.success || null;
   const error = req.session.error || null;
@@ -168,6 +178,8 @@ export const verifySignupOTP = async (req, res, next) => {
 
       await deleteChangeEmailOTP(email);
 
+      delete req.session.pendingChangeEmail;
+
       return res.status(200).json({
         success: true,
         message: "Email updated successfully",
@@ -194,6 +206,8 @@ export const verifySignupOTP = async (req, res, next) => {
     });
 
     await deleteSignupOTP(email);
+
+    delete req.session.pendingSignupEmail;
 
     req.session.regenerate((err) => {
       if (err) return next(err);
@@ -407,9 +421,10 @@ export const sendForgotPasswordOTP = async (req, res, next) => {
     await forgotPasswordService(normalizedEmail);
 
     req.session.success = "OTP Send successfully";
-    return res.redirect(
-      `/verify-otp?email=${encodeURIComponent(normalizedEmail)}&mode=reset`
-    );
+
+    req.session.pendingSignupEmail = normalizedEmail
+
+    return res.redirect(`/verify-otp?mode=reset`);
 
   } catch (err) {
     console.error("Forgot password error:", err)
@@ -471,10 +486,12 @@ export const verifyResetOTP = async (req, res, next) => {
 
     await verifyResetOTPService(email, otp);
 
+    req.session.pendingSignupEmail = email;
+
     return res.status(200).json({
       success: true,
       message: "OTP verified successfully",
-      redirect: `/set-new-password?email=${encodeURIComponent(email)}`,
+      redirect: `/set-new-password`,
     });
 
   } catch (err) {
@@ -488,7 +505,7 @@ export const verifyResetOTP = async (req, res, next) => {
 
 export const loadSetNewPassword = async (req, res) => {
 
-  const { email } = req.query;
+  const email = req.session.pendingSignupEmail;
 
   // Extra security: check reset OTP exists
   const stored = await getResetOTP(email);
@@ -546,6 +563,8 @@ export const setNewPassword = async (req, res) => {
   try {
 
     await setNewPasswordService(value.email, value.password);
+
+    delete req.session.pendingSignupEmail;
 
     req.session.success = "Password changed successfully";
     return res.redirect("/login");
