@@ -1,7 +1,7 @@
 export const preventAuthPages = (req, res, next) => {
 
   const mode =
-    req.query.mode || req.body.mode;
+    req.query?.mode || req.body?.mode;
 
   // allow authenticated users only for change-email flow
   if (
