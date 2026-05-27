@@ -258,7 +258,7 @@
 
               <td>₹<%= item.price %></td>
 
-              <td class="right">₹<%= item.itemTotal %></td>
+              <td class="right">₹<%= item.finalItemTotal || item.itemTotal %></td>
 
             </tr>
           <% }) %>

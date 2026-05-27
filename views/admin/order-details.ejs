@@ -173,16 +173,38 @@
             <div class="flex flex-col items-end gap-3 text-sm min-w-[180px]">
 
               <!-- PRICE -->
-              <% if(order.paymentMethod !== 'cod' && order.paymentStatus !== 'failed'){ %>
-                <% if(item.status === "cancelled" || item.status === "returned"){ %>
-                  <p class="font-medium text-green-600">
-                    REFUNDED ₹<%= item.itemTotal %>
-                  </p>
-                <% } %>
-              <% }else{ %>
-                <p class="font-medium">
-                  ₹<%= item.itemTotal %>
+              <!-- Original Total -->
+              <p class="font-medium">
+                ₹<%= item.itemTotal %>
+              </p>
+
+              <!-- Coupon Share -->
+              <% if(item.discountAmount > 0){ %>
+
+                <p class="text-xs text-red-500 mt-1">
+                  Coupon Discount: -₹<%= item.discountAmount %>
                 </p>
+
+                <p class="text-xs opacity-70">
+                  Paid: ₹<%= item.finalItemTotal %>
+                </p>
+
+              <% } %>
+
+              <!-- Refund -->
+              <% if(
+                  order.paymentMethod !== "cod" &&
+                  order.paymentStatus !== "failed" &&
+                  (
+                    item.status === "cancelled" ||
+                    item.status === "returned"
+                  )
+                ){ %>
+
+                <p class="font-medium text-green-600 mt-2">
+                  REFUNDED ₹<%= item.finalItemTotal || item.itemTotal %>
+                </p>
+
               <% } %>
 
 

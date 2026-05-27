@@ -153,7 +153,10 @@ export const updateOrderStatusService = async (orderId, newStatus) => {
 
     const refundAmount =
       restorableItems.reduce(
-        (sum, item) => sum + item.itemTotal,
+        (sum, item) => sum + (
+          item.finalItemTotal ||
+          item.itemTotal
+        ),
         0
       );
 
@@ -272,7 +275,9 @@ export const updateOrderItemStatusService = async ({
   ) {
     await walletRefundService({
       userId: order.userId,
-      amount: item.itemTotal,
+      amount:
+        item.finalItemTotal ||
+        item.itemTotal,
       referenceId: orderId
     });
   }
@@ -285,6 +290,12 @@ export const updateOrderItemStatusService = async ({
   };
 };
 
-const calculateRefundAmount = (item) => {
-  return item.itemTotal;
+const calculateRefundAmount = (
+  item
+) => {
+
+  return (
+    item.finalItemTotal ||
+    item.itemTotal
+  );
 };

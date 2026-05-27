@@ -86,37 +86,100 @@ export const createOrderService = async ({
   // =============================
   const orderItems = [];
 
-  for (const item of checkoutData.items) {
+  let distributedDiscount = 0;
+
+  for (
+    let index = 0;
+    index < checkoutData.items.length;
+    index++
+  ) {
+
+    const item = checkoutData.items[index];
 
     const normalizedType =
-      normalizeVariantType(item.variantType);
+      normalizeVariantType(
+        item.variantType
+      );
 
-    const product = await Product.findOne({
-      _id: item.productId,
-      variants: {
-        $elemMatch: {
-          type: normalizedType,
-          stock: { $gte: item.quantity }
+    const product =
+      await Product.findOne({
+        _id: item.productId,
+        variants: {
+          $elemMatch: {
+            type: normalizedType,
+            stock: {
+              $gte: item.quantity
+            }
+          }
         }
-      }
-    });
+      });
 
     if (!product) {
+
       const error = new Error(
         `${item.title} stock changed, try again`
       );
+
       error.type = "CHECKOUT";
+
       throw error;
     }
 
+    // =============================
+    // DISTRIBUTE COUPON DISCOUNT
+    // =============================
+
+    let itemDiscount = 0;
+
+    if (finalDiscount > 0) {
+
+      // last item gets remaining amount
+      if (
+        index ===
+        checkoutData.items.length - 1
+      ) {
+
+        itemDiscount =
+          finalDiscount -
+          distributedDiscount;
+
+      } else {
+
+        itemDiscount = Math.round(
+          (
+            item.itemTotal /
+            checkoutData.subtotal
+          ) * finalDiscount
+        );
+
+        distributedDiscount +=
+          itemDiscount;
+      }
+    }
+
+    const finalItemTotal =
+      item.itemTotal - itemDiscount;
+
     orderItems.push({
+
       productId: item.productId,
+
       title: item.title,
+
       author: item.author,
+
       variantType: item.variantType,
+
       quantity: item.quantity,
+
       price: item.price,
+
       itemTotal: item.itemTotal,
+
+      discountAmount: itemDiscount,
+
+      finalItemTotal,
+
       image: item.images?.cover
     });
   }
@@ -612,7 +675,9 @@ const noCodRefund =
 if (refundable && !noCodRefund) {
   await walletRefundService({
     userId,
-    amount: item.itemTotal,
+    amount:
+      item.finalItemTotal ||
+      item.itemTotal,
     referenceId: orderId
   });
 }
@@ -745,7 +810,10 @@ export const cancelOrderService = async (
     let refundAmount = 0;
 
     for (const item of restorableItems) {
-      refundAmount += item.itemTotal;
+      refundAmount += (
+        item.finalItemTotal ||
+        item.itemTotal
+      );
     }
 
     if (refundAmount > 0) {

@@ -19,8 +19,25 @@ const orderItemSchema = new Schema({
   variantType: { type: String, required: true },
   quantity: { type: Number, required: true },
 
-  price: { type: Number, required: true },
-  itemTotal: { type: Number, required: true },
+  price: {
+    type: Number,
+    required: true
+  },
+
+  itemTotal: {
+    type: Number,
+    required: true
+  },
+
+  discountAmount: {
+    type: Number,
+    default: 0
+  },
+
+  finalItemTotal: {
+    type: Number,
+    required: true
+  },
 
   image: String,
 
