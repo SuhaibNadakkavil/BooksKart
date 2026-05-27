@@ -30,6 +30,21 @@ export const isAuthenticated = async (req, res, next) => {
 
     req.user = user;
 
+    const allowedRoutes = [
+      "/referral-onboarding",
+      "/logout",
+    ];
+
+    if (
+      !user.isReferralStepCompleted &&
+      user.authProvider === "google" &&
+      !allowedRoutes.includes(req.path)
+    ) {
+      return res.redirect(
+        "/referral-onboarding"
+      );
+    }
+
     next();
   } catch (error) {
     next(error);

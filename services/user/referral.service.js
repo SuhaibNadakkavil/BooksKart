@@ -4,6 +4,28 @@ import * as userRepo from "../../repositories/user/user.repository.js"
 
 const REFERRAL_BONUS = 100;
 
+export const applyReferralService =
+async ({
+  userId,
+  referrerId,
+}) => {
+
+  return await referralRepo
+    .setReferredBy({
+      userId,
+      referrerId,
+    });
+};
+
+export const completeReferralStepService =
+async (userId) => {
+
+  return await referralRepo
+    .markReferralStepCompleted(
+      userId
+    );
+};
+
 
 // =====================================
 // GENERATE UNIQUE CODE

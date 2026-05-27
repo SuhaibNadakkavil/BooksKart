@@ -1,0 +1,74 @@
+<section class="min-h-screen flex items-center justify-center bg-[#FAFAF8] px-4">
+
+  <div class="w-full max-w-md border border-[#121212] rounded-3xl p-10">
+
+    <!-- Heading -->
+    <div class="text-center mb-8">
+
+      <h1 class="text-3xl font-semibold text-[#121212]">
+        Welcome to BooksKart
+      </h1>
+
+      <p class="text-sm mt-2 opacity-80">
+        Have a referral code? Apply it now and earn rewards.
+      </p>
+
+    </div>
+
+    <!-- Form -->
+    <form
+      id="referralForm"
+      action="/referral-onboarding"
+      method="POST"
+      novalidate
+    >
+
+      <div class="mb-6">
+
+        <label
+          class="block text-sm font-medium mb-2"
+        >
+          Referral Code (Optional)
+        </label>
+
+        <input
+          type="text"
+          name="referralCode"
+          id="referralCode"
+          placeholder="Enter referral code"
+          class="w-full border border-[#121212] rounded-xl px-4 py-3 uppercase focus:outline-none focus:border-[#333333]"
+        />
+
+        <p
+          id="referralError"
+          class="text-sm text-red-600 mt-1"
+        ></p>
+
+      </div>
+
+      <!-- Buttons -->
+      <div class="space-y-3">
+
+        <button
+          type="submit"
+          id="submitBtn"
+          class="w-full bg-[#121212] text-[#FAFAF8] py-3 rounded-xl font-medium transition hover:opacity-90"
+        >
+          Continue
+        </button>
+
+        <button
+          type="button"
+          id="skipBtn"
+          class="w-full text-blue-600 text-sm hover:underline transition"
+        >
+          Skip for now
+        </button>
+
+      </div>
+
+    </form>
+
+  </div>
+
+</section>

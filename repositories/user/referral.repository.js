@@ -83,3 +83,16 @@ async (userId) => {
     referredBy: userId
   });
 };
+
+
+export const markReferralStepCompleted =
+async (userId) => {
+  return await User.updateOne(
+    { _id: userId },
+    {
+      $set: {
+        isReferralStepCompleted: true
+      }
+    }
+  );
+};

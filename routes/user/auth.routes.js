@@ -17,9 +17,12 @@ import {
   resendResetOTP,
   setNewPassword,
   googleCallback,
+  loadReferralOnboarding,
+  submitReferralOnboarding
 } from "../../controllers/user/auth.controller.js";
 
 import { preventAuthPages } from "../../middlewares/guest.middleware.js";
+import { isAuthenticated } from "../../middlewares/auth.middleware.js";
 
 const router = express.Router();
 
@@ -63,7 +66,8 @@ router.get("/auth/google/callback", (req, res, next) => {
         return res.redirect("/login");
       }
 
-      req.user = user;
+      req.user = user.user;
+      req.isNewUser = user.isNewUser;
       return googleCallback(req, res, next);
     } catch (error) {
       next(error);
@@ -72,5 +76,8 @@ router.get("/auth/google/callback", (req, res, next) => {
 });
 
 router.post("/logout", logout);
+
+router.get("/referral-onboarding", isAuthenticated, loadReferralOnboarding);
+router.post("/referral-onboarding", isAuthenticated, submitReferralOnboarding);
 
 export default router;

@@ -84,6 +84,8 @@ export const signupService = async ({
       // user own code
       referralCode:
         ownReferralCode,
+      
+      isReferralStepCompleted: true,
 
       // who referred him
       referredBy:
@@ -136,21 +138,37 @@ export const googleAuthService = async (profile) => {
       await user.save();
     }
 
-    return user;
+    return {
+      user,
+      isNewUser: false,
+    };
   }
 
-  // If user does not exist → create
-  const newUser = await userRepo.createUser({
-    name: profile.displayName,
-    email,
-    password: null,
-    phone: null,
-    googleId: profile.id,
-    authProvider: "google",
-    isVerified: true,
-  });
+  const ownReferralCode =
+    await generateReferralCode(
+      profile.displayName
+    );
 
-  return newUser;
+  // If user does not exist → create
+  const newUser =
+    await userRepo.createUser({
+      name: profile.displayName,
+      email,
+      password: null,
+      phone: null,
+      googleId: profile.id,
+      authProvider: "google",
+      isVerified: true,
+
+      referralCode: ownReferralCode,
+
+      isReferralStepCompleted: false,
+    });
+
+  return {
+    user: newUser,
+    isNewUser: true,
+  };
 };
 
 //login service

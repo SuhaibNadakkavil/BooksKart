@@ -65,6 +65,11 @@ const userSchema = new mongoose.Schema(
       default: false
     },
 
+    isReferralStepCompleted: {
+      type: Boolean,
+      default: false,
+    },
+
     role: {
       type: String,
       enum: ["user", "admin"],

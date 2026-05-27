@@ -27,6 +27,7 @@ import {
 } from "../../services/user/otp.service.js";
 
 import * as userRepo from '../../repositories/user/user.repository.js'
+import * as referralService from "../../services/user/referral.service.js"
 
 //signup controller
 export const signup = async (req, res, next) => {
@@ -273,12 +274,130 @@ export const googleCallback = async (req, res, next) => {
       req.session.userId = req.user._id;
       req.session.isAuthenticated = true;
 
+      if (
+        req.isNewUser &&
+        !req.user.isReferralStepCompleted
+      ) {
+        return res.redirect(
+          "/referral-onboarding"
+        );
+      }
       req.session.success = "Authenticated";
       return res.redirect("/");
     });
 
   } catch (error) {
     next(error);
+  }
+};
+
+
+export const loadReferralOnboarding =
+(req, res) => {
+
+  // already completed
+  if (
+    req.user.isReferralStepCompleted
+  ) {
+    return res.redirect("/");
+  }
+
+  const error =
+    req.session.error || null;
+
+  delete req.session.error;
+
+  res.render(
+    "user/referral-onboarding",
+    {
+      title:
+        "Referral Setup | BooksKart",
+
+      headerType: "auth",
+      success: null,
+      error,
+
+      old: {},
+
+      pageScript:
+        "/js/referral-onboarding.js",
+    }
+  );
+};
+
+
+export const submitReferralOnboarding =
+async (req, res, next) => {
+
+  try {
+
+    // already completed
+    if (
+      req.user.isReferralStepCompleted
+    ) {
+      return res.redirect("/");
+    }
+
+    const referralCode =
+      req.body.referralCode?.trim();
+
+    // skip case
+    if (!referralCode) {
+
+      await referralService
+        .completeReferralStepService(
+          req.user._id
+        );
+
+      return res.redirect("/");
+    }
+
+    // validate code
+    const referrer =
+      await referralService
+        .validateReferralCodeService(
+          referralCode,
+          req.user._id
+        );
+
+    // prevent multiple referral attachment
+    if (req.user.referredBy) {
+
+      req.session.error =
+        "Referral already applied";
+
+      return res.redirect(
+        "/referral-onboarding"
+      );
+    }
+
+    // save referredBy
+    await referralService
+      .applyReferralService({
+        userId: req.user._id,
+        referrerId: referrer._id,
+      });
+
+    // mark completed
+    await referralService
+      .completeReferralStepService(
+        req.user._id
+      );
+
+    req.session.success =
+      "Referral applied successfully";
+
+    return res.redirect("/");
+
+  } catch (error) {
+
+    req.session.error =
+      error.message ||
+      "Something went wrong";
+
+    return res.redirect(
+      "/referral-onboarding"
+    );
   }
 };
 
