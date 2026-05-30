@@ -166,9 +166,29 @@ export const updateCartQuantityService = async ({
     throw new Error(`Maximum limit reached`);
   }
 
-  /* 🔥 STOCK CHECK */
-  if (quantity > variant.stock) {
-    throw new Error(`Stock limit reached`);
+  const cartItem =
+    await cartRepo.getCartItem({
+      userId,
+      productId: product._id,
+      variantType
+    });
+
+  if (!cartItem) {
+    throw new Error(
+      "Cart item not found"
+    );
+  }
+  
+  const isIncreasing =
+    quantity > cartItem.quantity;
+
+  if (
+    isIncreasing &&
+    quantity > variant.stock
+  ) {
+    throw new Error(
+      "Stock limit reached"
+    );
   }
 
   await cartRepo.updateCartItemQuantity({

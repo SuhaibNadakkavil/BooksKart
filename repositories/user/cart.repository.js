@@ -82,6 +82,29 @@ export const updateCartItemQuantity = async ({
 };
 
 
+export const getCartItem = async ({
+  userId,
+  productId,
+  variantType
+}) => {
+
+  const cart =
+    await Cart.findOne({
+      userId
+    });
+
+  if (!cart) return null;
+
+  return cart.items.find(
+    item =>
+      item.productId.toString() ===
+        productId.toString() &&
+      item.variantType.toLowerCase() ===
+        variantType.toLowerCase()
+  );
+};
+
+
 export const findCartProducts = async (userId) => {
 
   const pipeline = [
